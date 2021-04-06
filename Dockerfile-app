@@ -1,0 +1,51 @@
+## MODE 
+
+# Install latest version of rocker image
+FROM rocker/shiny:4.0.3
+
+# Load general use libraries
+RUN apt-get update && apt-get install -y \
+    sudo \
+    pandoc \
+    pandoc-citeproc \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libcairo2-dev \
+    libxt-dev \
+    libssh2-1-dev \
+    libhiredis-dev \
+    libzmq3-dev \
+    libxml2-dev \
+    vim python3-venv
+
+## restore from renv.lock ##
+
+WORKDIR /srv/shiny-server/MODE
+
+# only need these three to restore
+COPY --chown=shiny:shiny .Rprofile .
+COPY --chown=shiny:shiny renv ./renv
+COPY --chown=shiny:shiny renv.lock .
+COPY --chown=shiny:shiny local_packages ./local_packages
+
+# set path to local packages for renv
+ENV RENV_PATHS_LOCAL=/srv/shiny-server/MODE/local_packages
+
+# everything must be done as shiny, otherwise shiny server will get permission denied
+USER shiny
+
+# call restore()
+RUN R -e 'renv::restore()'
+
+# install rworker from github, this should install in the renv directory
+RUN R -e "install.packages('devtools')" \
+-e "devtools::install_github('lecardozo/rworker')"
+
+## Setup Python venv ##
+USER root
+COPY modeapp_requirements.txt .
+RUN python3 -m venv /venv
+RUN /venv/bin/pip install --upgrade pip
+RUN /venv/bin/pip install -r modeapp_requirements.txt
+
+COPY --chown=shiny:shiny . .

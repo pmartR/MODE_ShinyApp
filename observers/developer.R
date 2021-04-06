@@ -1,0 +1,3 @@
+observeEvent(input$debugger, {
+  browser()
+})

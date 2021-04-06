@@ -1,0 +1,8 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+www/*
+!www/MODEstyle.css
+
+untracked_resources

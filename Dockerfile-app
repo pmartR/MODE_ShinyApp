@@ -24,8 +24,10 @@ WORKDIR /srv/shiny-server/MODE
 
 # only need these three to restore
 COPY --chown=shiny:shiny .Rprofile .
-COPY --chown=shiny:shiny renv ./renv
+COPY --chown=shiny:shiny renv/activate.R ./renv/activate.R
 COPY --chown=shiny:shiny renv.lock .
+
+# load package to be installed from source
 COPY --chown=shiny:shiny local_packages ./local_packages
 
 # set path to local packages for renv
@@ -34,12 +36,11 @@ ENV RENV_PATHS_LOCAL=/srv/shiny-server/MODE/local_packages
 # everything must be done as shiny, otherwise shiny server will get permission denied
 USER shiny
 
-# call restore()
+# 
 RUN R -e 'renv::restore()'
 
 # install rworker from github, this should install in the renv directory
-RUN R -e "install.packages('devtools')" \
--e "devtools::install_github('lecardozo/rworker')"
+RUN R -e "renv::install('./local_packages/rworker_0.1.2.tar.gz', repos=NULL, type='source')"
 
 ## Setup Python venv ##
 USER root
@@ -47,5 +48,10 @@ COPY modeapp_requirements.txt .
 RUN python3 -m venv /venv
 RUN /venv/bin/pip install --upgrade pip
 RUN /venv/bin/pip install -r modeapp_requirements.txt
+
+# renv attempts to make a directory at root on startup as user shiny.  
+# pre-make the directory and give the shiny user ownership.
+RUN mkdir /Library
+RUN chown shiny:shiny /Library
 
 COPY --chown=shiny:shiny . .

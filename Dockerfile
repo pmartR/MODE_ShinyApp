@@ -28,17 +28,10 @@ COPY renv.lock .
 # pre-install renv
 RUN R -e "install.packages('renv', repos = 'https://cran.rstudio.com')"
 
-# load package to be installed from source
-COPY local_packages ./local_packages
-
-# set path to local packages for renv
-ENV RENV_PATHS_LOCAL=/srv/shiny-server/local_packages
-
 # 
 RUN R -e 'renv::restore()'
 
-# install rworker from source
-RUN R -e "options(repos='https://cran.rstudio.com');renv::install('./local_packages/rworker_0.1.3.tar.gz', repos=NULL, type='source')"
+COPY . .
 
 ## Setup Python venv ##
 USER root
@@ -47,7 +40,13 @@ RUN python3 -m venv /venv
 RUN /venv/bin/pip install --upgrade pip
 RUN /venv/bin/pip install -r modeapp_requirements.txt
 
-COPY . .
+# Install rworker from source
+RUN R -e "install.packages('devtools', repos = 'https://cran.rstudio.com')"
+RUN R -e "devtools::install_github('https://github.com/lecardozo/rworker', repos = 'https://cran.rstudio.com', upgrade = 'always')"
+
+# Install map data access package
+COPY mapDataAccess /srv/shiny-server/mapDataAccess
+RUN Rscript -e "devtools::install_local('/srv/shiny-server/mapDataAccess')"
 
 EXPOSE 5600
 

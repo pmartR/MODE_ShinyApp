@@ -8,8 +8,8 @@ uploaded_edata <- reactive({
   }
   else if(input$local_or_minio == "minio")
     req(input$minio_choose_file)
-    fpath = mapDataAccess::get_file(miniocon, input$minio_choose_file)
-    edata_out = read_csv(fpath)
+    projectObject = mapDataAccess::get_data(miniocon, input$minio_choose_file)
+    edata_out = projectObject$e_data
   return(edata_out)
 })
 

@@ -8,17 +8,18 @@ server <- function(input, output, session) {
   }
   display_objects <- reactiveValues(saved_displays=list())
   file_tags <- reactiveValues(file_dictionary=list(), from_map=F, local_files=list())
+  projectObject <- reactiveValues(object1 = NULL)
   
   observe({
+    
+    # Parse the query, which should be /?edata=uuid
     query <- parseQueryString(session$clientData$url_search)
-    for(key in names(query)){
-      if(key == "from_map"){
-        file_tags[[key]] <- query[[key]]
-      }
-      else {
-        file_tags$file_dictionary[[key]] <- query[[key]] 
-      }
-      message(sprintf("INFO: stored parameter %s: %s", key, query[[key]]))
-    }
+    
+    # Confirm that "data" is in the query, and if so extract the project object. 
+    if (length(query) != 0 && "data" %in% names(query)) {
+      projectObject$object1 <- get_data(miniocon, query$data) 
+    } 
+    
   }, priority = 10)
+  
 }

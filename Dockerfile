@@ -31,8 +31,6 @@ RUN R -e "install.packages('renv', repos = 'https://cran.rstudio.com')"
 # 
 RUN R -e 'renv::restore()'
 
-COPY . .
-
 ## Setup Python venv ##
 USER root
 COPY modeapp_requirements.txt .
@@ -47,6 +45,9 @@ RUN R -e "devtools::install_github('https://github.com/lecardozo/rworker', repos
 # Install map data access package
 COPY mapDataAccess /srv/shiny-server/mapDataAccess
 RUN Rscript -e "devtools::install_local('/srv/shiny-server/mapDataAccess')"
+
+# Copy directories into /srv/shiny-server
+COPY . .
 
 EXPOSE 5600
 

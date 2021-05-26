@@ -1,8 +1,8 @@
 type: minio
-endpoint: minio-map:9000
+endpoint: minio-map:9000 # Local: localhost:9000 
 access_key: minioadmin
 secret_key: minioadmin
 bucket: map
 secure: False
-python_venv: /venv # if local, change this to your virtualenv or conda env
+python_venv: /venv # Local: /Users/degn400/miniconda/envs/venv/ 
 verbose: true

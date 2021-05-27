@@ -1,5 +1,6 @@
 # stores the values of grouping vector to be passed to the job
 edata_groups <- reactive({
+  
   req(input$edata_how_make_groups)
   
   if(input$edata_how_make_groups == "manual") {

@@ -394,14 +394,6 @@
       "Repository": "CRAN",
       "Hash": "41287f1ac7d28a92f0a286ed507928d3"
     },
-    "mapDataAccess": {
-      "Package": "mapDataAccess",
-      "Version": "0.0.0.9000",
-      "Source": "Local",
-      "RemoteType": "local",
-      "RemoteUrl": "/Users/clab683/git_repos/MOAP/mapDataAccess",
-      "Hash": "cab882a71ca5c4094461cfdd0f093be2"
-    },
     "markdown": {
       "Package": "markdown",
       "Version": "1.1",

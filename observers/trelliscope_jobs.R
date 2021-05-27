@@ -16,8 +16,8 @@ observeEvent(input$make_trelliscope, {
                             file_path = input$raw_data_upload$datapath)
   }
   else if(input$local_or_minio == "minio"){
-    object_name = input$minio_choose_file
-    id = input$minio_choose_file
+    object_name = queryTags$query1
+    id = paste0(get_data(miniocon, queryTags$query1)$Project$Name, "_trelliscope")
   }
   
   celery_app$send_task("edata_simple_boxplots", 

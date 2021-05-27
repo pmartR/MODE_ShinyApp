@@ -2,7 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
 www/*
 !www/MODEstyle.css
 
 untracked_resources
+mapDataAccess/

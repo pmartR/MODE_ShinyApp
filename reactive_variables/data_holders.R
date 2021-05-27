@@ -2,15 +2,9 @@
 
 # TODO:  Download from minio
 uploaded_edata <- reactive({
-  if(input$local_or_minio == "local"){
-    req(input$raw_data_upload)
-    edata_out = read_csv(input$raw_data_upload$datapath)
-  }
-  else if(input$local_or_minio == "minio")
-    req(input$minio_choose_file)
-    fpath = mapDataAccess::get_file(miniocon, input$minio_choose_file)
-    edata_out = read_csv(fpath)
-  return(edata_out)
+  if (is.null(projectObject$object1) == FALSE) {
+    return(projectObject$object1$Data$e_data)
+  } else {return(NULL)}
 })
 
 # turn uploaded e_data into dataframe suitable for trelliscope

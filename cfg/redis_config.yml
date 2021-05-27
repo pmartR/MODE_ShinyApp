@@ -1,5 +1,5 @@
 type: redis
-host: redis1
+host: redis1 
 password: testpw
 port: 6379
 db: 0

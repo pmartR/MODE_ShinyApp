@@ -8,8 +8,10 @@ server <- function(input, output, session) {
   }
   display_objects <- reactiveValues(saved_displays=list())
   file_tags <- reactiveValues(file_dictionary=list(), from_map=F, local_files=list())
+  queryTags <- reactiveValues(query1 = NULL)
   projectObject <- reactiveValues(object1 = NULL)
   
+
   observe({
     
     # Parse the query, which should be /?edata=uuid
@@ -17,9 +19,12 @@ server <- function(input, output, session) {
     
     # Confirm that "data" is in the query, and if so extract the project object. 
     if (length(query) != 0 && "data" %in% names(query)) {
+      queryTags$query1 <- query$data
       projectObject$object1 <- get_data(miniocon, query$data) 
     } 
     
   }, priority = 10)
   
 }
+
+#A;A;A;A;A;A;A;A;A;B;B;B

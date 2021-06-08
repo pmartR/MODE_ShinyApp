@@ -1,0 +1,45 @@
+# MODE APP Gitlab CI Autobuilder for Docker Container
+# See https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Docker.gitlab-ci.yml
+
+stages:
+- fetch
+- build
+
+#Include our standard library
+include:
+  - remote: 'https://raw.githubusercontent.com/pnnl-miscscripts/gitlab-lib/v1/gitlab-lib.yaml'
+
+fetch-lib:
+  stage: fetch
+  image: alpine
+  tags:
+  - k8s
+  - rzr
+  - codebuilds
+  script: |
+    apk add git
+    git clone "https://map-build:${MODE_APP_BUILD}@code.emsl.pnl.gov/multiomics-analyses/mapdataaccess-lib" mapDataAccess
+  artifacts:
+    paths:
+      - mapDataAccess
+    expire_in: 1 day
+
+#Build and push the container.
+build-image:
+  extends: .pnnllib-gitlab-build-container-image
+  image:
+    name: gcr.io/kaniko-project/executor:v1.5.2-debug
+    entrypoint: [""]
+  stage: build
+  tags:
+  - k8s
+  - rzr
+  - codebuilds
+  dependencies:
+    - fetch-lib
+  variables:
+    # CONTAINER_PREFIX - extra prefix for the image. Can be used to add a string on the front of an image name or a parent directory in the repository.
+    # CONTAINER_TAG - The container tag to use. Defaults to $CI_COMMIT_TAG
+    CONTAINER_TAG: 0.0.4
+    # DOCKERFILE - The name of the dockerfile to use. Defaults to Dockerfile.
+    KANIKO_EXTRA_ARGS: "--use-new-run"

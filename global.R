@@ -25,7 +25,8 @@ if(!file.exists("redis_config.yml")){
 } else {
   redis_cfg = yaml::read_yaml("redis_config.yml")
   redis_host = if(Sys.getenv("SHINY_LOCAL_OR_NETWORK")=="local") "0.0.0.0" else redis_cfg[['host']]
-  redis_url <- sprintf('redis://:%s@%s:%s/%s', 
+  redis_url <- sprintf('redis://%s:%s@%s:%s/%s', 
+                       redis_cfg[["username"]], 
                        redis_cfg[["password"]], 
                        redis_host, 
                        redis_cfg[['port']],

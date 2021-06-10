@@ -14,7 +14,7 @@ library(mapDataAccess)
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)
 
 # 
-miniocon = map_data_connection(config_file='./cfg/minio_config_app.yml')
+miniocon = map_data_connection(config_file='minio_config.yml')
 # Local: './cfg/minio_config_app.yml'
 # Compose: '/srv/shiny-server/cfg/minio_config_app.yml'
 

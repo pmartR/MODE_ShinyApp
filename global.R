@@ -31,8 +31,6 @@ if(!file.exists("redis_config.yml")){
                        redis_cfg[['db']])
 }
 
-
-}
 message("Setting up redis connection at:  ", redis_url)
 
 sym_diff <- function(a,b) setdiff(union(a,b), intersect(a,b))

@@ -24,6 +24,7 @@ observeEvent(input$make_trelliscope, {
                        kwargs=list(
                          object_name=object_name,
                          id=id,
+                         miniocon=miniocon,
                          panel_column=input$edata_idcname_picker,
                          groups=edata_groups()
                         )

@@ -18,7 +18,7 @@ output$trelli_download_picker <- renderUI({
 observe({
   trelli_paths = list(
     reticulate::iterate(
-      miniocon$client$list_objects(miniocon$bucket, prefix="trelli-display-"),
+      miniocon$client$list_objects(miniocon$bucket, prefix = file.path(Sys.getenv("SHINYPROXY_USERNAME"), "trelli-display-")),
       function(x) x$object_name, simplify=TRUE)
   )[[1]]
   

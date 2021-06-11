@@ -24,7 +24,7 @@ observeEvent(input$make_trelliscope, {
                        kwargs=list(
                          object_name=object_name,
                          id=id,
-                         miniocon=miniocon,
+                         username=Sys.getenv("SHINYPROXY_USERNAME"),
                          panel_column=input$edata_idcname_picker,
                          groups=edata_groups()
                         )
@@ -48,7 +48,7 @@ observeEvent(input$pull_trelliscope, {
   
   trelli_objects = list(
     reticulate::iterate(
-      miniocon$client$list_objects(miniocon$bucket, prefix="trelli-display-", recursive=TRUE),
+      miniocon$client$list_objects(miniocon$bucket, prefix=file.path(Sys.getenv("SHINYPROXY_USERNAME"), "trelli-display-"), recursive=TRUE),
       function(x) x$object_name, simplify=TRUE)
   )[[1]]
   

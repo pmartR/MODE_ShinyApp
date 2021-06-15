@@ -9,6 +9,10 @@ library(shinyalert)
 library(stringr)
 library(trelliscopejs)
 library(mapDataAccess)
+library(mime)
+
+#  Hack to make jsonp mimetype work
+mimemap["jsonp"]="application/javascript"
 
 #  source all UI 
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)

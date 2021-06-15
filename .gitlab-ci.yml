@@ -42,7 +42,7 @@ build-image:
   variables:
     # CONTAINER_PREFIX - extra prefix for the image. Can be used to add a string on the front of an image name or a parent directory in the repository.
     # CONTAINER_TAG - The container tag to use. Defaults to $CI_COMMIT_TAG
-    CONTAINER_TAG: 0.0.9
+    CONTAINER_TAG: 0.0.10
     # DOCKERFILE - The name of the dockerfile to use. Defaults to Dockerfile.
     KANIKO_EXTRA_ARGS: "--use-new-run"
   only:

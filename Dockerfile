@@ -6,6 +6,9 @@
 # Install latest version of rocker image: base image for MODE
 FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app:base1.0.0
 
+# Add jsonp to the mimetype list
+RUN sed -i 's@\(application/javascript.*\)@\1 jsonp@' /etc/mime.types
+
 # Copy directories into /srv/shiny-server
 COPY . .
 

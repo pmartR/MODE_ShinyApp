@@ -22,5 +22,13 @@ output$trelliscope_from_iframe<- renderUI({
   # id = display_objects$saved_displays[[1]]$id
   id = input$minio_trelli_picker
   id = gsub("[/]+$", "", id) # remove trailing slashes to prevent shinyproxy error.
-  tags$iframe(src= file.path(id, "index.html"), width = "100%", height = "500px")
+  
+  # reference the json file through trelliscope-app
+  tags$div(id="trelli-display-wrapper", class="trelliscope-not-spa", style="width:800px; height:500px;")
+  tags$script(src="https://unpkg.com/trelliscopejs-lib/dist/trelliscope.min.js")
+  tags$script(sprintf("(function() {
+      trelliscopeApp('trelli-display-wrapper',
+        '%s/appfiles/config.json');
+    })();", id))
+  # tags$iframe(src= file.path(id, "index.html"), width = "100%", height = "500px")
 })

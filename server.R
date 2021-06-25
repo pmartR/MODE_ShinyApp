@@ -11,9 +11,8 @@ server <- function(input, output, session) {
   queryTags <- reactiveValues(query1 = NULL)
   projectObject <- reactiveValues(object1 = NULL)
   
-
+  # If they came here from MAP, then we can load an object directly from the UUID provided in the URL.
   observe({
-    
     # Parse the query, which should be /?edata=uuid
     query <- parseQueryString(session$clientData$url_search)
     
@@ -21,10 +20,10 @@ server <- function(input, output, session) {
     if (length(query) != 0 && "data" %in% names(query)) {
       queryTags$query1 <- query$data
       projectObject$object1 <- get_data(miniocon, query$data) 
+      shinyBS::updateCollapse(session, "trelli_collapse", close = "main_trelli_upload")
+      # TODO:  Show indicator that data is already uploaded
     } 
     
   }, priority = 10)
   
 }
-
-#A;A;A;A;A;A;A;A;A;B;B;B

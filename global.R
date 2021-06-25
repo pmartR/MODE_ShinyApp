@@ -9,10 +9,6 @@ library(shinyalert)
 library(stringr)
 library(trelliscopejs)
 library(mapDataAccess)
-library(mime)
-
-#  Hack to make jsonp mimetype work
-mimemap["jsonp"]="application/javascript"
 
 #  source all UI 
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)
@@ -36,5 +32,12 @@ if(!file.exists("redis_config.yml")){
 }
 
 message("Setting up redis connection at:  ", redis_url)
+
+# Import celery package from the virtual environment
+clry <- reticulate::import('celery')
+celery_app = clry$Celery('app', broker=redis_url, backend=redis_url)
+
+# use this for all "None selected" options where applicable
+NOSELECT_ = "__nullselect__"
 
 sym_diff <- function(a,b) setdiff(union(a,b), intersect(a,b))

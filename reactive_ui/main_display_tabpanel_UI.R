@@ -1,9 +1,9 @@
 output$one_dataset_preview <- renderDataTable({
-  nested_edata()$data[[5]]
+  nested_edata()$data[[1]]
 })
 
 output$one_plot_preview <- renderPlotly({
-  one_df = nested_edata()$data[[5]]
+  one_df = nested_edata()$data[[1]]
   req(length(edata_groups()) == nrow(one_df))
   
   one_df[['__GROUP_COL__']] <- edata_groups()

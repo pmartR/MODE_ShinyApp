@@ -13,17 +13,24 @@ server <- function(input, output, session) {
   
   # If they came here from MAP, then we can load an object directly from the UUID provided in the URL.
   observe({
-    # Parse the query, which should be /?edata=uuid
+    # Parse the query, which should be /?data=minio_object_name
     query <- parseQueryString(session$clientData$url_search)
+    cond = length(query) != 0 && "data" %in% names(query) & isTRUE(input$minio_choose_file == NOSELECT_)
     
     # Confirm that "data" is in the query, and if so extract the project object. 
-    if (length(query) != 0 && "data" %in% names(query)) {
+    if (cond) {
       queryTags$query1 <- query$data
       projectObject$object1 <- get_data(miniocon, query$data) 
       shinyBS::updateCollapse(session, "trelli_collapse", close = "main_trelli_upload")
-      # TODO:  Show indicator that data is already uploaded
-    } 
+    } else {
+      projectObject$object1 <- NULL
+    }
     
+    shinyjs::toggle(
+      id = "main_trelli_upload_from_map_indicator", 
+      condition = cond
+    )
+
   }, priority = 10)
   
 }

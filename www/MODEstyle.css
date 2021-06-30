@@ -32,9 +32,15 @@
   pointer-events: none;
 }
 
-.grey_text{
+.fade_text{
   color:silver;
   color:rgba(0,0,0,0.2);
+}
+
+.fade_text_sm {
+  color:silver;
+  color:rgba(0,0,0,0.2);
+  font-size:sm;
 }
 
 .grey_disabled, .grey_disabled:disabled:hover{

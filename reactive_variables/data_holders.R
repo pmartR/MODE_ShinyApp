@@ -11,11 +11,11 @@ uploaded_edata <- reactive({
       read_csv(input$raw_data_upload$datapath)
     } else if(input$local_or_minio == "minio") {
       req(input$minio_choose_file != NOSELECT_)
-      stored_project_object = mapDataAccess::get_data(
+      projectObject$object1 <-  mapDataAccess::get_data(
         miniocon, 
         input$minio_choose_file
       )
-      stored_project_object$object1$Data$e_data
+      projectObject$object1$Data$e_data
     }
   }
 })

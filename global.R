@@ -40,4 +40,11 @@ celery_app = clry$Celery('app', broker=redis_url, backend=redis_url)
 # use this for all "None selected" options where applicable
 NOSELECT_ = "__nullselect__"
 
+# reference warning messages here to keep code clean
+warn_text <- list(
+  "BAD_GROUP_LENGTH" = "Bad groups"
+)
+
+source("UI_helper_functions.R", local=TRUE)
+
 sym_diff <- function(a,b) setdiff(union(a,b), intersect(a,b))

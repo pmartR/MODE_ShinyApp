@@ -3,10 +3,16 @@ output$one_dataset_preview <- renderDataTable({
 })
 
 output$one_plot_preview <- renderPlotly({
+  #' TODO:  This will eventually be the UI which shows different kinds of plots.
+  #' Will most likely be superseded by a renderUI with conditional output for
+  #' each panel type.
   one_df = nested_edata()$data[[1]]
-  req(length(edata_groups()) == nrow(one_df))
+  input$refresh_panel_preview
   
-  one_df[['__GROUP_COL__']] <- edata_groups()
+  isolate({
+    req(length(edata_groups()) == nrow(one_df))
+    one_df[['__GROUP_COL__']] <- edata_groups()
+  })
   
   p <- simple_boxplots(one_df, "__GROUP_COL__", "Value")
   

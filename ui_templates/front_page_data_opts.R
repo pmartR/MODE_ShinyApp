@@ -1,9 +1,11 @@
-make_front_page_data_opts <- function(){
-  tagList(
+make_front_page_plot_opts <- function(){
+  div(id = "front_page_plot_opts",
     uiOutput('choose_edata_colname'),
-    radioGroupButtons("edata_how_make_groups", 
-                      "Make new groups manually or by splitting sample names?",
-                      choices = c("Manually" = "manual", "Split sample names" = "sampnames")),
+    radioGroupButtons(
+      "edata_how_make_groups",
+      "Make new groups manually or by splitting sample names?",
+      choices = c("Manually" = "manual", "Split sample names" = "sampnames")
+    ), 
     uiOutput('edata_how_make_groups_UI'),
     uiOutput('edata_extract_groups'),
     uiOutput('edata_groups_preview')

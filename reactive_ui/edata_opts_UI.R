@@ -1,5 +1,6 @@
 # conditional option to make groups manually or by splitting column names
 output$edata_how_make_groups_UI <- renderUI({
+  req(input$edata_how_make_groups)
   if (input$edata_how_make_groups == "manual") {
     textInput("manual_group_values", "Enter group values separated by ';'")
   }
@@ -23,12 +24,19 @@ output$edata_extract_groups <- renderUI({
   }
 })
 
-# conditional picker depending on what column and delimiter is used
+#'@details conditional picker depending on what column and delimiter is used
 output$split_position_picker <- renderUI({
-  values_to_split = colnames(uploaded_edata()[,-attr(uploaded_edata(), "edata_cname")])
+  req(input$edata_idcname_picker)
+  values_to_split = colnames(uploaded_edata() %>% select(-one_of(input$edata_idcname_picker)))
   
   # 
-  split_result <- strsplit(values_to_split, input$group_creation_delimiter)
+  split_result <- tryCatch({
+    str_split(values_to_split, input$group_creation_delimiter)
+  }, error = function(e){
+    NULL
+  })
+  
+  validate(need(!is.null(split_result), "Invalid regex..."))
   
   # let them split up to the maximum number of split elements.  
   # If a value is selected that exceeds the length of one of the split results, that result will become NA in the new column
@@ -45,19 +53,21 @@ output$split_position_picker <- renderUI({
   }
 })
 
+#'@details picker for the column names of the uploaded data
 output$choose_edata_colname <- renderUI({
   req(uploaded_edata())
   
-  pickerInput('edata_idcname_picker',
-              label = "Which is the ID column?",
-              choices = colnames(uploaded_edata())
-              )
+  pickerInput(
+    'edata_idcname_picker',
+    label = "Which is the ID column?",
+    choices = colnames(uploaded_edata())
+  )
 })
 
-# display for group values
+#'@details display for group values
 output$edata_groups_preview <- renderUI({
   input$edata_how_make_groups
-  req(edata_groups())
+  validate(need(edata_groups(), "Current group/regex specification is invalid."))
   div(
     tags$b("New column values preview:"),
     paste(edata_groups(), collapse = " | ")

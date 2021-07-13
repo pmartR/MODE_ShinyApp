@@ -6,12 +6,8 @@
 !global.R
 !ui.R
 !server.R
-!renv.lock
-!rworker.R
-!modeapp_requirements.txt
 
 # folders
-!local_packages
 !observers
 !plot_functions
 !preprocessing
@@ -19,6 +15,5 @@
 !reactive_variables
 !ui_templates
 !www
-!mapDataAccess
 !cfg
 

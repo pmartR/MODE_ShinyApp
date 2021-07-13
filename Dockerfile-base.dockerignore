@@ -1,0 +1,11 @@
+# Using the exclude everything -> add stuff pattern
+
+*
+
+# lockfile and requirements to install R and python packages respectively
+!renv.lock
+!requirements.txt
+
+# source binary for installing mapDataAccess
+!mapDataAccess
+

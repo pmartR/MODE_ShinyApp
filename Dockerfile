@@ -1,10 +1,10 @@
 ## MODE Application: Dockerfile
-## Last Updated: 2021_06_09
+## Last Updated: 2021_07_13
 
 ## Build with the "--no-cache" flag
 
 # Install latest version of rocker image: base image for MODE
-FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app:base1.0.0
+FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app:base1.0.1
 
 # Copy directories into /srv/shiny-server
 COPY . .

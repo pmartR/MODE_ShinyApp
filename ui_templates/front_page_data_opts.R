@@ -54,11 +54,16 @@ front_page_left_collapse <- function(){
       make_front_page_plot_opts(),
       tags$hr(),
       div(
-        class = "centered-buttons",
+        class = "flex-baseline",
         bsButton(
           "make_trelliscope", 
           "Create Trelliscope Display", 
           style = "primary"
+        ),
+        div(
+          id = "make_trelliscope_disable_info",
+          style = "color:red;margin-left:3px;",
+          icon("exclamation-sign", lib = "glyphicon")  
         )
       )
     )

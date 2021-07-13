@@ -6,11 +6,16 @@ output$one_plot_preview <- renderPlotly({
   #' TODO:  This will eventually be the UI which shows different kinds of plots.
   #' Will most likely be superseded by a renderUI with conditional output for
   #' each panel type.
-  one_df = nested_edata()$data[[1]]
   input$refresh_panel_preview
+  one_df = nested_edata()$data[[1]]
   
   isolate({
-    req(length(edata_groups()) == nrow(one_df))
+    validate(
+      need(
+        length(edata_groups()) == nrow(one_df), 
+        WARN_TEXT[["BAD_GROUP_LENGTH"]]
+      )
+    )
     one_df[['__GROUP_COL__']] <- edata_groups()
   })
   

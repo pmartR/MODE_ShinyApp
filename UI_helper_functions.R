@@ -50,9 +50,9 @@ toggleTooltip <- function(session, id, condition, tooltip_text, position="bottom
 }
 
 # show an element and add a tooltip if condition is met
-show_add_tooltip <- function(session, id, condition, tooltip_text) {
-  toggleElement(id = id, condition = condition)
-  toggleTooltip(session, id, condition, tooltip_text)
+show_add_tooltip <- function(session, id, condition, tooltip_text, ...) {
+  toggleElement(id = id, condition = condition, ...)
+  toggleTooltip(session, id, condition, tooltip_text, ...)
 }
 
 # disable/enable sub-elements of a div and display a tooltip based on condition.

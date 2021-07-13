@@ -41,14 +41,29 @@ output$split_position_picker <- renderUI({
   # let them split up to the maximum number of split elements.  
   # If a value is selected that exceeds the length of one of the split results, that result will become NA in the new column
   truncate_length <- max(sapply(split_result, length))
+  for (i in which(map_int(split_result, length) < truncate_length)) {
+    length(split_result[[i]]) <- truncate_length
+  }
+  subtext <- map_chr(1:truncate_length, function(n) toString(unique(map_chr(split_result, n))))
   
   if(isTruthy(input$group_creation_delimiter)){
-    pickerInput('groups_split_keep_which', 'Keep value in which positions', 
-                choices = 1:truncate_length, multiple = TRUE)
+    pickerInput(
+      'groups_split_keep_which', 
+      'Keep value in which positions', 
+      choices = 1:truncate_length, 
+      choicesOpt = list(subtext = subtext),
+      multiple = TRUE
+    )
   } else{
     tipify(
-      disabled(pickerInput('groups_split_keep_which', 'Keep value in which positions', 
-                           choices = 1:truncate_length, multiple = TRUE)),
+      disabled(
+        pickerInput(
+          'groups_split_keep_which',
+          'Keep value in which positions',
+          choices = 1:truncate_length,
+          multiple = TRUE
+        )
+      ), 
       title = "no split value chosen")
   }
 })

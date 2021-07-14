@@ -4,7 +4,7 @@
 ## Build with the "--no-cache" flag
 
 # Install latest version of rocker image: base image for MODE
-FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app:base1.0.1
+FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/base:1.0.1
 
 # Copy directories into /srv/shiny-server
 COPY . .

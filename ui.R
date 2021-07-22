@@ -1,5 +1,8 @@
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+  htmltools::htmlDependency("jquery", "3.5.1",
+                            src = c(href = "https://code.jquery.com/"),
+                            script = "jquery-3.5.1.min.js"),
   useShinyjs(),
   useShinyalert(),
   tags$head(

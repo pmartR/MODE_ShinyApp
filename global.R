@@ -1,3 +1,5 @@
+library(jsonlite)
+library(mapDataAccess)
 library(plotly)
 library(purrr)
 library(readr)
@@ -8,8 +10,6 @@ library(shinyWidgets)
 library(shinyjs)
 library(shinyalert)
 library(stringr)
-library(trelliscopejs)
-library(mapDataAccess)
 
 #  source all UI 
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)

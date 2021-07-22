@@ -36,7 +36,7 @@ output$split_position_picker <- renderUI({
     NULL
   })
   
-  validate(need(!is.null(split_result), "Invalid regex..."))
+  shiny::validate(need(!is.null(split_result), "Invalid regex..."))
   
   # let them split up to the maximum number of split elements.  
   # If a value is selected that exceeds the length of one of the split results, that result will become NA in the new column
@@ -82,7 +82,7 @@ output$choose_edata_colname <- renderUI({
 #'@details display for group values
 output$edata_groups_preview <- renderUI({
   input$edata_how_make_groups
-  validate(need(edata_groups(), "Current group/regex specification is invalid."))
+  shiny::validate(need(edata_groups(), "Current group/regex specification is invalid."))
   div(
     tags$b("New column values preview:"),
     paste(edata_groups(), collapse = " | ")

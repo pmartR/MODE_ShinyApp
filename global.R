@@ -1,4 +1,7 @@
+library(jsonlite)
+library(mapDataAccess)
 library(plotly)
+library(purrr)
 library(readr)
 library(reticulate)
 library(shiny)
@@ -7,7 +10,6 @@ library(shinyWidgets)
 library(shinyjs)
 library(shinyalert)
 library(stringr)
-library(mapDataAccess)
 
 #  source all UI 
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)
@@ -31,5 +33,20 @@ if(!file.exists("redis_config.yml")){
 }
 
 message("Setting up redis connection at:  ", redis_url)
+
+# Import celery package from the virtual environment
+clry <- reticulate::import('celery')
+celery_app = clry$Celery('app', broker=redis_url, backend=redis_url)
+
+# use this for all "None selected" options where applicable
+NOSELECT_ = "__nullselect__"
+
+# reference warning messages here to keep code clean
+WARN_TEXT <- list(
+  "BAD_GROUP_LENGTH" = "Specified group vector does not have the right number of elements.  Needs to have as many columns as your data minus one (the id column)",
+  "SPECIFY_GROUPS" = "Either you have not correctly specified groups, or your data has not loaded properly"
+)
+
+source("UI_helper_functions.R", local=TRUE)
 
 sym_diff <- function(a,b) setdiff(union(a,b), intersect(a,b))

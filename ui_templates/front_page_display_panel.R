@@ -8,7 +8,8 @@ front_page_display_panel <- function(){
     ),
     tabPanel(
       title = "Plot Preview",
-      plotlyOutput("one_plot_preview")
+      plotlyOutput("one_plot_preview"),
+      bsButton("refresh_panel_preview", "Update plot", style = "primary")
     ),
     tabPanel(
       title = "Trelliscope Display",

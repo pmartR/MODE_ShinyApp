@@ -2,9 +2,9 @@
 ## Last Updated: 2021_06_09
 
 ## Use:
-## export DOCKER_BUILDKIT=0
-## docker build --no-cache -t code-registry.emsl.pnl.gov/multiomics-analyses/mode-app:base1.0.0 .
-## docker push code-registry.emsl.pnl.gov/multiomics-analyses/mode-app:base1.0.0
+## export DOCKER_BUILDKIT=1
+## docker build -f Dockerfile-base --no-cache -t code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/base/<your version e.g. 1.0.0> .
+## docker push code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/base:<your version e.g. 1.0.0>
 
 # Install latest version of rocker image
 FROM rocker/shiny:4.0.3
@@ -45,9 +45,9 @@ RUN /venv/bin/pip install --upgrade pip
 RUN /venv/bin/pip install -r requirements.txt
 
 # Install rworker from source
-RUN R -e "install.packages('devtools', repos = 'https://cran.rstudio.com')"
-RUN R -e "devtools::install_github('https://github.com/lecardozo/rworker', repos = 'https://cran.rstudio.com', upgrade = 'always')"
+RUN R -e "install.packages('remotes', repos = 'https://cran.rstudio.com')"
+RUN R -e "remotes::install_github('https://github.com/lecardozo/rworker', repos = 'https://cran.rstudio.com', upgrade = 'always')"
 
 # Install map data access package
 COPY mapDataAccess /srv/shiny-server/mapDataAccess
-RUN Rscript -e "devtools::install_local('/srv/shiny-server/mapDataAccess')"
+RUN Rscript -e "remotes::install_local('/srv/shiny-server/mapDataAccess', repos = 'https://cran.rstudio.com')"

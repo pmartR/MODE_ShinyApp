@@ -1,12 +1,23 @@
 output$one_dataset_preview <- renderDataTable({
-  nested_edata()$data[[5]]
+  nested_edata()$data[[1]]
 })
 
 output$one_plot_preview <- renderPlotly({
-  one_df = nested_edata()$data[[5]]
-  req(length(edata_groups()) == nrow(one_df))
+  #' TODO:  This will eventually be the UI which shows different kinds of plots.
+  #' Will most likely be superseded by a renderUI with conditional output for
+  #' each panel type.
+  input$refresh_panel_preview
+  one_df = nested_edata()$data[[1]]
   
-  one_df[['__GROUP_COL__']] <- edata_groups()
+  isolate({
+    shiny::validate(
+      need(
+        length(edata_groups()) == nrow(one_df), 
+        WARN_TEXT[["BAD_GROUP_LENGTH"]]
+      )
+    )
+    one_df[['__GROUP_COL__']] <- edata_groups()
+  })
   
   p <- simple_boxplots(one_df, "__GROUP_COL__", "Value")
   
@@ -22,6 +33,23 @@ output$trelliscope_from_iframe<- renderUI({
   # id = display_objects$saved_displays[[1]]$id
   id = input$minio_trelli_picker
   id = gsub("[/]+$", "", id) # remove trailing slashes to prevent shinyproxy error.
+  
+  # Current janky solution to prevent trelliscope from loading jquery again
+  displaycfg_path <- Sys.glob(
+    file.path(
+      "www", id, "appfiles", "displays", "common", "*", "displayObj.json"
+    )
+  )[1]
+  
+  shiny::validate(need(isTruthy(displaycfg_path), "Display needs to be retrieved, or was corrupted on download.  Try retrieving again."))
+  displaycfg <- jsonlite::fromJSON(displaycfg_path)
+  
+  # remove jquery from the config to prevent conflicts
+  idx = which(grepl("jquery", displaycfg$panelInterface$deps$assets$url))
+  if(length(idx) > 0) {
+    displaycfg$panelInterface$deps$assets <- displaycfg$panelInterface$deps$assets[-idx,] 
+    jsonlite::write_json(displaycfg, displaycfg_path, auto_unbox = T)
+  }
   
   # reference the json file through trelliscope-app
   tagList(

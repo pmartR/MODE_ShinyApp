@@ -12,9 +12,13 @@ edata_groups <- reactive({
     if (input$edata_how_extract_groups == "split") {
       req(input$group_creation_delimiter)
       column_values <- as.character(
-        colnames(uploaded_edata()[,-attr(uploaded_edata(), "edata_cname")])
+        colnames(uploaded_edata() %>% select(-one_of(input$edata_idcname_picker)))
       )
-      split_result <- strsplit(column_values, input$group_creation_delimiter)
+      split_result <- tryCatch({
+        str_split(column_values, input$group_creation_delimiter)
+      }, error = function(e){
+        NULL
+      })
       keep_which <- sapply(split_result, function(x) {
         if (!isTruthy(x)) {
           return(NA)
@@ -29,9 +33,13 @@ edata_groups <- reactive({
     else if (input$edata_how_extract_groups == "regex") {
       req(input$groups_regex)
       column_values <- as.character(
-        colnames(uploaded_edata()[,-attr(uploaded_edata(), "edata_cname")])
+        colnames(uploaded_edata() %>% select(-one_of(input$edata_idcname_picker)))
       )
-      extracted_values <- str_extract(column_values, input$groups_regex)
+      extracted_values <- tryCatch({
+        str_extract(column_values, input$groups_regex)
+      }, error= function(e){
+        NULL
+      })
       return(extracted_values)
     }
   }

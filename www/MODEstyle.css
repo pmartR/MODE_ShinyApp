@@ -21,6 +21,11 @@
   margin-bottom:4px;
 }
 
+.flex-baseline {
+  display:flex;
+  align-items:baseline;
+}
+
 .info_tab_transparent{
   background-color:deepskyblue;
   background-color:rgba(0,191,255,0);
@@ -32,9 +37,15 @@
   pointer-events: none;
 }
 
-.grey_text{
+.fade_text{
   color:silver;
   color:rgba(0,0,0,0.2);
+}
+
+.fade_text_sm {
+  color:silver;
+  color:rgba(0,0,0,0.2);
+  font-size:sm;
 }
 
 .grey_disabled, .grey_disabled:disabled:hover{

@@ -2,23 +2,41 @@
 #' If they came to MODE from MAP, then there should be a project object automatically loaded.
 #' If there is not, then either we load from previously stored MAP project objects
 #' OR we allow them to upload a file.
-uploaded_edata <- reactive({
-  if (is.null(projectObject$object1) == FALSE) {
-    return(projectObject$object1$Data$e_data)
-  } else {
-    if(input$local_or_minio == "local") {
-      req(input$raw_data_upload)
-      read_csv(input$raw_data_upload$datapath)
-    } else if(input$local_or_minio == "minio") {
-      req(input$minio_choose_file != NOSELECT_)
-      projectObject$object1 <-  mapDataAccess::get_data(
-        miniocon, 
-        input$minio_choose_file
-      )
-      projectObject$object1$Data$e_data
+if (MAP) {
+  
+  uploaded_edata <- reactive({
+    if (is.null(projectObject$object1) == FALSE) {
+      return(projectObject$object1$Data$e_data)
+    } else {
+      if(input$local_or_minio == "local") {
+        req(input$raw_data_upload)
+        read_csv(input$raw_data_upload$datapath)
+      } else if(input$local_or_minio == "minio") {
+        req(input$minio_choose_file != NOSELECT_)
+        projectObject$object1 <-  mapDataAccess::get_data(
+          miniocon, 
+          input$minio_choose_file
+        )
+        projectObject$object1$Data$e_data
+      }
     }
-  }
-})
+  })
+  
+} else {
+  
+  uploaded_edata <- reactive({
+    
+    # Require an upload of a file
+    req(input$UploadFile)
+    
+    # Read RDS file
+    edata <- readRDS(input$UploadFile$datapath)
+    
+    return(edata)
+    
+  })
+  
+}
 
 # turn uploaded e_data into dataframe suitable for trelliscope
 nested_edata <- reactive({

@@ -14,13 +14,20 @@ make_front_page_plot_opts <- function(){
 
 make_front_page_upload_opts <- function(){
   tagList(
-    radioGroupButtons(
-      "local_or_minio",
-      "Where is your data coming from?",
-      choices = c("MAP project directory" = "minio", 
-                 "From my computer" = "local")
-    ),
-    uiOutput("conditional_data_upload")
+    if (MAP) {
+      radioGroupButtons(
+        "local_or_minio",
+        "Where is your data coming from?",
+        choices = c("MAP project directory" = "minio", 
+                    "From my computer" = "local")
+      )
+      uiOutput("conditional_data_upload")
+    } else {
+      fileInput("UploadFile", "Select an edata project or midpoint file")
+    }
+    
+    
+
   )
 }
 
@@ -31,7 +38,7 @@ front_page_left_collapse <- function(){
     bsCollapsePanel(
       div(
         subsection_header(
-          "Specify data source",
+          "Upload File",
           id = "main_trelli_upload_icon",
           style = "color:red;display:inline-block",
           icon = icon("exclamation-sign", lib = "glyphicon"),

@@ -75,7 +75,7 @@ output$choose_edata_colname <- renderUI({
   pickerInput(
     'edata_idcname_picker',
     label = "Which is the ID column?",
-    choices = colnames(uploaded_edata())
+    choices = browser()
   )
 })
 

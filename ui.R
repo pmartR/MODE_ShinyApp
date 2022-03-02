@@ -10,7 +10,7 @@ ui <- fluidPage(
   ),
   div(class = "title-panel",
       tags$h1("MODE"),
-      tags$p("omics trelliscope visualization")
+      tags$p("Trelliscope visualization of omic data, statistics, and integration")
       ),
   fluidRow(
     id = "trelliscope_fluidRow",

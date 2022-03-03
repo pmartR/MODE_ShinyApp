@@ -1,7 +1,7 @@
 #'@details Disable second dropdown until data is uploaded
 observe({
   cond = tryCatch({
-    !is.null(uploaded_edata())
+    !is.null(uploaded_data())
   }, error = function(e){
     FALSE
   })

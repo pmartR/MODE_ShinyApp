@@ -1,5 +1,5 @@
 output$one_dataset_preview <- renderDataTable({
-  nested_edata()$data[[1]]
+  browser()
 })
 
 output$one_plot_preview <- renderPlotly({

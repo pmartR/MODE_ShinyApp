@@ -2,12 +2,12 @@ front_page_display_panel <- function(){
   tabsetPanel(
     id = "trelliscope_mainpanel",
     tabPanel(
-      title = "Table Preview",
+      title = "Preview Tables",
       uiOutput("groups_preview"),
       dataTableOutput("one_dataset_preview"),
     ),
     tabPanel(
-      title = "Plot Preview",
+      title = "Preview Plots",
       plotlyOutput("one_plot_preview"),
       bsButton("refresh_panel_preview", "Update plot", style = "primary")
     ),

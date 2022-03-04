@@ -2,9 +2,13 @@ front_page_display_panel <- function(){
   tabsetPanel(
     id = "trelliscope_mainpanel",
     tabPanel(
-      title = "Preview Tables",
-      uiOutput("groups_preview"),
-      dataTableOutput("one_dataset_preview"),
+      title = "Preview Tables", br(),
+        HTML("<strong>Expression Data</strong>"), hr(),
+        DT::DTOutput("edata_preview"), br(), br(),
+        HTML("<strong>Sample Data</strong>"), hr(),
+        DT::DTOutput("fdata_preview"), br(), br(),
+        HTML("<strong>Expression Metadata</strong>"), hr(),
+        DT::DTOutput("emeta_preview"), br(), br()
     ),
     tabPanel(
       title = "Preview Plots",

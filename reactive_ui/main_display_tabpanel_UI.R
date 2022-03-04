@@ -1,6 +1,47 @@
-output$one_dataset_preview <- renderDataTable({
-  browser()
+#######################
+## RENDER DATATABLES ##
+#######################
+
+# Preview the edata in the file
+output$edata_preview <- DT::renderDT({
+  
+  # Require uploaded data
+  req(uploaded_data())
+  
+  # Extract edata
+  edata <- uploaded_data()$Data$e_data
+  
+  # Visualize in an interactive table
+  DT::datatable(edata, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+  options = list(pageLength = 10, scrollX = T))
+  
 })
+
+# Preview the fdata in the file
+output$fdata_preview <- DT::renderDT({
+  
+  # Require uploaded data 
+  req(uploaded_data())
+  
+  # Generate sample f data 
+  fdata <- data.frame(
+    "LipidCommonName" = colnames(uploaded_data()$Data$e_data)[2:12],
+    "Group" = NA
+  )
+  
+  # Visualize in an interactive table
+  DT::datatable(fdata, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+            options = list(pageLength = 10, scrollX = T))
+
+})
+
+# Preview the emeta in the file
+output$emeta_preview <- DT::renderDT({
+  req(uploaded_data())
+  return(NULL)
+})
+
+#############
 
 output$one_plot_preview <- renderPlotly({
   #' TODO:  This will eventually be the UI which shows different kinds of plots.

@@ -21,4 +21,17 @@ output$choose_edata_colname <- renderUI({
 })
 
 #' @details Allow users to generate groups 
+output$GroupDesignationUI <- renderUI({
+  
+  req(uploaded_data())
+  
+  if (input$WantGroups == "Yes") {
+    tagList(
+      textInput("GroupName", HTML("<strong>Enter Group Name</strong>")),
+      actionButton("GroupAdd", "Add", icon = icon("plus")),
+      br(), br()
+    )
+  }
+  
+})
 

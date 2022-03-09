@@ -20,12 +20,18 @@ output$choose_edata_colname <- renderUI({
   )
 })
 
-#' @details Allow users to generate groups 
+#' @details Allow user to decide whether they want groups 
+output$WantGroupsUI <- renderUI({
+  req(uploaded_data())
+  radioGroupButtons("WantGroups", "Would you like to assign groups?", c("Yes", "No"), "No")
+})
+
+#' @details Allow users to enter group names 
 output$GroupDesignationUI <- renderUI({
   
   req(uploaded_data())
   
-  if (input$WantGroups == "Yes") {
+  if (!is.null(input$WantGroups) && input$WantGroups == "Yes") {
     tagList(
       textInput("GroupName", HTML("<strong>Enter Group Name</strong>")),
       actionButton("GroupAdd", "Add", icon = icon("plus")),
@@ -33,5 +39,17 @@ output$GroupDesignationUI <- renderUI({
     )
   }
   
+})
+
+#' @details Allow users to indicate whether their data is log transformed or not
+output$IsTransformedUI <- renderUI({
+  req(uploaded_data())
+  radioGroupButtons("IsTransformed", "Is your data log transformed?", c("Yes", "No"), "No")
+})
+
+#' @details Allow user to indicate whether their data is normalized or not
+output$IsNormalizedUI <- renderUI({
+  req(uploaded_data())
+  radioGroupButtons("IsNormalized", "Is your data normalized?", c("Yes", "No"), "No")
 })
 

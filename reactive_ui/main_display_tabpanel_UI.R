@@ -17,8 +17,25 @@ output$edata_preview <- DT::renderDT({
   
 })
 
-# Preview the fdata in the file
-output$fdata_preview <- DT::renderDT({
+# Create the input for Group Input within the fdata_preview table 
+shinyInput <- function(FUN, len, id, ...) {
+  inputs <- character(len)
+  for (i in seq_len(len)) {
+    inputs[i] <- as.character(FUN(paste0(id, i), ...))
+  }
+  inputs
+}
+
+# Obtain the value of the Group Input within the fdata_preview table
+shinyValue <- function(id, len, input) {
+  unlist(lapply(seq_len(len), function(i) {
+    value <- input[[paste0(id, i)]]
+    if (is.null(value)) {""} else {value}
+  }))
+}
+
+# Create reactive for fdata
+fdata_table <- reactive({
   
   # Require uploaded data 
   req(uploaded_data())
@@ -26,12 +43,29 @@ output$fdata_preview <- DT::renderDT({
   # Generate sample f data 
   fdata <- data.frame(
     "LipidCommonName" = colnames(uploaded_data()$Data$e_data)[2:12],
-    "Group" = NA
+    "Group" = shinyInput(selectizeInput, length(uploaded_data()$Data$e_data) - 1, 
+                         "GroupSelector", label = NULL, choices = c("NA", unlist(edata_groups$Group))),
+    check.names = FALSE
   )
   
+  return(fdata)
+  
+})
+
+# Preview the fdata in the file
+output$fdata_preview <- DT::renderDT({
+  
+  # Require uploaded data 
+  req(uploaded_data())
+  
+  session$sendCustomMessage("unbind-DT", "fdata_preview")
+  
   # Visualize in an interactive table
-  DT::datatable(fdata, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
-            options = list(pageLength = 10, scrollX = T))
+  DT::datatable(fdata_table(), escape = FALSE, selection = "single", rownames = FALSE, 
+            options = list(pageLength = nrow(fdata_table()), dom = "t", scrollX = T, ordering = FALSE, 
+            preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+            drawCallback = JS('function() { Shiny.bindAll(this.api().table().node()); } '))
+  )
 
 })
 

@@ -25,10 +25,12 @@ make_front_page_normalize_data <- function() {
   tagList(
     uiOutput("IsNormalizedUI"),
     uiOutput("SelectNormalizationUI"),
-    uiOutput("TrelliPanelVariable"),
-    uiOutput("TrelliPlottingVariable")
+    uiOutput("CheckNormalizationUI")
   )
 }
+
+#uiOutput("TrelliPanelVariable"),
+#uiOutput("TrelliPlottingVariable")
 
 front_page_left_collapse <- function(){
   bsCollapse(

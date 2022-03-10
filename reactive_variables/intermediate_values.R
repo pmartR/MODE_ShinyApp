@@ -2,7 +2,8 @@
 
 edata_groups <- reactiveValues(
   Group = list(), # Contains list of user inputted groups
-  edata_obj = NULL # Contains an omic data object constructed from edata
+  edata_obj = NULL, # Contains an omic data object constructed from edata
+  NormalizationText = "" # Contains any text for the normalization output
 )
 
 trelli_Data <- reactive(NULL) # Holds the final trelli data object

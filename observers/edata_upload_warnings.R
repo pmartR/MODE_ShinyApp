@@ -26,3 +26,29 @@ observeEvent(input$MoveToNormalization, {
   
   
 })
+
+#' @details Run normalization check 
+observeEvent(input$CheckNormalization, {
+  
+  browser()
+  
+  # Create an edata object to test 
+  omicFUN <- switch(uploaded_data()$Project$DataType,
+    "Peptide-level Label Free" = "as.pepData", 
+    "Peptide-level Isobaric" = "as.isobaricpepData", 
+    "Protein-level Label Free" = "as.proData", 
+    "Protein-level Isobaric" = "as.proData", 
+    "Lipidomics-Negative" = "as.lipidData", 
+    "Lipidomics-Positive" = "as.lipidData", 
+    "Metabolomics-GC/LC-MS" = "as.metabData", 
+    "Metabolomics-NMR" = "as.nmrData"
+  )
+  
+  #eval(parse(text = paste0(omics_type, "(e_data = uploaded_data()$Data$e_data, 
+  #     edata_cname = input$edata_idcname_picker, f_data = fdata, fdata_cname = fdata_cname,
+  #    data_scale = data_scale_original)")))
+  
+  
+})
+
+

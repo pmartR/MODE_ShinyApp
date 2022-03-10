@@ -81,7 +81,7 @@ output$SelectNormalizationUI <- renderUI({
         "Everything" = "all", "Top L order statistics (los)" = "los", "Percentage present (ppp)" = "ppp",
         "Complete" = "complete", "Rank invariant (rip)" = "rip", "Percentage present and rank invariant (ppp+rip)" = "ppp_rip"
       ), selected = "Everything"),
-      pickerInput("NormFun", "Select Noramlization Function", c(
+      pickerInput("NormFun", "Select Normalization Function", c(
         "Mean" = "mean", "Median" = "median", "Z-norm" = "zscore", "Median Absolute Distance" = "mad"
       ), selected = "Median"),
       uiOutput("MoreNormalizationUI")
@@ -91,11 +91,42 @@ output$SelectNormalizationUI <- renderUI({
 
 #' @detail Expanded normalization parameters 
 output$MoreNormalizationUI <- renderUI({
+  
   if (edata_groups$ToNormalization) {
-    browser()
+    
+    # Make a switch function for the additional normalization parameters
+    additional_parameters <- switch(input$NormSubsetFun,
+      "los" = numericInput("NormalLOS", "Top L order statistics (los)", "0.05"),
+      "ppp" = numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+      "rip" = numericInput("NormalRIP", "Rank Invariant (rip)", "0.2"),
+      "ppp_rip" = tagList(
+        numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+        numericInput("NormalRIP", "Rank Invariant (rip)", "0.2")
+      )
+    )
+    
+    additional_parameters
+
+  }
+})
+
+#' @details Check normalization choices
+output$CheckNormalizationUI <- renderUI({
+  if (edata_groups$ToNormalization) {
+    tagList(
+      list(
+        actionButton("CheckNormalization", "Test Normalization"),
+        actionButton("ConfirmNormalization", "Confirm")
+      ),
+      uiOutput("NormalizationTest")
+    )
   }
 })
   
+#' @details Display results of normalization test
+output$NormalizationTest <- renderUI({
+  HTML(edata_groups$NormalizationText)
+})
   
   
   

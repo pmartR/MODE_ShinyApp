@@ -34,11 +34,19 @@ output$GroupDesignationUI <- renderUI({
   if (!is.null(input$WantGroups) && input$WantGroups == "Yes") {
     tagList(
       textInput("GroupName", HTML("<strong>Enter Group Name</strong>")),
-      actionButton("GroupAdd", "Add", icon = icon("plus")),
+      list(actionButton("GroupAdd", "Add", icon = icon("plus")),
+           actionButton("LockGroups", "Confirm", icon = icon("hand-spock"))
+      ),
+      uiOutput("GroupText"),
       br(), br()
     )
   }
   
+})
+
+#' @details Add group text
+output$GroupText <- renderUI({
+  HTML(paste("Groups:", unlist(edata_groups$Group) %>% paste0(collapse = "<p></p>")))
 })
 
 #' @details Get NA values 
@@ -113,13 +121,20 @@ output$MoreNormalizationUI <- renderUI({
 #' @details Check normalization choices
 output$CheckNormalizationUI <- renderUI({
   if (edata_groups$ToNormalization) {
-    tagList(
-      list(
-        actionButton("CheckNormalization", "Test Normalization"),
-        actionButton("ConfirmNormalization", "Confirm")
-      ),
-      uiOutput("NormalizationTest")
-    )
+    if (length(unique(edata_groups$LockedGroupOrder)) == 1) {
+      tagList(
+        actionButton("ConfirmNormalization", "Confirm"),
+        uiOutput("NormalizationTest")
+      )
+    } else {
+      tagList(
+        list(
+          actionButton("CheckNormalization", "Test Normalization"),
+          actionButton("ConfirmNormalization", "Confirm")
+        ),
+        uiOutput("NormalizationTest")
+      )
+    }
   }
 })
   

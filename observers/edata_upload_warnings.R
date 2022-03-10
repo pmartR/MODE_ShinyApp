@@ -1,7 +1,18 @@
 #' @details Allow users to add groups 
 observeEvent(input$GroupAdd, {
-  
   edata_groups$Group <- append(edata_groups$Group, input$GroupName)
+})
+
+#' @detail Allow user to lock input groups
+observeEvent(input$LockGroups, {
+  
+  # Make table
+  fdata_table()
+  
+  # Disable widgets
+  disable("GroupAdd")
+  disable("LockGroups")
+  disable("GroupName")
   
 })
 
@@ -19,6 +30,7 @@ observeEvent(input$MoveToNormalization, {
   
   # We are ready for normalization
   edata_groups$ToNormalization <- TRUE
+  edata_groups$LockedGroupOrder <- shinyValue("GroupSelector", ncol(uploaded_data()$Data$e_data) - 1, input)
   
   # Collapse above tabs and open next one
   updateCollapse(session, "trelli_collapse", open = "front_page_normalize_data",
@@ -44,10 +56,29 @@ observeEvent(input$CheckNormalization, {
     "Metabolomics-NMR" = "as.nmrData"
   )
   
-  #eval(parse(text = paste0(omics_type, "(e_data = uploaded_data()$Data$e_data, 
-  #     edata_cname = input$edata_idcname_picker, f_data = fdata, fdata_cname = fdata_cname,
-  #    data_scale = data_scale_original)")))
+  # Create omicData object
+  omicData <- eval(parse(text = paste0(omicFUN, 
+       "(e_data = uploaded_data()$Data$e_data, 
+       edata_cname = input$edata_idcname_picker, 
+       f_data = edata_groups$fdata, 
+       fdata_cname = 'Sample',
+       data_scale = input$OrigDataScale)")))
   
+  # Log transform if necessary
+  if (input$OrigDataScale != input$NewDataScale) {
+    omicData <- edata_transform(omicData, input$NewDataScale)
+  }
+  
+  # Add grouping
+  omicData <- group_designation(omicData, "group")
+  
+  # Run normalization
+  switch(input$NormSubsetFun,
+    "all"
+    
+    
+  )
+  normalize_global(omicData, input$NormSubsetFun, input$NormFun) %>% normRes_tests()
   
 })
 

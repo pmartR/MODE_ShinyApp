@@ -1,18 +1,3 @@
-make_front_page_plot_opts <- function(){
-  div(id = "front_page_plot_opts",
-    uiOutput('choose_edata_colname'),
-    uiOutput("WantGroupsUI"),
-    uiOutput("GroupDesignationUI"),
-    uiOutput("IsTransformedUI"),
-    uiOutput("SelectTransformationUI"),
-    uiOutput("IsNormalizedUI"),
-    uiOutput("SelectNormalizationUI"),
-    uiOutput("SelectNormalizationButton"),
-    uiOutput("TrelliPanelVariable"),
-    uiOutput("TrelliPlottingVariable")
-  )
-}
-
 make_front_page_upload_opts <- function(){
   
   if (MAP) {
@@ -23,13 +8,32 @@ make_front_page_upload_opts <- function(){
       uiOutput("UploadedFileType")
     )
   }
-  
+}
+
+make_front_page_data_process_opts <- function(){
+  div(id = "front_page_plot_opts",
+    uiOutput('choose_edata_colname'),
+    uiOutput("WantGroupsUI"),
+    uiOutput("GroupDesignationUI"),
+    uiOutput("EnterNAValuesUI"),
+    uiOutput("SelectTransformationUI"),
+    uiOutput("MoveToNormalizationUI")
+  )
+}
+
+make_front_page_normalize_data <- function() {
+  tagList(
+    uiOutput("IsNormalizedUI"),
+    uiOutput("SelectNormalizationUI"),
+    uiOutput("TrelliPanelVariable"),
+    uiOutput("TrelliPlottingVariable")
+  )
 }
 
 front_page_left_collapse <- function(){
   bsCollapse(
     id = "trelli_collapse", multiple = TRUE, 
-    open = c("main_trelli_upload", "main_trelli_plot_opts"),
+    open = c("front_page_upload_opts", "front_page_data_process_opts"),
     bsCollapsePanel(
       div(
         subsection_header(
@@ -40,13 +44,18 @@ front_page_left_collapse <- function(){
           hidden = T
         )
       ),
-      value = "main_trelli_upload",
+      value = "front_page_upload_opts",
       make_front_page_upload_opts()
     ),
     bsCollapsePanel(
       title = "Format Data", 
-      value='main_trelli_plot_opts',
-      make_front_page_plot_opts()
+      value = "front_page_data_process_opts",
+      make_front_page_data_process_opts()
+    ),
+    bsCollapsePanel(
+      title = "Normalize Data",
+      value = "front_page_normalize_data",
+      make_front_page_normalize_data()
     ),
     bsCollapsePanel(
       title = "Make Trelliscope",

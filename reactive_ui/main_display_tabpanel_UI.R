@@ -40,9 +40,15 @@ fdata_table <- reactive({
   # Require uploaded data 
   req(uploaded_data())
   
+  if (is.null(input$edata_idcname_picker)) {return(NULL)}
+  
+  # Get column names and groups
+  Columns <- colnames(uploaded_data()$Data$e_data)
+  Edata_Col <- input$edata_idcname_picker
+  
   # Generate sample f data 
   fdata <- data.frame(
-    "LipidCommonName" = colnames(uploaded_data()$Data$e_data)[2:12],
+    "Sample" = Columns[Columns %in% Edata_Col == FALSE],
     "Group" = shinyInput(selectizeInput, length(uploaded_data()$Data$e_data) - 1, 
                          "GroupSelector", label = NULL, choices = c("NA", unlist(edata_groups$Group))),
     check.names = FALSE

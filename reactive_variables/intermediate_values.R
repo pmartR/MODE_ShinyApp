@@ -9,4 +9,7 @@ edata_groups <- reactiveValues(
   NormalizationText = "" # Contains any text for the normalization output
 )
 
-trelli_Data <- reactive(NULL) # Holds the final trelli data object
+final_data <- reactiveValues(
+  OmicsData = NULL, # Holds final omics data object (not applicable if edata )
+  TrelliData = NULL # Holds final trelli data object
+) 

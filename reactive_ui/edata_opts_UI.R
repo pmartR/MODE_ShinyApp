@@ -142,6 +142,3 @@ output$CheckNormalizationUI <- renderUI({
 output$NormalizationTest <- renderUI({
   HTML(edata_groups$NormalizationText)
 })
-  
-  
-  

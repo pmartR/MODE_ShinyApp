@@ -29,8 +29,14 @@ make_front_page_normalize_data <- function() {
   )
 }
 
-#uiOutput("TrelliPanelVariable"),
-#uiOutput("TrelliPlottingVariable")
+make_plot_variable_options <- function() {
+  tagList(
+    uiOutput("TrelliPanelVariableUI"),
+    uiOutput("TrelliPlottingVariableUI")
+  )
+}
+
+
 
 front_page_left_collapse <- function(){
   bsCollapse(
@@ -60,8 +66,13 @@ front_page_left_collapse <- function(){
       make_front_page_normalize_data()
     ),
     bsCollapsePanel(
+      title = "Make Plot",
+      value = 'make_plot_opts',
+      make_plot_variable_options()
+    ),
+    bsCollapsePanel(
       title = "Make Trelliscope",
-      value = 'make_trelli_plot_opts',
+      value = "make_trelli_opts",
       tags$hr(),
       div(
         class = "flex-baseline",

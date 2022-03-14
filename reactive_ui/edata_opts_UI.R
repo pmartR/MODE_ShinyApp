@@ -142,3 +142,25 @@ output$CheckNormalizationUI <- renderUI({
 output$NormalizationTest <- renderUI({
   HTML(edata_groups$NormalizationText)
 })
+
+#' @details Generate panel option variable choices
+output$TrelliPanelVariableUI <- renderUI({
+  req(final_data$TrelliData)
+  pickerInput("TrelliPanelVariable", "Panel By Choice", 
+              choices = attr(final_data$TrelliData, "panel_by_options"))
+})
+
+#' @details Generate panel option variable choices
+output$TrelliPlottingVariableUI <- renderUI({
+  req(final_data$TrelliData)
+  variable_choices <- summary(final_data$TrelliData)$Plot %>% 
+    strsplit(" ") %>% 
+    lapply(function(x) {head(x, 1)}) %>% 
+    unlist() %>% 
+    unique()
+  pickerInput("TrelliPlottingVariable", "What data would you like to plot?", 
+              choices = variable_choices)
+})
+  
+  
+  

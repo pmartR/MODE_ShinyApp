@@ -122,8 +122,6 @@ observeEvent(input$ConfirmNormalization, {
     # Add grouping
     omicData <- group_designation(omicData, "group")
     
-    browser()
-    
     # Apply normalization
     omicData <- switch(input$NormSubsetFun,
       "all" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, apply_norm = TRUE, backtransform = TRUE),
@@ -139,9 +137,6 @@ observeEvent(input$ConfirmNormalization, {
     
     # Create trelliData object 
     final_data$TrelliData <- as.trelliData(omicsData = omicData)
-      
-    # Close and update tabs 
-    
     
   } else {
     
@@ -179,11 +174,10 @@ observeEvent(input$ConfirmNormalization, {
       normalization_params = normalParams
     )
     
-    # Close tabs
-    
-    
   }
   
-  
+  # Close and update tabs 
+  updateCollapse(session, "trelli_collapse", open = "make_plot_opts",
+                 close = c("front_page_upload_opts", "front_page_data_process_opts", "front_page_normalize_data"))
   
 })

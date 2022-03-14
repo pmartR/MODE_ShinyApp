@@ -9,7 +9,12 @@ output$edata_preview <- DT::renderDT({
   req(uploaded_data())
   
   # Extract edata
-  edata <- uploaded_data()$Data$e_data
+  if (is.null(final_data$TrelliData)) {
+    edata <- uploaded_data()$Data$e_data
+  } else {
+    edata <- final_data$TrelliData$omicsData$e_data
+  }
+
   
   # Visualize in an interactive table
   DT::datatable(edata, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 

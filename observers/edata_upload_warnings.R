@@ -176,8 +176,11 @@ observeEvent(input$ConfirmNormalization, {
     
   }
   
-  # Close and update tabs 
+  # Close and update side bar
   updateCollapse(session, "trelli_collapse", open = "make_plot_opts",
                  close = c("front_page_upload_opts", "front_page_data_process_opts", "front_page_normalize_data"))
+  
+  # Open new tab
+  updateTabsetPanel(session, "trelliscope_mainpanel", "select_plot")
   
 })

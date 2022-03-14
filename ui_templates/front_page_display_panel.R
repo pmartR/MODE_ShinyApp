@@ -2,7 +2,9 @@ front_page_display_panel <- function(){
   tabsetPanel(
     id = "trelliscope_mainpanel",
     tabPanel(
-      title = "Preview Tables", br(),
+      title = "Preview Tables", 
+      value = "preview_tables",
+        br(),
         HTML("<strong>Expression Data</strong>"), hr(),
         DT::DTOutput("edata_preview"), br(), br(),
         HTML("<strong>Sample Data</strong>"), hr(),
@@ -11,12 +13,19 @@ front_page_display_panel <- function(){
         DT::DTOutput("emeta_preview"), br(), br()
     ),
     tabPanel(
-      title = "Preview Plots",
+      title = "Select Plot",
+      value = "select_plot",
+      uiOutput("SelectPlotUI")
+    ),
+    tabPanel(
+      title = "Modify Plot",
+      value = "modify_plot",
       plotlyOutput("one_plot_preview"),
       bsButton("refresh_panel_preview", "Update plot", style = "primary")
     ),
     tabPanel(
       title = "Trelliscope Display",
+      value = "trelliscope_display",
         div(class = "horizontal-aligned",
           uiOutput("trelli_download_picker"),
           uiOutput("pull_trelliscope_ui")

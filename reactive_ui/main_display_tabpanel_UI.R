@@ -1,6 +1,6 @@
-#######################
-## RENDER DATATABLES ##
-#######################
+#########################
+## PREVIEW TABLES PAGE ##
+#########################
 
 # Preview the edata in the file
 output$edata_preview <- DT::renderDT({
@@ -99,7 +99,44 @@ output$emeta_preview <- DT::renderDT({
   return(NULL)
 })
 
-#############
+######################
+## SELECT PLOT PAGE ##
+######################
+
+# Render plot 
+output$PlotOptionsPlot <- renderPlot({
+  
+  # Require the PlotOptionsTable to be rendered first
+  if (is.null(final_data$TrelliData)) {return(NULL)}
+  
+  browser()
+  
+})
+
+# Render data table
+output$PlotOptionsTable <- DT::renderDT({
+  
+  # Require TrelliData object 
+  if (is.null(final_data$TrelliData) | 
+      is.null(input$TrelliPanelVariable) | 
+      is.null(input$TrelliPlottingVariable)) {return(NULL)}
+  
+  # Get the summary of all possible plots
+  PlotOptions <- summary(final_data$TrelliData)
+  
+  # Save resulting table
+  final_data$PlotOptions <- PlotOptions[PlotOptions$`Panel By Choice` == input$TrelliPanelVariable & 
+                                        grepl(input$TrelliPlottingVariable, PlotOptions$Plot),]
+  
+  # Visualize in an interactive table
+  DT::datatable(final_data$PlotOptions, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                options = list(pageLength = 10, scrollX = T))
+  
+})
+
+##############
+## OLD CODE ##
+##############
 
 output$one_plot_preview <- renderPlotly({
   #' TODO:  This will eventually be the UI which shows different kinds of plots.

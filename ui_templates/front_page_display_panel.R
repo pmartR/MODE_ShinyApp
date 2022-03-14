@@ -15,12 +15,13 @@ front_page_display_panel <- function(){
     tabPanel(
       title = "Select Plot",
       value = "select_plot",
-      uiOutput("SelectPlotUI")
+      DT::DTOutput("PlotOptionsTable"),
+      plotOutput("PlotOptionsPlot")
     ),
     tabPanel(
       title = "Modify Plot",
       value = "modify_plot",
-      plotlyOutput("one_plot_preview"),
+      plotlyOutput("OnePlotPreview"),
       bsButton("refresh_panel_preview", "Update plot", style = "primary")
     ),
     tabPanel(

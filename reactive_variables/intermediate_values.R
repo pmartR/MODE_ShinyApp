@@ -11,5 +11,6 @@ edata_groups <- reactiveValues(
 
 final_data <- reactiveValues(
   OmicsData = NULL, # Holds final omics data object (not applicable if edata )
-  TrelliData = NULL # Holds final trelli data object
+  TrelliData = NULL, # Holds final trelli data object
+  PlotOptions = NULL # Holds table with user selected plotting options
 ) 

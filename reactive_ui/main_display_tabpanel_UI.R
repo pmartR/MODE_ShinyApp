@@ -107,9 +107,20 @@ output$emeta_preview <- DT::renderDT({
 output$PlotOptionsPlot <- renderPlot({
   
   # Require the PlotOptionsTable to be rendered first
-  if (is.null(final_data$TrelliData)) {return(NULL)}
+  if (is.null(final_data$PlotOptions)) {return(NULL)}
   
-  browser()
+  # If no row clicked, assume it's the first
+  if (is.null(input$PlotOptionsTable_row_last_clicked)) {row <- 1} else {
+    row <- input$PlotOptionsTable_row_last_clicked
+  }
+  
+  # If selected row is larger than the number of entries, convert to 1
+  if (row > nrow(final_data$PlotOptions)) {row <- 1}
+  
+  # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
+  paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
+  theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
+  eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=1, single_plot=T)")))
   
 })
 

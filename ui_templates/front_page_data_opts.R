@@ -32,10 +32,11 @@ make_front_page_normalize_data <- function() {
 make_plot_variable_options <- function() {
   tagList(
     uiOutput("TrelliPanelVariableUI"),
-    uiOutput("TrelliPlottingVariableUI")
+    uiOutput("TrelliPlottingVariableUI"),
+    uiOutput("PlotOptionsPanelUI"),
+    uiOutput("PlotOptionsConfirmUI")
   )
 }
-
 
 
 front_page_left_collapse <- function(){

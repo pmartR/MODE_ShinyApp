@@ -103,6 +103,9 @@ output$emeta_preview <- DT::renderDT({
 ## SELECT PLOT PAGE ##
 ######################
 
+# Generate reactive to hold which row is being triggered in the PlotOptions table
+
+
 # Render plot 
 output$PlotOptionsPlot <- renderPlot({
   
@@ -120,7 +123,8 @@ output$PlotOptionsPlot <- renderPlot({
   # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
   paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
   theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
-  eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=1, single_plot=T)")))
+  test_example_num <- final_data$PlotOptions[row, "Number of Plots"] %>% unlist() %>% as.numeric() %>% sample(1)
+  eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)")))
   
 })
 

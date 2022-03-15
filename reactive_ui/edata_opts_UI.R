@@ -161,6 +161,17 @@ output$TrelliPlottingVariableUI <- renderUI({
   pickerInput("TrelliPlottingVariable", "What data would you like to plot?", 
               choices = variable_choices)
 })
+
+#' @details Select a panel to see
+output$PlotOptionsPanelUI <- renderUI({
+  req(final_data$PlotOptions)
+  browser()
+})
   
+#' @details Confirm plot selection for the trelliscope
+output$PlotOptionsConfirmUI <- renderUI({
+  req(final_data$PlotOptions)
+  actionButton("PlotOptionsConfirm", "Confirm Selection", icon = icon("hand-spock"))
+})
   
   

@@ -165,13 +165,17 @@ output$TrelliPlottingVariableUI <- renderUI({
 #' @details Select a panel to see
 output$PlotOptionsPanelUI <- renderUI({
   req(final_data$PlotOptions)
-  browser()
+  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  pickerInput("PlotOptionsPanel", "Select Panel Variable", choices = choices, selected = choices[1])
 })
   
 #' @details Confirm plot selection for the trelliscope
 output$PlotOptionsConfirmUI <- renderUI({
   req(final_data$PlotOptions)
-  actionButton("PlotOptionsConfirm", "Confirm Selection", icon = icon("hand-spock"))
+  list(
+    actionButton("PlotOptionsConfirm", "Confirm Selection", icon = icon("lock")),
+    actionButton("PlotOptionsUnconfirm", "Make Another Selection", icon = icon("lock-open"))
+  )
 })
   
   

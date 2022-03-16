@@ -15,7 +15,7 @@ front_page_display_panel <- function(){
     tabPanel(
       title = "Select Plot",
       value = "select_plot",
-      jqui_resizable(plotOutput("PlotOptionsPlot")),
+      plotOutput("PlotOptionsPlot"),
       DT::DTOutput("PlotOptionsTable")
     ),
     tabPanel(

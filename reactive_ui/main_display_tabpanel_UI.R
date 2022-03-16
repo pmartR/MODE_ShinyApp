@@ -15,7 +15,6 @@ output$edata_preview <- DT::renderDT({
     edata <- final_data$TrelliData$omicsData$e_data
   }
 
-  
   # Visualize in an interactive table
   DT::datatable(edata, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
   options = list(pageLength = 10, scrollX = T))
@@ -103,14 +102,11 @@ output$emeta_preview <- DT::renderDT({
 ## SELECT PLOT PAGE ##
 ######################
 
-# Generate reactive to hold which row is being triggered in the PlotOptions table
-
-
 # Render plot 
 output$PlotOptionsPlot <- renderPlot({
   
   # Require the PlotOptionsTable to be rendered first
-  if (is.null(final_data$PlotOptions)) {return(NULL)}
+  if (is.null(final_data$PlotOptions) | is.null(input$PlotOptionsPanel)) {return(NULL)}
   
   # If no row clicked, assume it's the first
   if (is.null(input$PlotOptionsTable_row_last_clicked)) {row <- 1} else {
@@ -123,7 +119,10 @@ output$PlotOptionsPlot <- renderPlot({
   # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
   paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
   theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
-  test_example_num <- final_data$PlotOptions[row, "Number of Plots"] %>% unlist() %>% as.numeric() %>% sample(1)
+  
+  # Determine test example number
+  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  test_example_num <- match(input$PlotOptionsPanel, choices)
   eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)")))
   
 })

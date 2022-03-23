@@ -146,27 +146,45 @@ output$NormalizationTest <- renderUI({
 #' @details Generate panel option variable choices
 output$TrelliPanelVariableUI <- renderUI({
   req(final_data$TrelliData)
-  pickerInput("TrelliPanelVariable", "Panel By Choice", 
-              choices = attr(final_data$TrelliData, "panel_by_options"))
+  
+  div(
+    id = "TrelliPanelDiv",
+    pickerInput("TrelliPanelVariable", "Panel By Choice", 
+                choices = attr(final_data$TrelliData, "panel_by_options"))
+    )
+  
 })
 
 #' @details Generate panel option variable choices
 output$TrelliPlottingVariableUI <- renderUI({
+  
   req(final_data$TrelliData)
   variable_choices <- summary(final_data$TrelliData)$Plot %>% 
     strsplit(" ") %>% 
     lapply(function(x) {head(x, 1)}) %>% 
     unlist() %>% 
     unique()
-  pickerInput("TrelliPlottingVariable", "What data would you like to plot?", 
-              choices = variable_choices)
+
+  div(
+    id = "TrelliPlottingDiv", 
+    pickerInput("TrelliPlottingVariable", "What data would you like to plot?", 
+                choices = variable_choices)
+  )
+
+
+
 })
 
 #' @details Select a panel to see
 output$PlotOptionsPanelUI <- renderUI({
   req(final_data$PlotOptions)
   choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
-  pickerInput("PlotOptionsPanel", "Select Panel Variable", choices = choices, selected = choices[1])
+  
+  div(
+    id = "TrelliPlotOptDiv",
+    pickerInput("PlotOptionsPanel", "Select Panel Variable", choices = choices, selected = choices[1])
+  )
+ 
 })
   
 #' @details Confirm plot selection for the trelliscope

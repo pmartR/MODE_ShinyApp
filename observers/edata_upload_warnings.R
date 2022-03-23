@@ -187,14 +187,35 @@ observeEvent(input$ConfirmNormalization, {
 
 #' @details Confirm plot choice to lock the "Panel By" and "Data" options
 observeEvent(input$PlotOptionsConfirm, {
+  
+  # Change to the modify plot tab
   updateTabsetPanel(session, "trelliscope_mainpanel", "modify_plot")
-  shinyjs::disable("TrelliPanelVariable")
-  shinyjs::disable("TrelliPlottingVariable")
+  
+  # Indicate that plots should be locked and save variable selections 
+  disable("TrelliPanelDiv")
+  disable("TrelliPlottingDiv")
+  
+  # Store row 
+  row <- input$PlotOptionsTable_row_last_clicked
+  if (is.null(row)) {row <- 1}
+  final_data$TrelliRow <- row
+  
+  
 })
 
 #' @details Choose another plot choice 
 observeEvent(input$PlotOptionsUnconfirm, {
-  return(NULL)
+  
+  # Change to the modify plot tab
+  updateTabsetPanel(session, "trelliscope_mainpanel", "select_plot")
+  
+  # Indicate that plots should be locked and save variable selections 
+  enable("TrelliPanelDiv")
+  enable("TrelliPlottingDiv")
+  
+  # Store row 
+  final_data$TrelliRow <- NULL
+  
 })
 
 #' @details Make trelliscope plot

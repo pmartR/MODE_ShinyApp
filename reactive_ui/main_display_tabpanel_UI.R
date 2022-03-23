@@ -148,6 +148,29 @@ output$PlotOptionsTable <- DT::renderDT({
   
 })
 
+######################
+## MODIFY PLOT PAGE ##
+######################
+
+# Render modified plot only if final_data$Trelli_Row is not NULL (the "Confirm Selection" button has been clicked)
+output$OnePlotPreview <- renderPlot({
+  
+  req(final_data$TrelliRow)
+  
+  # Get the row 
+  row <- final_data$TrelliRow
+  
+  # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
+  paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
+  theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
+  
+  # Determine test example number
+  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  test_example_num <- match(input$PlotOptionsPanel, choices)
+  eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)")))
+  
+})
+
 ##############
 ## OLD CODE ##
 ##############

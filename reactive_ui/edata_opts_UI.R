@@ -196,4 +196,30 @@ output$PlotOptionsConfirmUI <- renderUI({
   )
 })
   
+#' @details Add the large number of input widgets for plot modifications
+output$RenderPlotModsUI <- renderUI({
+  
+  req(final_data$TrelliRow)
+  tagList(
+    column(3, textInput("XLab", "X-axis label")),
+    column(3, textInput("YLab", "Y-axis label")),
+    column(3, numericInput("XAxisSize", "X-axis Font Size", NA, min = 1, max = 20, step = 1)),
+    column(3, numericInput("YAxisSize", "Y-axis Font Size", NA, min = 1, max = 20, step = 1)),
+    column(3, numericInput("XAxisTickAngle", "X-axis Tick Angle", NA, min = 0, max = 360, step = 1)),
+    column(3, numericInput("YAxisTickAngle", "Y-axis Tick Angle", NA, min = 0, max = 360, step = 1)),
+    column(3, numericInput("XAxisTickSize", "X-axis Tick Font Size", NA, min = 1, max = 20, step = 1)),
+    column(3, numericInput("YAxisTickSize", "Y-axis Tick Font Size", NA, min = 1, max = 20, step = 1)),
+    column(3, textInput("PlotTitle", "Title")),
+    column(3, numericInput("PlotTitleSize", "Plot Title Size", NA, min = 1, max = 100, step = 1)),
+    column(6, br(), 
+           list(
+             actionButton("AxisFlip", "Flip Axes", icon = icon("arrows-rotate")),
+             actionButton("PlotRedraw", "Redraw Plot", icon = icon("pencil")),
+             actionButton("PlotConfirm", "Confirm Select", icon = icon("hand-spock"))
+           )
+    )
+  )
+  
+  
+})
   

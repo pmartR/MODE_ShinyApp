@@ -9,6 +9,7 @@ library(shinyWidgets)
 library(shinyjs)
 library(shinyalert)
 library(stringr)
+library(shinyjqui)
 library(pmartR)
 library(DT)
 

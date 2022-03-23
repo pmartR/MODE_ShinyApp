@@ -15,14 +15,14 @@ front_page_display_panel <- function(){
     tabPanel(
       title = "Select Plot",
       value = "select_plot",
-      plotOutput("PlotOptionsPlot"),
+      jqui_resizable(plotOutput("PlotOptionsPlot")),
       DT::DTOutput("PlotOptionsTable")
     ),
     tabPanel(
       title = "Modify Plot",
       value = "modify_plot",
-      plotlyOutput("OnePlotPreview"),
-      bsButton("refresh_panel_preview", "Update plot", style = "primary")
+      jqui_resizable(plotOutput("OnePlotPreview")),
+      uiOutput("RenderPlotModsUI")
     ),
     tabPanel(
       title = "Trelliscope Display",

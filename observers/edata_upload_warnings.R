@@ -218,6 +218,39 @@ observeEvent(input$PlotOptionsUnconfirm, {
   
 })
 
+#' @details Gather all plot inputs
+observeEvent(input$PlotRedraw, {
+  
+  # Collect all inputs
+  Collected <- data.frame(
+    Inputs = c(input$XLab, input$YLab, input$XAxisSize, input$YAxisSize, input$XAxisTickAngle,
+               input$YAxisTickAngle, input$XAxisTickSize, input$YAxisTickSize, input$PlotTitle,
+               input$PlotTitleSize, input$AxisFlip),
+    Code = c(paste0("xlab('", input$XLab, "')"), 
+              paste0("ylab('", input$YLab, "')"), 
+              paste0("theme(axis.title.x = element_text(size=", abs(round(input$XAxisSize)), "))"),
+              paste0("theme(axis.title.y = element_text(size=", abs(round(input$YAxisSize)), "))"),
+              paste0("theme(axis.text.x = element_text(size=", abs(round(input$XAxisTickSize)), "))"),
+              paste0("theme(axis.text.y = element_text(size=", abs(round(input$YAxisTickSize)), "))"),
+              paste0("theme(axis.text.x = element_text(angle=", abs(round(input$XAxisTickAngle)), "))"),
+              paste0("theme(axis.text.y = element_text(angle=", abs(round(input$YAxisTickAngle)), "))"),
+              paste0("ggtitle('", input$PlotTitle, "')"),
+              paste0("theme(plot.title = element_text(size=", input$PlotTitleSize, "))"),
+              paste0("coord_flip()"))
+  )
+  
+  # Determine if NULL 
+  IsNULL <- lapply(Collected$Inputs, function(x) {
+    if (is.na(x) || x == "" || x == "FALSE") {return("Yes")} else {return("No")}
+  }) %>% unlist()
+  
+  if (all(IsNULL == "Yes")) {final_data$PlotInputs <- NULL} else {browser(); final_data$PlotInputs <- Collected} 
+  
+})
+
+
+# Needs to be updated-----------------------------------------------------------
+
 #' @details Make trelliscope plot
 observeEvent(input$MakeTrelliscope, {
   

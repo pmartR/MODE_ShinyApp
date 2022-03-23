@@ -167,7 +167,13 @@ output$OnePlotPreview <- renderPlot({
   # Determine test example number
   choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
   test_example_num <- match(input$PlotOptionsPanel, choices)
-  eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)")))
+  
+  # Add additional values if plot inputs are not null 
+  if (is.null(final_data$PlotInputs)) {
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)"))) 
+  } else {
+    browser()
+  }
   
 })
 

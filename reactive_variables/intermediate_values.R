@@ -13,5 +13,6 @@ final_data <- reactiveValues(
   OmicsData = NULL, # Holds final omics data object (not applicable if edata )
   TrelliData = NULL, # Holds final trelli data object
   PlotOptions = NULL, # Holds table with user selected plotting options
-  TrelliRow = NULL # Hold the row number of the trelliscope plot when select plot was clicked 
+  TrelliRow = NULL, # Hold the row number of the trelliscope plot when select plot was clicked 
+  PlotInputs = NULL # Holds all inputs for the plot 
 ) 

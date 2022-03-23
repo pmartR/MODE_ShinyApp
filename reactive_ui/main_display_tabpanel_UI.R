@@ -105,6 +105,7 @@ output$emeta_preview <- DT::renderDT({
 # Render plot 
 output$PlotOptionsPlot <- renderPlot({
   
+  
   # Require the PlotOptionsTable to be rendered first
   if (is.null(final_data$PlotOptions) | is.null(input$PlotOptionsPanel)) {return(NULL)}
   
@@ -112,6 +113,8 @@ output$PlotOptionsPlot <- renderPlot({
   if (is.null(input$PlotOptionsTable_row_last_clicked)) {row <- 1} else {
     row <- input$PlotOptionsTable_row_last_clicked
   }
+  
+  req(input$TrelliPanelVariable)
   
   # If selected row is larger than the number of entries, convert to 1
   if (row > nrow(final_data$PlotOptions)) {row <- 1}
@@ -172,7 +175,13 @@ output$OnePlotPreview <- renderPlot({
   if (is.null(final_data$PlotInputs)) {
     eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)"))) 
   } else {
-    browser()
+
+    # Add list of ggplot commands
+    gg_params <- final_data$PlotInputs$Code
+    
+    # Make updated plot with parameters 
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, ggplot_params=gg_params)"))) 
+    
   }
   
 })

@@ -213,11 +213,7 @@ output$RenderPlotModsUI <- renderUI({
     column(3, textInput("PlotTitle", "Title")),
     column(3, numericInput("PlotTitleSize", "Plot Title Size", NA, min = 1, max = 100, step = 1)),
     column(3, br(),  materialSwitch("AxisFlip", HTML("<strong>Flip Axes</strong>"))),
-    column(3, br(), list(
-               actionButton("PlotRedraw", "Redraw Plot", icon = icon("pencil")),
-               actionButton("PlotConfirm", "Confirm Select", icon = icon("hand-spock"))
-              )
-    )
+    column(3, br(), actionButton("PlotRedraw", "Redraw Plot", icon = icon("pencil")))
   )
   
   

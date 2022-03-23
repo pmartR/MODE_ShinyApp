@@ -74,8 +74,6 @@ front_page_left_collapse <- function(){
     bsCollapsePanel(
       title = "Make Trelliscope",
       value = "make_trelli_opts",
-      actionButton("MakeTrelliscope", "Make Trelliscope"),
-      tags$hr(),
       div(
         class = "flex-baseline",
         bsButton(

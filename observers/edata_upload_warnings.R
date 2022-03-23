@@ -200,6 +200,10 @@ observeEvent(input$PlotOptionsConfirm, {
   if (is.null(row)) {row <- 1}
   final_data$TrelliRow <- row
   
+  # Open trelliscope tab
+  updateCollapse(session, "trelli_collapse", open = c("make_plot_opts", "make_trelli_opts"),
+                 close = c("front_page_upload_opts", "front_page_data_process_opts", "front_page_normalize_data"))
+  
   
 })
 
@@ -216,6 +220,10 @@ observeEvent(input$PlotOptionsUnconfirm, {
   # Store row 
   final_data$TrelliRow <- NULL
   
+  # Close trelliscope tab
+  updateCollapse(session, "trelli_collapse", open = c("make_plot_opts"),
+                 close = c("front_page_upload_opts", "front_page_data_process_opts", "front_page_normalize_data", "make_trelli_opts"))
+  
 })
 
 #' @details Gather all plot inputs
@@ -230,10 +238,10 @@ observeEvent(input$PlotRedraw, {
               paste0("ylab('", input$YLab, "')"), 
               paste0("theme(axis.title.x = element_text(size=", abs(round(input$XAxisSize)), "))"),
               paste0("theme(axis.title.y = element_text(size=", abs(round(input$YAxisSize)), "))"),
-              paste0("theme(axis.text.x = element_text(size=", abs(round(input$XAxisTickSize)), "))"),
-              paste0("theme(axis.text.y = element_text(size=", abs(round(input$YAxisTickSize)), "))"),
               paste0("theme(axis.text.x = element_text(angle=", abs(round(input$XAxisTickAngle)), "))"),
               paste0("theme(axis.text.y = element_text(angle=", abs(round(input$YAxisTickAngle)), "))"),
+              paste0("theme(axis.text.x = element_text(size=", abs(round(input$XAxisTickSize)), "))"),
+              paste0("theme(axis.text.y = element_text(size=", abs(round(input$YAxisTickSize)), "))"),
               paste0("ggtitle('", input$PlotTitle, "')"),
               paste0("theme(plot.title = element_text(size=", input$PlotTitleSize, "))"),
               paste0("coord_flip()"))
@@ -244,7 +252,7 @@ observeEvent(input$PlotRedraw, {
     if (is.na(x) || x == "" || x == "FALSE") {return("Yes")} else {return("No")}
   }) %>% unlist()
   
-  if (all(IsNULL == "Yes")) {final_data$PlotInputs <- NULL} else {browser(); final_data$PlotInputs <- Collected} 
+  if (all(IsNULL == "Yes")) {final_data$PlotInputs <- NULL} else {final_data$PlotInputs <- Collected[IsNULL == "No",]} 
   
 })
 

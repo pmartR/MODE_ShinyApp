@@ -76,6 +76,7 @@ front_page_left_collapse <- function(){
       value = "make_trelli_opts",
       div(
         class = "flex-baseline",
+        uiOutput("ChooseCognostics"),
         bsButton(
           "make_trelliscope", 
           "Create Trelliscope Display", 

@@ -257,27 +257,3 @@ observeEvent(input$PlotRedraw, {
 })
 
 
-# Needs to be updated-----------------------------------------------------------
-
-#' @details Make trelliscope plot
-observeEvent(input$MakeTrelliscope, {
-  
-  if (is.null(final_data$PlotOptions)) {return(NULL)}
-  
-  # If no row clicked, assume it's the first
-  if (is.null(input$PlotOptionsTable_row_last_clicked)) {row <- 1} else {
-    row <- input$PlotOptionsTable_row_last_clicked
-  }
-  
-  # If selected row is larger than the number of entries, convert to 1
-  if (row > nrow(final_data$PlotOptions)) {row <- 1}
-  
-  paneled <- final_data$TrelliData %>% trelli_panel_by(input$TrelliPanelVariable) 
-  trelliCommand <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"),
-                   "(paneled, test_mode = TRUE, test_example = 1:5, path = 'www/Trelli')") 
-  eval(parse(text = trelliCommand))
-  
-})
-
-
-

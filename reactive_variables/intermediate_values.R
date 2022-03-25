@@ -14,5 +14,6 @@ final_data <- reactiveValues(
   TrelliData = NULL, # Holds final trelli data object
   PlotOptions = NULL, # Holds table with user selected plotting options
   TrelliRow = NULL, # Hold the row number of the trelliscope plot when select plot was clicked 
-  PlotInputs = NULL # Holds all inputs for the plot 
+  PlotInputs = NULL, # Holds all inputs for the plot 
+  MakeTrelliscope = FALSE # Determines whether the trelliscope should be makde or not
 ) 

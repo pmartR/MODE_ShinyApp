@@ -173,18 +173,67 @@ output$OnePlotPreview <- renderPlot({
   
   # Add additional values if plot inputs are not null 
   if (is.null(final_data$PlotInputs)) {
-    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)"))) 
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, jsonp=FALSE)"))) 
   } else {
 
     # Add list of ggplot commands
     gg_params <- final_data$PlotInputs$Code
     
     # Make updated plot with parameters 
-    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, ggplot_params=gg_params)"))) 
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, ggplot_params=gg_params, jsonp=FALSE)"))) 
     
   }
   
 })
+
+#############################
+## RENDER TRELLISCOPE PAGE ##
+#############################
+
+output$trelliscope <- renderTrelliscope({
+  
+  if (final_data$MakeTrelliscope) {
+  
+    # Make it false again
+    final_data$MakeTrelliscope <- FALSE
+    
+    # Get the row 
+    row <- final_data$TrelliRow
+    
+    # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
+    paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
+    theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
+    
+    # Determine test example number
+    choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+    test_example_num <- match(input$PlotOptionsPanel, choices)
+    
+    # Create a load bar
+    withProgress({
+      
+      incProgress(0.5, "Building Trelliscope...")
+      
+      # Add additional values if plot inputs are not null 
+      if (is.null(final_data$PlotInputs)) {
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli')"))) 
+      } else {
+        
+        # Add list of ggplot commands
+        gg_params <- final_data$PlotInputs$Code
+        
+        # Make updated plot with parameters 
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, ggplot_params=gg_params, path = 'www/trelli')"))) 
+        
+      }
+      
+      incProgress(0.5, "Finished!")
+      
+    })
+    
+  }
+  
+})
+
 
 ##############
 ## OLD CODE ##

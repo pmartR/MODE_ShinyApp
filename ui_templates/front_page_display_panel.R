@@ -28,11 +28,12 @@ front_page_display_panel <- function(){
       title = "Trelliscope Display",
       value = "trelliscope_display",
         div(class = "horizontal-aligned",
-          uiOutput("trelli_download_picker"),
-          uiOutput("pull_trelliscope_ui")
+          #uiOutput("trelli_download_picker"),
+          #uiOutput("pull_trelliscope_ui")
           # actionButton("reload_trelliscope_iframe", "Reload Display")
+          trelliscopeOutput("trelliscope", width = "800px", height = "800px")
         ),
-        uiOutput("trelliscope_from_iframe")
+        #uiOutput("trelliscope_from_iframe")
     )
   )
 }

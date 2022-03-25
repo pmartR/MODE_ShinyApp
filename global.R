@@ -12,6 +12,7 @@ library(stringr)
 library(shinyjqui)
 library(pmartR)
 library(DT)
+library(trelliscopejs)
 
 #  source all UI 
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)

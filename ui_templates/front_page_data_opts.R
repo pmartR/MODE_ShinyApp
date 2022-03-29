@@ -74,9 +74,9 @@ front_page_left_collapse <- function(){
     bsCollapsePanel(
       title = "Make Trelliscope",
       value = "make_trelli_opts",
+      uiOutput("ChooseCognostics"),
       div(
         class = "flex-baseline",
-        uiOutput("ChooseCognostics"),
         bsButton(
           "make_trelliscope", 
           "Create Trelliscope Display", 
@@ -87,7 +87,9 @@ front_page_left_collapse <- function(){
           style = "color:red;margin-left:3px;",
           icon("exclamation-sign", lib = "glyphicon")  
         )
-      )
+      ),
+      hr(),
+      actionButton("refresh", "Refresh Display", icon = icon("rotate"))
     )
   )
 }

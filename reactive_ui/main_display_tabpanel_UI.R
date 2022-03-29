@@ -192,51 +192,9 @@ output$OnePlotPreview <- renderPlot({
 
 output$trelliscope <- renderUI({
   
-  if (final_data$MakeTrelliscope) {
-  
-    # Make it false again
-    final_data$MakeTrelliscope <- FALSE
-    
-    # Get the row 
-    row <- final_data$TrelliRow
-    
-    # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
-    paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
-    theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
-    
-    # Determine test example number
-    choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
-    test_example_num <- match(input$PlotOptionsPanel, choices)
-    
-    # Delete the trellifolder
-    unlink("www/MODE", recursive = TRUE)
-    
-    withProgress({
-      
-      incProgress(0.5, "Building Trelliscope...")
-      
-      # Add additional values if plot inputs are not null 
-      if (is.null(final_data$PlotInputs)) {
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE) %>% print(view = FALSE)"))) 
-      } else {
-        
-        # Add list of ggplot commands
-        gg_params <- final_data$PlotInputs$Code
-        
-        # Make updated plot with parameters 
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, ggplot_params=gg_params, path = 'www/trelli', self_contained = TRUE, jsonp = FALSE) %>% print(view = FALSE)"))) 
-        
-      }
-      
-      incProgress(0.5, "Finished!")
-      
-    })
-    
-  }
-
-  if (file.exists("www/trelli/index.html")) {
-    test <- tags$iframe(src = "trelli/index.html", width = "1000px", height = "600px")
-    test
+  if (file.exists("www/trelli/index.html") | input$refresh == 1) {
+    tags$iframe(src = "")
+    tags$iframe(src = "trelli/index.html", width = "1000px", height = "600px")
   }
   
       

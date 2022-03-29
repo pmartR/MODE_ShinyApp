@@ -5,10 +5,43 @@ observeEvent(input$make_trelliscope, {
   
   updateTabsetPanel(session, "trelliscope_mainpanel", "trelliscope_display")
   
-  final_data$MakeTrelliscope <- TRUE
-
-
+  # Get the row 
+  row <- final_data$TrelliRow
   
+  # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
+  paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
+  theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
+  
+  # Determine test example number
+  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  test_example_num <- match(input$PlotOptionsPanel, choices)
+  
+  # Delete the trellifolder
+  unlink("www/MODE", recursive = TRUE)
+  
+  withProgress({
+    
+    incProgress(0.5, "Building Trelliscope...")
+    
+    # Add additional values if plot inputs are not null 
+    if (is.null(final_data$PlotInputs)) {
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE) %>% print(view = FALSE)"))) 
+    } else {
+      
+      # Add list of ggplot commands
+      gg_params <- final_data$PlotInputs$Code
+      
+      # Make updated plot with parameters 
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, ggplot_params=gg_params, path = 'www/trelli', self_contained = TRUE, jsonp = FALSE) %>% print(view = FALSE)"))) 
+      
+    }
+
+    incProgress(0.5, "Finished!")
+    
+  })
+  
+})
+    
   # TODO:  Smarter check that groups are valid
   #req(edata_groups(), input$edata_idcname_picker)
   #
@@ -40,8 +73,6 @@ observeEvent(input$make_trelliscope, {
   #     groups=edata_groups()
   #    )
   #)
-
-})
 
 # grab finished trelliscope display from minio
 observeEvent(input$pull_trelliscope, {

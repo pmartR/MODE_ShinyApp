@@ -208,31 +208,68 @@ output$trelliscope <- renderTrelliscope({
     choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
     test_example_num <- match(input$PlotOptionsPanel, choices)
     
-    # Create a load bar
+    # Delete the trellifolder
+    unlink("www/MODE", recursive = TRUE)
+    
     withProgress({
       
       incProgress(0.5, "Building Trelliscope...")
       
       # Add additional values if plot inputs are not null 
       if (is.null(final_data$PlotInputs)) {
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli')"))) 
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE) %>% print(view = FALSE)"))) 
       } else {
         
         # Add list of ggplot commands
         gg_params <- final_data$PlotInputs$Code
         
         # Make updated plot with parameters 
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, ggplot_params=gg_params, path = 'www/trelli')"))) 
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, ggplot_params=gg_params, path = 'www/trelli', self_contained = TRUE, jsonp = FALSE) %>% print(view = FALSE)"))) 
         
       }
       
       incProgress(0.5, "Finished!")
       
     })
-    
+
   }
-  
+      
 })
+    
+    # Fix html 
+    #trelli_path <- "./www/MODE"
+    #index_path <- file.path(trelli_path, 'index.html')
+    #temp_index <- readLines(index_path)
+    #
+    ## Leading slashes mess things up, so included [/|\\]* regex, please change if there is a better way to do this substitution
+    #temp_index <- gsub(file.path(paste0('[/|\\]*', "MODE"), 'appfiles'), 'appfiles', temp_index)
+    #fileConn <- file(index_path)
+    #writeLines(temp_index, fileConn)
+    #close(fileConn)
+    #
+    ## Get path to display json and read json file
+    #displaycfg_path <- file.path("./www", "MODE", "appfiles", "displays", "common", "Trelliscope", "displayObj.json")
+    #displaycfg <- jsonlite::fromJSON(displaycfg_path)
+    #
+    ## remove jquery from the config to prevent conflicts
+    #idx = which(grepl("jquery", displaycfg$panelInterface$deps$assets$url))
+    #if(length(idx) > 0) {
+    #  displaycfg$panelInterface$deps$assets <- displaycfg$panelInterface$deps$assets[-idx,] 
+    #  jsonlite::write_json(displaycfg, displaycfg_path, auto_unbox = T)
+    #}
+    #
+    #tagList(
+    #  tags$div(id='trelli-display-wrapper', class='trelliscope-not-spa', style='width:500px; height:500px;'),
+    #  tags$script(src='https://unpkg.com/trelliscopejs-lib/dist/trelliscope.min.js'),
+    #  tags$script("(function() {
+    #    trelliscopeApp('trelli-display-wrapper', 'MODE/appfiles/config.json');
+    #   })();")
+    #)
+    
+    
+  #}
+  
+#})
 
 
 ##############

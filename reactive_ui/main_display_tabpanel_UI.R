@@ -190,7 +190,7 @@ output$OnePlotPreview <- renderPlot({
 ## RENDER TRELLISCOPE PAGE ##
 #############################
 
-output$trelliscope <- renderTrelliscope({
+output$trelliscope <- renderUI({
   
   if (final_data$MakeTrelliscope) {
   
@@ -231,8 +231,14 @@ output$trelliscope <- renderTrelliscope({
       incProgress(0.5, "Finished!")
       
     })
-
+    
   }
+
+  if (file.exists("www/trelli/index.html")) {
+    test <- tags$iframe(src = "trelli/index.html", width = "1000px", height = "600px")
+    test
+  }
+  
       
 })
     

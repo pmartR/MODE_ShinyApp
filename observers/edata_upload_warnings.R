@@ -21,8 +21,9 @@ observeEvent(input$MoveToNormalization, {
   
   # Edata has been checked to be an edata_file in MAP
   
-  # Check that the final transformation is at least log transformed 
-  if (input$NewDataScale == "abundance") {
+  # Check that the final transformation is at least log transformed, unless it is 
+  # isobaric peptide data or nmr data.
+  if (input$NewDataScale == "abundance" & uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
     sendSweetAlert(session, "Expression Data Transformation Error", 
       "Please choose a log transformation for the Expression Data.", "error")
     return(NULL)

@@ -197,7 +197,6 @@ output$trelliscope <- renderUI({
     tags$iframe(src = "trelli/index.html", width = "1000px", height = "600px")
   }
   
-      
 })
     
     # Fix html 

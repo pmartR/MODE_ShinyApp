@@ -212,10 +212,40 @@ output$RenderPlotModsUI <- renderUI({
     column(3, numericInput("YAxisTickSize", "Y-axis Tick Font Size", NA, min = 1, max = 20, step = 1)),
     column(3, textInput("PlotTitle", "Title")),
     column(3, numericInput("PlotTitleSize", "Plot Title Size", NA, min = 1, max = 100, step = 1)),
-    column(3, br(),  materialSwitch("AxisFlip", HTML("<strong>Flip Axes</strong>"))),
-    column(3, br(), actionButton("PlotRedraw", "Redraw Plot", icon = icon("pencil")))
+    column(3, textInput("LegendTile", "Legend Title")),
+    column(3, textInput("Something", "Something")),
+    column(12, 
+      column(3, materialSwitch("AxisFlip", HTML("<strong>Flip X and Y-Axis</strong>"))),
+      column(3, materialSwitch("RemoveLegend", HTML("<strong>Remove Legend</strong>"))),
+      column(3, materialSwitch("MakeInteractive", HTML("<strong>Make Plot Interactive?</strong>"))),
+      column(3, actionButton("PlotRedraw", "Redraw Plot", icon = icon("pencil")))
+    )
   )
   
   
 })
+
+
+#' @details Add potential cognostics 
+output$ChooseCognosticsUI <- renderUI({
+  
+  req(final_data$PlotOptions)
+  
+  #browser()
+  
+  # Determine function of interest 
+  #theFun <- paste0("trelli_", final_data$PlotOptions[final_data$TrelliRow, "Plot"] %>% unlist() %>%
+  #         strsplit(" ") %>% unlist() %>% paste0(collapse = "_"))
+  #allCogs <- formals(theFun)$cognostics
+  
+  # Get cognostic options 
+  #pickerInput("ChooseCognostics", "Choose Cognostics", allCogs, allCogs, multiple = T)
+  
+})
+
+#' @details Download the trelliscope display
+output$download <- downloadHandler(
+  filename = function() {"Trelliscope.zip"},
+  content = function(file) {zip(file, "www/trelli")}
+)
   

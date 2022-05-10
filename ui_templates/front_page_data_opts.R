@@ -38,6 +38,13 @@ make_plot_variable_options <- function() {
   )
 }
 
+make_trelliscope_plotting_options <- function() {
+  tagList(
+    uiOutput("ChooseCognosticsUI"),
+    uiOutput("SubsetTrelliscopeUI")
+  )
+}
+
 
 front_page_left_collapse <- function(){
   bsCollapse(
@@ -74,7 +81,8 @@ front_page_left_collapse <- function(){
     bsCollapsePanel(
       title = "Make Trelliscope",
       value = "make_trelli_opts",
-      uiOutput("ChooseCognostics"),
+      make_trelliscope_plotting_options(),
+      hr(),
       div(
         class = "flex-baseline",
         bsButton(
@@ -89,7 +97,8 @@ front_page_left_collapse <- function(){
         )
       ),
       hr(),
-      actionButton("refresh", "Refresh Display", icon = icon("rotate"))
+      actionButton("refresh", "Refresh Display", icon = icon("pencil-alt")),
+      downloadButton("download", "Download Display")
     )
   )
 }

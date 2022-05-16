@@ -234,18 +234,21 @@ observeEvent(input$PlotRedraw, {
   Collected <- data.frame(
     Inputs = c(input$XLab, input$YLab, input$XAxisSize, input$YAxisSize, input$XAxisTickAngle,
                input$YAxisTickAngle, input$XAxisTickSize, input$YAxisTickSize, input$PlotTitle,
-               input$PlotTitleSize, input$AxisFlip),
+               input$PlotTitleSize, input$AxisFlip, input$LegendTitle, 
+               input$RemoveLegend),
     Code = c(paste0("xlab('", input$XLab, "')"), 
               paste0("ylab('", input$YLab, "')"), 
-              paste0("theme(axis.title.x = element_text(size=", abs(round(input$XAxisSize)), "))"),
-              paste0("theme(axis.title.y = element_text(size=", abs(round(input$YAxisSize)), "))"),
-              paste0("theme(axis.text.x = element_text(angle=", abs(round(input$XAxisTickAngle)), "))"),
-              paste0("theme(axis.text.y = element_text(angle=", abs(round(input$YAxisTickAngle)), "))"),
-              paste0("theme(axis.text.x = element_text(size=", abs(round(input$XAxisTickSize)), "))"),
-              paste0("theme(axis.text.y = element_text(size=", abs(round(input$YAxisTickSize)), "))"),
+              paste0("theme(axis.title.x = ggplot2::element_text(size=", abs(round(input$XAxisSize)), "))"),
+              paste0("theme(axis.title.y = ggplot2::element_text(size=", abs(round(input$YAxisSize)), "))"),
+              paste0("theme(axis.text.x = ggplot2::element_text(angle=", abs(round(input$XAxisTickAngle)), "))"),
+              paste0("theme(axis.text.y = ggplot2::element_text(angle=", abs(round(input$YAxisTickAngle)), "))"),
+              paste0("theme(axis.text.x = ggplot2::element_text(size=", abs(round(input$XAxisTickSize)), "))"),
+              paste0("theme(axis.text.y = ggplot2::element_text(size=", abs(round(input$YAxisTickSize)), "))"),
               paste0("ggtitle('", input$PlotTitle, "')"),
-              paste0("theme(plot.title = element_text(size=", input$PlotTitleSize, "))"),
-              paste0("coord_flip()"))
+              paste0("theme(plot.title = ggplot2::element_text(size=", input$PlotTitleSize, "))"),
+              paste0("coord_flip()"),
+              paste0("guides(fill=ggplot2::guide_legend(title='", input$LegendTitle, "'))"),
+              paste0("theme(legend.position='none')"))
   )
   
   # Determine if NULL 

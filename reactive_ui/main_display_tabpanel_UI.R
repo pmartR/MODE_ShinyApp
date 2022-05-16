@@ -155,10 +155,19 @@ output$PlotOptionsTable <- DT::renderDT({
 ## MODIFY PLOT PAGE ##
 ######################
 
-# Render modified plot only if final_data$Trelli_Row is not NULL (the "Confirm Selection" button has been clicked)
-output$OnePlotPreview <- renderPlot({
+# Determine if the plot should be interactive or not
+output$OnePlotPreviewUI <- renderUI({
   
-  req(final_data$TrelliRow)
+  if (is.null(input$MakeInteractive) || input$MakeInteractive == FALSE) {
+    plotOutput("OnePlotPreview")
+  } else {
+    plotlyOutput("OnePlotlyPreview")
+  }
+  
+})
+  
+# Make static plot - render modified plot only if final_data$Trelli_Row is not NULL (the "Confirm Selection" button has been clicked)
+output$OnePlotPreview <- renderPlot({
   
   # Get the row 
   row <- final_data$TrelliRow
@@ -180,7 +189,36 @@ output$OnePlotPreview <- renderPlot({
     gg_params <- final_data$PlotInputs$Code
     
     # Make updated plot with parameters 
-    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, ggplot_params=gg_params, jsonp=FALSE)"))) 
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=TRUE, ggplot_params=gg_params, jsonp=FALSE)"))) 
+    
+  }
+  
+})
+
+# Make interactive plot - render modified plot only if final_data$Trelli_Row is not NULL (the "Confirm Selection" button has been clicked)
+output$OnePlotlyPreview <- renderPlotly({
+  
+  # Get the row 
+  row <- final_data$TrelliRow
+  
+  # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
+  paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
+  theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
+  
+  # Determine test example number
+  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  test_example_num <- match(input$PlotOptionsPanel, choices)
+  
+  # Add additional values if plot inputs are not null 
+  if (is.null(final_data$PlotInputs)) {
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=TRUE, jsonp=FALSE, interactive=TRUE)"))) 
+  } else {
+    
+    # Add list of ggplot commands
+    gg_params <- final_data$PlotInputs$Code
+    
+    # Make updated plot with parameters 
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=TRUE, ggplot_params=gg_params, jsonp=FALSE, interactive=TRUE)"))) 
     
   }
   

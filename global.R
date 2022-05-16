@@ -13,6 +13,7 @@ library(shinyjqui)
 library(pmartR)
 library(DT)
 library(trelliscopejs)
+library(colourpicker)
 
 #  source all UI 
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)

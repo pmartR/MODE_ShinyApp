@@ -176,6 +176,11 @@ output$PlotOptionsPlot <- renderPlot({
   paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
   theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
   
+  # foldchange is written without the underscore
+  if (grepl("fold_change", theFun)) {
+    theFun <- gsub("fold_change", "foldchange", theFun)
+  }
+  
   # Determine test example number
   choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
   test_example_num <- match(input$PlotOptionsPanel, choices)

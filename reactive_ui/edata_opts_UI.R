@@ -222,19 +222,20 @@ output$TrelliPanelVariableUI <- renderUI({
 output$TrelliPlottingVariableUI <- renderUI({
   
   req(final_data$TrelliData)
-  variable_choices <- summary(final_data$TrelliData)$Plot %>% 
-    strsplit(" ") %>% 
-    lapply(function(x) {head(x, 1)}) %>% 
-    unlist() %>% 
-    unique()
+  
+  # Get all plot options and create a list of variable choices 
+  all_plot_opts <- summary(final_data$TrelliData)$Plot 
+  variable_choices <- c()
+  
+  if (lapply(all_plot_opts, function(x) {grepl("abundance", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "abundance")}
+  if (lapply(all_plot_opts, function(x) {grepl("missingness", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "missingness")}
+  if (lapply(all_plot_opts, function(x) {grepl("fold change", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "fold change")}
 
   div(
     id = "TrelliPlottingDiv", 
     pickerInput("TrelliPlottingVariable", "What data would you like to plot?", 
                 choices = variable_choices)
   )
-
-
 
 })
 

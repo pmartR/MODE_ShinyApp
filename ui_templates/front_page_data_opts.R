@@ -76,7 +76,7 @@ front_page_left_collapse <- function(){
     ),
     bsCollapsePanel(
       title = "Make Plot",
-      value = 'make_plot_opts',
+      value = "make_plot_opts",
       make_plot_variable_options()
     ),
     bsCollapsePanel(

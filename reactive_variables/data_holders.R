@@ -7,11 +7,24 @@ uploaded_data <- reactive({
   # Require an upload of a file
   req(input$UploadFile)
   
-  # Read RDS file 
-  # TODO: Add all the checks and different formats of data, etc 
-  edata <- readRDS(input$UploadFile$datapath)
+  # Check that the file is an RDS object
+  tryCatch(
+    file <- readRDS(input$UploadFile$datapath),
+    error = function(e) {
+      sendSweetAlert(session, "Upload file is incorrect", 
+                     "MODE currently accepts RDS files from MAP")
+      return(NULL)
+    }
+  )
   
-  return(edata)
+  # Get the file's class
+  if (class(file) %in% c("project edata", "midpoint pmart", "midpoint ipmart")) {
+    return(file)
+  } else {
+    sendSweetAlert(session, "Upload file is incorrect", 
+                   "MODE currently accepts edata projects, and midpoints from pmart and ipmart")
+    return(NULL)
+  }
   
 })
 

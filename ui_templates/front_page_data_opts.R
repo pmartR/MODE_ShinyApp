@@ -5,7 +5,8 @@ make_front_page_upload_opts <- function(){
   } else {
     tagList(
       fileInput("UploadFile", "Select an edata project or midpoint file"),
-      uiOutput("UploadedFileType")
+      uiOutput("UploadedFileType"),
+      uiOutput("SelectOmicsUI")
     )
   }
 }

@@ -10,7 +10,9 @@ front_page_display_panel <- function(){
         HTML("<strong>Sample Data</strong>"), hr(),
         DT::DTOutput("fdata_preview"), br(), br(),
         HTML("<strong>Expression Metadata</strong>"), hr(),
-        DT::DTOutput("emeta_preview"), br(), br()
+        DT::DTOutput("emeta_preview"), br(), br(),
+        HTML("<strong>Statistics</strong>"), hr(),
+        DT::DTOutput("stat_preview")
     ),
     tabPanel(
       title = "Select Plot",

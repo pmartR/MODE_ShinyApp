@@ -3,8 +3,33 @@ output$UploadedFileType <- renderUI({
   
   req(uploaded_data())
   
-  # TODO: Get class information 
-  HTML(paste("Uploaded", uploaded_data()$Project$DataType, "expression data"))
+  if (class(uploaded_data()) == "project edata") {
+    HTML(paste("Uploaded", uploaded_data()$Project$DataType, "expression data"))
+  } else if (class(uploaded_data()) == "midpoint pmart") {
+    HTML(paste(uploaded_data()$Tracking$`Original Files`$Project$DataType, "data exported from pmart", uploaded_data()$Tracking$Tab))
+  } else if (class(uploaded_data()) == "midpoint ipmart") {
+    HTML(paste("Multiple files uploaded from ipmart", uploaded_data()$Tracking$Tab))
+  } else {
+    HTML("Unknown file type")
+  }
+
+  
+})
+
+#' @details allow users to select a specific omics dataset from an ipmart midpoint
+output$SelectOmicsUI <- renderUI({
+  
+  req(uploaded_data())
+  
+  if (class(uploaded_data()) == "midpoint ipmart") {
+    tagList(
+      hr(),
+      pickerInput("SelectOmics", "Choose Omics Dataset", names(uploaded_data()$`Data Objects`),
+        names(uploaded_data()$`Data Objects`)[1])
+    )
+  } else {
+    return(NULL)
+  }
   
 })
 

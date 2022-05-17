@@ -9,10 +9,17 @@ output$edata_preview <- DT::renderDT({
   req(uploaded_data())
   
   # Extract edata
-  if (is.null(final_data$TrelliData)) {
-    edata <- uploaded_data()$Data$e_data
-  } else {
-    edata <- final_data$TrelliData$omicsData$e_data
+  if (class(uploaded_data()) == "project edata") {
+    if (is.null(final_data$TrelliData)) {
+      edata <- uploaded_data()$Data$e_data
+    } else {
+      edata <- final_data$TrelliData$omicsData$e_data
+    }
+  } else if (class(uploaded_data()) == "midpoint pmart") {
+    edata <- uploaded_data()$`Data Objects`$OmicsData$e_data
+  } else if (class(uploaded_data()) == "midpoint ipmart") {
+    req(input$SelectOmics)
+    edata <- uploaded_data()$`Data Objects`[[input$SelectOmics]]$`Data Objects`$OmicsData$e_data
   }
 
   # Visualize in an interactive table
@@ -43,7 +50,7 @@ fdata_table <- reactive({
   
   # Require uploaded data 
   req(uploaded_data())
-  
+
   if (is.null(input$edata_idcname_picker)) {return(NULL)}
   
   # Get column names and groups
@@ -57,7 +64,7 @@ fdata_table <- reactive({
                          "GroupSelector", label = NULL, choices = c("NA", unlist(edata_groups$Group))),
     check.names = FALSE
   )
-  
+    
 })
 
 # Preview the fdata in the file
@@ -66,36 +73,82 @@ output$fdata_preview <- DT::renderDT({
   # Require uploaded data 
   req(uploaded_data())
   
-  session$sendCustomMessage("unbind-DT", "fdata_preview")
+  # Create an fdata file if uploaded object is project edata
+  if (class(uploaded_data()) == "project edata") {
   
-  if (edata_groups$ToNormalization == FALSE) {fdata <- edata_groups$Table} else {
-    Columns <- colnames(uploaded_data()$Data$e_data)
-    Edata_Col <- input$edata_idcname_picker
-    fdata <- data.frame(
-      "Sample" = Columns[Columns %in% Edata_Col == FALSE],
-      "Group" = edata_groups$LockedGroupOrder,
-      check.names = FALSE
+    session$sendCustomMessage("unbind-DT", "fdata_preview")
+    
+    if (edata_groups$ToNormalization == FALSE) {fdata <- edata_groups$Table} else {
+      Columns <- colnames(uploaded_data()$Data$e_data)
+      Edata_Col <- input$edata_idcname_picker
+      fdata <- data.frame(
+        "Sample" = Columns[Columns %in% Edata_Col == FALSE],
+        "Group" = edata_groups$LockedGroupOrder,
+        check.names = FALSE
+      )
+      edata_groups$fdata <- fdata
+      fdata
+    }
+    
+    # Visualize in an interactive table
+    DT::datatable(fdata, escape = FALSE, selection = "single", rownames = FALSE, 
+              options = list(pageLength = nrow(fdata), dom = "t", scrollX = T, ordering = FALSE,
+              initComplete = JS("function(settings){",
+                                "  $('#Group').selectize()",
+                                "}"),
+              preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+              drawCallback = JS('function() { Shiny.bindAll(this.api().table().node()); } '))
     )
-    edata_groups$fdata <- fdata
-    fdata
-  }
   
-  # Visualize in an interactive table
-  DT::datatable(fdata, escape = FALSE, selection = "single", rownames = FALSE, 
-            options = list(pageLength = nrow(fdata), dom = "t", scrollX = T, ordering = FALSE,
-            initComplete = JS("function(settings){",
-                              "  $('#Group').selectize()",
-                              "}"),
-            preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-            drawCallback = JS('function() { Shiny.bindAll(this.api().table().node()); } '))
-  )
+  } else if (class(uploaded_data()) == "midpoint pmart") {
+    
+    # Visualize in an interactive table
+    DT::datatable(uploaded_data()$`Data Objects`$OmicsData$f_data, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                  options = list(pageLength = 10, scrollX = T))
+    
+  } else if (class(uploaded_data()) == "midpoint ipmart") {
+    
+    req(input$SelectOmics)
+    DT::datatable(uploaded_data()$`Data Objects`[[input$SelectOmics]]$`Data Objects`$OmicsData$f_data,
+                  selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                  options = list(pageLength = 10, scrollX = T))
+    
+  }
 
 })
 
 # Preview the emeta in the file
 output$emeta_preview <- DT::renderDT({
+  
   req(uploaded_data())
-  return(NULL)
+  
+  if (class(uploaded_data()) == "midpoint pmart") {
+    DT::datatable(uploaded_data()$`Data Objects`$OmicsData$e_meta, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                 options = list(pageLength = 10, scrollX = T))
+  } else if (class(uploaded_data()) == "midpoint ipmart") {
+    req(input$SelectOmics)
+    DT::datatable(uploaded_data()$`Data Objects`[[input$SelectOmics]]$`Data Objects`$OmicsData$e_meta,
+                  selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                  options = list(pageLength = 10, scrollX = T))
+  }
+  
+})
+
+# Preview the statistics in the file
+output$stat_preview <- DT::renderDT({
+  
+  req(uploaded_data())
+  
+  if (class(uploaded_data()) == "midpoint pmart") {
+    DT::datatable(uploaded_data()$`Data Objects`$OmicsStats, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                  options = list(pageLength = 10, scrollX = T))
+  } else if (class(uploaded_data()) == "midpoint ipmart") {
+    req(input$SelectOmics)
+    DT::datatable(uploaded_data()$`Data Objects`[[input$SelectOmics]]$`Data Objects`$OmicsStats,
+                  selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                  options = list(pageLength = 10, scrollX = T))
+  }
+  
 })
 
 ######################

@@ -26,23 +26,15 @@ observeEvent(input$make_trelliscope, {
     # Add additional values if plot inputs are not null 
     if (is.null(final_data$PlotInputs)) {
       
-      if (input$MakeInteractive) {
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, interactive=TRUE) %>% print(view = FALSE)"))) 
-      } else {
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, interactive=FALSE) %>% print(view = FALSE)"))) 
-      }
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, interactive=FALSE) %>% print(view = FALSE)"))) 
       
     } else {
       
       # Add list of ggplot commands
       gg_params <- final_data$PlotInputs$Code
       
-      # Make updated plot with parameters 
-      if (input$MakeInteractive) {
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, ggplot_params=gg_params, path = 'www/trelli', self_contained = TRUE, jsonp = FALSE, interactive=TRUE) %>% print(view = FALSE)"))) 
-      } else {
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, ggplot_params=gg_params, path = 'www/trelli', self_contained = TRUE, jsonp = FALSE, interactive=FALSE) %>% print(view = FALSE)")))
-      }
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, ggplot_params=gg_params, path = 'www/trelli', self_contained = TRUE, jsonp = FALSE, interactive=FALSE) %>% print(view = FALSE)")))
+      
     }
 
     incProgress(0.5, "Finished!")

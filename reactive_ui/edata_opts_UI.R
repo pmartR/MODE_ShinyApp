@@ -222,6 +222,7 @@ output$TrelliPanelVariableUI <- renderUI({
 output$TrelliPlottingVariableUI <- renderUI({
   
   req(final_data$TrelliData)
+  if (is.null(input$TrelliPanelVariable)) {return(NULL)}
   
   # Get all plot options and create a list of variable choices 
   all_plot_opts <- summary(final_data$TrelliData)$Plot 
@@ -231,6 +232,12 @@ output$TrelliPlottingVariableUI <- renderUI({
   if (lapply(all_plot_opts, function(x) {grepl("missingness", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "missingness")}
   if (lapply(all_plot_opts, function(x) {grepl("fold change", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "fold change")}
 
+  # Remove foldchange when the panel by choice is fdata_cname
+  fdata_cname <- pmartR::get_fdata_cname(final_data$TrelliData$omicsData) 
+  if (input$TrelliPanelVariable == fdata_cname & "fold change" %in% variable_choices) {
+    variable_choices <- variable_choices[variable_choices != "fold change"]
+  }
+  
   div(
     id = "TrelliPlottingDiv", 
     pickerInput("TrelliPlottingVariable", "What data would you like to plot?", 

@@ -184,6 +184,13 @@ output$PlotOptionsPlot <- renderPlot({
   # Determine test example number
   choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
   test_example_num <- match(input$PlotOptionsPanel, choices)
+  
+  # If no test_example_num, return NULL
+  if (is.na(test_example_num)) {return(NULL)}
+  
+  # If no plotting function currently exist, return NULL
+  if (theFun == "trelli_NA") {return(NULL)}
+  
   eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)")))
   
 })

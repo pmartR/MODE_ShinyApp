@@ -191,7 +191,26 @@ output$PlotOptionsPlot <- renderPlot({
   # If no plotting function currently exist, return NULL
   if (theFun == "trelli_NA") {return(NULL)}
   
-  eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)")))
+  if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot")) {
+    
+    if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
+    
+    pvaluetest <- input$PValueTest
+    pvaluethresh <- input$PValueThresh
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh)")))
+    
+  } else if (theFun == "trelli_foldchange_volcano") {
+    
+    if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
+    
+    pvaluetest <- input$PValueTest
+    pvaluethresh <- input$PValueThresh
+    comparison <- input$SelectComparison
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison)")))
+    
+  } else {
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)")))
+  }
   
 })
 

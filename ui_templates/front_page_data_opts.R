@@ -35,6 +35,7 @@ make_plot_variable_options <- function() {
     uiOutput("TrelliPanelVariableUI"),
     uiOutput("TrelliPlottingVariableUI"),
     uiOutput("PlotOptionsPanelUI"),
+    uiOutput("PlotFoldchangeOptsUI"),
     uiOutput("PlotOptionsConfirmUI")
   )
 }

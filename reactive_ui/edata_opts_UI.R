@@ -257,6 +257,60 @@ output$PlotOptionsPanelUI <- renderUI({
   )
  
 })
+
+#' @detail Plot foldchange options
+output$PlotFoldchangeOptsUI <- renderUI({
+  
+  # TrelliRow and trelli plotting variable is required
+  if (is.null(input$TrelliPlottingVariable)) {
+    return(NULL)
+  }
+
+  # Require TrelliPlottingVariable to be foldchange
+  if (input$TrelliPlottingVariable == "fold change") {
+     
+    # Get selected row
+    theRow <- input$PlotOptionsTable_rows_selected
+    
+    # Add the required additional ui if the plot if a fold change bar 
+    if (grepl("fold change bar|fold change boxplot", 
+              unlist(final_data$PlotOptions[theRow, "Plot"]))) {
+      
+      # Determine which p_values can be added 
+      PValue_Test_Opts <- attr(final_data$TrelliData$statRes, "statistical_test")
+      if (PValue_Test_Opts == "combined") {PValue_Test_Opts <- c("anova", "gtest", "combined")}
+      
+      # Add the statistical test
+      return(tagList(
+        pickerInput("PValueTest", "Select Statistical Test", PValue_Test_Opts, PValue_Test_Opts[1]),
+        numericInput("PValueThresh", "P Value Threshold", 0.05, 0, 1, 0.001)
+      ))
+      
+    } else if (grepl("fold change volcano", unlist(final_data$PlotOptions[theRow, "Plot"]))) {
+      
+      # Determine which p_values can be added 
+      PValue_Test_Opts <- attr(final_data$TrelliData$statRes, "statistical_test")
+      if (PValue_Test_Opts == "combined") {PValue_Test_Opts <- c("anova", "gtest")}
+      
+      # Get comparisons
+      theComparisons <- attr(final_data$TrelliData$statRes, "comparisons")
+      
+      # Add the statistical test
+      return(tagList(
+        pickerInput("SelectComparison", "Select Comparison", theComparisons, theComparisons[1]),
+        pickerInput("PValueTest", "Select Statistical Test", PValue_Test_Opts, PValue_Test_Opts[1]),
+        numericInput("PValueThresh", "P Value Threshold", 0.05, 0, 1, 0.001)
+      ))
+      
+    }
+    
+    
+  
+  } else {
+    return(NULL)
+  }
+  
+})
   
 #' @details Confirm plot selection for the trelliscope
 output$PlotOptionsConfirmUI <- renderUI({

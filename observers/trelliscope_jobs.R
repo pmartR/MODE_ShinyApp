@@ -16,6 +16,11 @@ observeEvent(input$make_trelliscope, {
   choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
   test_example_num <- match(input$PlotOptionsPanel, choices)
   
+  # foldchange is written without the underscore
+  if (grepl("fold_change", theFun)) {
+    theFun <- gsub("fold_change", "foldchange", theFun)
+  }
+  
   # Delete the trellifolder
   unlink("www/MODE", recursive = TRUE)
   
@@ -26,14 +31,58 @@ observeEvent(input$make_trelliscope, {
     # Add additional values if plot inputs are not null 
     if (is.null(final_data$PlotInputs)) {
       
-      eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, interactive=FALSE) %>% print(view = FALSE)"))) 
+      # If no test_example_num, return NULL
+      if (is.na(test_example_num)) {return(NULL)}
+      
+      if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot")) {
+        
+        if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
+        
+        pvaluetest <- input$PValueTest
+        pvaluethresh <- input$PValueThresh
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh) %>% print(view = FALSE)")))
+        
+      } else if (theFun == "trelli_foldchange_volcano") {
+        
+        if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
+        
+        pvaluetest <- input$PValueTest
+        pvaluethresh <- input$PValueThresh
+        comparison <- input$SelectComparison
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison) %>% print(view = FALSE)")))
+        
+      } else {
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE) %>% print(view = FALSE)")))
+      } 
       
     } else {
       
       # Add list of ggplot commands
       gg_params <- final_data$PlotInputs$Code
       
-      eval(parse(text = paste0(theFun, "(trelliData=paneled, ggplot_params=gg_params, path = 'www/trelli', self_contained = TRUE, jsonp = FALSE, interactive=FALSE) %>% print(view = FALSE)")))
+      # If no test_example_num, return NULL
+      if (is.na(test_example_num)) {return(NULL)}
+      
+      if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot")) {
+        
+        if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
+        
+        pvaluetest <- input$PValueTest
+        pvaluethresh <- input$PValueThresh
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, ggplot_params=gg_params) %>% print(view = FALSE)")))
+        
+      } else if (theFun == "trelli_foldchange_volcano") {
+        
+        if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
+        
+        pvaluetest <- input$PValueTest
+        pvaluethresh <- input$PValueThresh
+        comparison <- input$SelectComparison
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params) %>% print(view = FALSE)")))
+        
+      } else {
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, ggplot_params=gg_params) %>% print(view = FALSE)")))
+      }
       
     }
 

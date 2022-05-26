@@ -158,7 +158,6 @@ output$stat_preview <- DT::renderDT({
 # Render plot 
 output$PlotOptionsPlot <- renderPlot({
   
-  
   # Require the PlotOptionsTable to be rendered first
   if (is.null(final_data$PlotOptions) | is.null(input$PlotOptionsPanel)) {return(NULL)}
   
@@ -187,9 +186,6 @@ output$PlotOptionsPlot <- renderPlot({
   
   # If no test_example_num, return NULL
   if (is.na(test_example_num)) {return(NULL)}
-  
-  # If no plotting function currently exist, return NULL
-  if (theFun == "trelli_NA") {return(NULL)}
   
   if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot")) {
     
@@ -260,20 +256,70 @@ output$OnePlotPreview <- renderPlot({
   paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
   theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
   
+  # foldchange is written without the underscore
+  if (grepl("fold_change", theFun)) {
+    theFun <- gsub("fold_change", "foldchange", theFun)
+  }
+  
   # Determine test example number
   choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
   test_example_num <- match(input$PlotOptionsPanel, choices)
   
   # Add additional values if plot inputs are not null 
   if (is.null(final_data$PlotInputs)) {
-    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, jsonp=FALSE)"))) 
+    
+    # If no test_example_num, return NULL
+    if (is.na(test_example_num)) {return(NULL)}
+    
+    if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot")) {
+      
+      if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
+      
+      pvaluetest <- input$PValueTest
+      pvaluethresh <- input$PValueThresh
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh)")))
+      
+    } else if (theFun == "trelli_foldchange_volcano") {
+      
+      if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
+      
+      pvaluetest <- input$PValueTest
+      pvaluethresh <- input$PValueThresh
+      comparison <- input$SelectComparison
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison)")))
+      
+    } else {
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)")))
+    } 
+    
   } else {
 
     # Add list of ggplot commands
     gg_params <- final_data$PlotInputs$Code
     
-    # Make updated plot with parameters 
-    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=TRUE, ggplot_params=gg_params, jsonp=FALSE)"))) 
+    # If no test_example_num, return NULL
+    if (is.na(test_example_num)) {return(NULL)}
+    
+    if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot")) {
+      
+      if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
+      
+      pvaluetest <- input$PValueTest
+      pvaluethresh <- input$PValueThresh
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, ggplot_params=gg_params)")))
+      
+    } else if (theFun == "trelli_foldchange_volcano") {
+      
+      if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
+      
+      pvaluetest <- input$PValueTest
+      pvaluethresh <- input$PValueThresh
+      comparison <- input$SelectComparison
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params)")))
+      
+    } else {
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, ggplot_params=gg_params)")))
+    }
     
   }
   

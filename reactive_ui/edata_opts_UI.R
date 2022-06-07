@@ -347,6 +347,10 @@ output$ChooseCognosticsUI <- renderUI({
   
   req(final_data$PlotOptions)
   
+  if (nrow(final_data$PlotOptions[final_data$TrelliRow, "Plot"]) < 1) {
+    return(NULL)
+  }
+  
   # Determine function of interest 
   theFun <- paste0("trelli_", final_data$PlotOptions[final_data$TrelliRow, "Plot"] %>% unlist() %>%
            strsplit(" ") %>% unlist() %>% paste0(collapse = "_"))
@@ -355,11 +359,8 @@ output$ChooseCognosticsUI <- renderUI({
   if (grepl("fold_change", theFun)) {theFun <- gsub("fold_change", "foldchange", theFun)}
   
   # Get cognostic defaults
-  allCogs <- formals(theFun)$cognostics
-  
-  #browser()
+  allCogs <- eval(formals(theFun)$cognostics)
 
-  
   # Get cognostic options 
   pickerInput("ChooseCognostics", "Choose Cognostics", allCogs, allCogs, multiple = T)
   

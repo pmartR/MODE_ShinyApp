@@ -40,7 +40,7 @@ observeEvent(input$make_trelliscope, {
         
         pvaluetest <- input$PValueTest
         pvaluethresh <- input$PValueThresh
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh) %>% print(view = FALSE)")))
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
         
       } else if (theFun == "trelli_foldchange_volcano") {
         
@@ -49,10 +49,10 @@ observeEvent(input$make_trelliscope, {
         pvaluetest <- input$PValueTest
         pvaluethresh <- input$PValueThresh
         comparison <- input$SelectComparison
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison) %>% print(view = FALSE)")))
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
         
       } else {
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE) %>% print(view = FALSE)")))
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
       } 
       
     } else {
@@ -78,10 +78,10 @@ observeEvent(input$make_trelliscope, {
         pvaluetest <- input$PValueTest
         pvaluethresh <- input$PValueThresh
         comparison <- input$SelectComparison
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params) %>% print(view = FALSE)")))
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
         
       } else {
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, ggplot_params=gg_params) %>% print(view = FALSE)")))
+        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, ggplot_params=gg_params, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
       }
       
     }

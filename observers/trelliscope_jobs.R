@@ -34,7 +34,7 @@ observeEvent(input$make_trelliscope, {
       # If no test_example_num, return NULL
       if (is.na(test_example_num)) {return(NULL)}
       
-      if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot")) {
+      if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
         
         if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
         

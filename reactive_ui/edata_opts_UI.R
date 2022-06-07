@@ -273,24 +273,16 @@ output$PlotFoldchangeOptsUI <- renderUI({
     theRow <- input$PlotOptionsTable_rows_selected
     
     # Add the required additional ui if the plot if a fold change bar 
-    if (grepl("fold change bar|fold change boxplot", 
+    if (grepl("fold change bar|fold change boxplot|fold change heatmap", 
               unlist(final_data$PlotOptions[theRow, "Plot"]))) {
-      
-      # Determine which p_values can be added 
-      PValue_Test_Opts <- attr(final_data$TrelliData$statRes, "statistical_test")
-      if (PValue_Test_Opts == "combined") {PValue_Test_Opts <- c("anova", "gtest", "combined")}
       
       # Add the statistical test
       return(tagList(
-        pickerInput("PValueTest", "Select Statistical Test", PValue_Test_Opts, PValue_Test_Opts[1]),
-        numericInput("PValueThresh", "P Value Threshold", 0.05, 0, 1, 0.001)
+        materialSwitch("PValueTest", HTML("<strong>Indicate Significance?</strong>"), value = FALSE, status = "primary"),
+        numericInput("PValueThresh", "Significance (P Value) Threshold", 0.05, 0, 1, 0.001)
       ))
       
     } else if (grepl("fold change volcano", unlist(final_data$PlotOptions[theRow, "Plot"]))) {
-      
-      # Determine which p_values can be added 
-      PValue_Test_Opts <- attr(final_data$TrelliData$statRes, "statistical_test")
-      if (PValue_Test_Opts == "combined") {PValue_Test_Opts <- c("anova", "gtest")}
       
       # Get comparisons
       theComparisons <- attr(final_data$TrelliData$statRes, "comparisons")
@@ -298,14 +290,12 @@ output$PlotFoldchangeOptsUI <- renderUI({
       # Add the statistical test
       return(tagList(
         pickerInput("SelectComparison", "Select Comparison", theComparisons, theComparisons[1]),
-        pickerInput("PValueTest", "Select Statistical Test", PValue_Test_Opts, PValue_Test_Opts[1]),
+        materialSwitch("PValueTest", HTML("<strong>Indicate Significance?</strong>"), value = FALSE, status = "primary"),
         numericInput("PValueThresh", "P Value Threshold", 0.05, 0, 1, 0.001)
       ))
       
     }
     
-    
-  
   } else {
     return(NULL)
   }
@@ -327,22 +317,24 @@ output$RenderPlotModsUI <- renderUI({
   req(final_data$TrelliRow)
 
   tagList(
-    column(3, textInput("XLab", "X-axis label")),
-    column(3, textInput("YLab", "Y-axis label")),
-    column(3, numericInput("XAxisSize", "X-axis Font Size", 10, min = 1, max = 20, step = 1)),
-    column(3, numericInput("YAxisSize", "Y-axis Font Size", 10, min = 1, max = 20, step = 1)),
-    column(3, numericInput("XAxisTickAngle", "X-axis Tick Angle", 90, min = 0, max = 360, step = 1)),
-    column(3, numericInput("YAxisTickAngle", "Y-axis Tick Angle", 0, min = 0, max = 360, step = 1)),
-    column(3, numericInput("XAxisTickSize", "X-axis Tick Font Size", 8, min = 1, max = 20, step = 1)),
-    column(3, numericInput("YAxisTickSize", "Y-axis Tick Font Size", 8, min = 1, max = 20, step = 1)),
-    column(3, textInput("PlotTitle", "Title")),
-    column(3, numericInput("PlotTitleSize", "Plot Title Size", 12, min = 1, max = 100, step = 1)),
-    column(6, textInput("LegendTitle", "Legend Title")),
-    column(12, 
-      column(3, materialSwitch("AxisFlip", HTML("<strong>Flip X and Y-Axis</strong>"))),
-      column(3, materialSwitch("RemoveLegend", HTML("<strong>Remove Legend</strong>"))),
-      column(3, materialSwitch("MakeInteractive", HTML("<strong>Make Plot Interactive?</strong>"))),
-      column(3, actionButton("PlotRedraw", "Redraw Plot", icon = icon("pencil")))
+    fluidRow(
+      column(3, textInput("XLab", "X-axis label")),
+      column(3, textInput("YLab", "Y-axis label")),
+      column(3, numericInput("XAxisSize", "X-axis Font Size", 10, min = 1, max = 20, step = 1)),
+      column(3, numericInput("YAxisSize", "Y-axis Font Size", 10, min = 1, max = 20, step = 1)),
+      column(3, numericInput("XAxisTickAngle", "X-axis Tick Angle", 90, min = 0, max = 360, step = 1)),
+      column(3, numericInput("YAxisTickAngle", "Y-axis Tick Angle", 0, min = 0, max = 360, step = 1)),
+      column(3, numericInput("XAxisTickSize", "X-axis Tick Font Size", 8, min = 1, max = 20, step = 1)),
+      column(3, numericInput("YAxisTickSize", "Y-axis Tick Font Size", 8, min = 1, max = 20, step = 1)),
+      column(3, textInput("PlotTitle", "Title")),
+      column(3, numericInput("PlotTitleSize", "Plot Title Size", 12, min = 1, max = 100, step = 1)),
+      column(6, textInput("LegendTitle", "Legend Title")),
+      column(6),
+      column(12, 
+        column(3, materialSwitch("AxisFlip", HTML("<strong>Flip X and Y-Axis</strong>"), inline = TRUE, status = "primary")),
+        column(3, materialSwitch("RemoveLegend", HTML("<strong>Remove Legend</strong>"), inline = TRUE, status = "primary")),
+        column(6, actionButton("PlotRedraw", "Redraw Plot", icon = icon("pencil")))
+      )
     )
   )
   
@@ -355,15 +347,21 @@ output$ChooseCognosticsUI <- renderUI({
   
   req(final_data$PlotOptions)
   
-  #browser()
-  
   # Determine function of interest 
-  #theFun <- paste0("trelli_", final_data$PlotOptions[final_data$TrelliRow, "Plot"] %>% unlist() %>%
-  #         strsplit(" ") %>% unlist() %>% paste0(collapse = "_"))
-  #allCogs <- formals(theFun)$cognostics
+  theFun <- paste0("trelli_", final_data$PlotOptions[final_data$TrelliRow, "Plot"] %>% unlist() %>%
+           strsplit(" ") %>% unlist() %>% paste0(collapse = "_"))
+  
+  # If foldchange has an underscore in it, change it
+  if (grepl("fold_change", theFun)) {theFun <- gsub("fold_change", "foldchange", theFun)}
+  
+  # Get cognostic defaults
+  allCogs <- formals(theFun)$cognostics
+  
+  #browser()
+
   
   # Get cognostic options 
-  #pickerInput("ChooseCognostics", "Choose Cognostics", allCogs, allCogs, multiple = T)
+  pickerInput("ChooseCognostics", "Choose Cognostics", allCogs, allCogs, multiple = T)
   
 })
 

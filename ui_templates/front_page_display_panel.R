@@ -23,7 +23,7 @@ front_page_display_panel <- function(){
     tabPanel(
       title = "Modify Plot",
       value = "modify_plot",
-      jqui_resizable(uiOutput("OnePlotPreviewUI")),
+      jqui_resizable(plotOutput("OnePlotPreview")),
       uiOutput("RenderPlotModsUI")
     ),
     tabPanel(

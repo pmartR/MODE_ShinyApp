@@ -187,7 +187,7 @@ output$PlotOptionsPlot <- renderPlot({
   # If no test_example_num, return NULL
   if (is.na(test_example_num)) {return(NULL)}
   
-  if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot")) {
+  if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
     
     if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
     
@@ -234,17 +234,6 @@ output$PlotOptionsTable <- DT::renderDT({
 ######################
 ## MODIFY PLOT PAGE ##
 ######################
-
-# Determine if the plot should be interactive or not
-output$OnePlotPreviewUI <- renderUI({
-  
-  if (is.null(input$MakeInteractive) || input$MakeInteractive == FALSE) {
-    plotOutput("OnePlotPreview")
-  } else {
-    plotlyOutput("OnePlotlyPreview")
-  }
-  
-})
   
 # Make static plot - render modified plot only if final_data$Trelli_Row is not NULL (the "Confirm Selection" button has been clicked)
 output$OnePlotPreview <- renderPlot({
@@ -271,7 +260,7 @@ output$OnePlotPreview <- renderPlot({
     # If no test_example_num, return NULL
     if (is.na(test_example_num)) {return(NULL)}
     
-    if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot")) {
+    if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
       
       if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
       
@@ -300,7 +289,7 @@ output$OnePlotPreview <- renderPlot({
     # If no test_example_num, return NULL
     if (is.na(test_example_num)) {return(NULL)}
     
-    if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot")) {
+    if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
       
       if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
       

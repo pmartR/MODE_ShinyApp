@@ -3,7 +3,7 @@
 
 list(
   
-  observe({
+  observeEvent(input$`__startup__`, {
     
     # Parse the query string at the url header
     query <- parseQueryString(session$clientData$url_search)
@@ -40,15 +40,17 @@ list(
         # Add data to MapConnect
         MapConnect$Data <- MidPointFile
         
-        
       }
-      
       
     }
     
+    # Exit loading screen
+    on.exit({
+      Sys.sleep(2)
+      hide("loading-gray-overlay")
+    })
     
-    
-  })
+  }, priority = -10, ignoreNULL = FALSE, once = TRUE)
   
   
 )

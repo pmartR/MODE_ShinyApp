@@ -12,6 +12,11 @@ ui <- fluidPage(
       tags$h1("MODE"),
       tags$p("Trelliscope visualization of omic data, statistics, and integration")
       ),
+  div(
+    id = "loading-gray-overlay",
+    class = "loading-mask",
+    div(class = "fadein-out busy relative-centered", style = "font-size:xx-large", "Loading app resources...")
+  ), 
   fluidRow(
     id = "trelliscope_fluidRow",
     column(

@@ -55,7 +55,7 @@ observeEvent(input$PlotRedraw, {
     Inputs = c(input$XLab, input$YLab, input$XAxisSize, input$YAxisSize, input$XAxisTickAngle,
                input$YAxisTickAngle, input$XAxisTickSize, input$YAxisTickSize, input$PlotTitle,
                input$PlotTitleSize, input$AxisFlip, input$LegendTitle, 
-               input$RemoveLegend, input$SelectColor, input$SelectColor),
+               input$RemoveLegend, input$SelectColor),
     Code = c(paste0("xlab('", input$XLab, "')"), 
              paste0("ylab('", input$YLab, "')"), 
              paste0("theme(axis.title.x = ggplot2::element_text(size=", abs(round(input$XAxisSize)), "))"),
@@ -72,10 +72,6 @@ observeEvent(input$PlotRedraw, {
              ifelse(isHeatmap, 
               paste0("scale_fill_gradient2(low='", theColors[1], "', mid='", theColors[round(length(theColors) / 2)], "', high='", theColors[length(theColors)],"', na.value='white')"),
               paste0("scale_fill_brewer(palette='", input$SelectColor, "', na.value='white')")
-             ),
-             ifelse(isHeatmap, 
-              paste0("scale_color_gradient2(low='", theColors[1], "', mid='", theColors[round(length(theColors) / 2)], "', high='", theColors[length(theColors)],"', na.value='white')"),
-              paste0("scale_color_brewer(palette='", input$SelectColor, "', na.value='white')")
              )
     )
              

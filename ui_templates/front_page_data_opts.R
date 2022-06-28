@@ -1,7 +1,10 @@
 make_front_page_upload_opts <- function(){
   
-  if (MAP) {
-    # TODO: Change to a text bar and freeze 
+  if (Minio_Test | MAP) {
+    tagList(
+      uiOutput("UploadedFileType"),
+      uiOutput("SelectOmicsUI")
+    )
   } else {
     tagList(
       fileInput("UploadFile", "Select an edata project or midpoint file"),

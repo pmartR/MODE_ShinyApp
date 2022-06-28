@@ -4,18 +4,25 @@
 #' OR we allow them to upload a file.
 uploaded_data <- reactive({
   
-  # Require an upload of a file
-  req(input$UploadFile)
-  
-  # Check that the file is an RDS object
-  tryCatch(
-    file <- readRDS(input$UploadFile$datapath),
-    error = function(e) {
-      sendSweetAlert(session, "Upload file is incorrect", 
-                     "MODE currently accepts RDS files from MAP")
-      return(NULL)
-    }
-  )
+  if (Minio_Test | MAP) {
+    
+    if (!is.null(MapConnect$Data)) {return(MapConnect$Data)} else {return(NULL)}
+    
+  } else {
+    
+    # Require an upload of a file
+    req(input$UploadFile)
+    
+    # Check that the file is an RDS object
+    tryCatch(
+      file <- readRDS(input$UploadFile$datapath),
+      error = function(e) {
+        sendSweetAlert(session, "Upload file is incorrect", 
+                       "MODE currently accepts RDS files from MAP")
+        return(NULL)
+      }) 
+    
+  }
   
   # Get the file's class
   if (class(file) %in% c("project edata", "midpoint pmart", "midpoint ipmart")) {

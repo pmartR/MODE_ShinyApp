@@ -14,7 +14,6 @@ library(pmartR)
 library(DT)
 library(trelliscopejs)
 library(colourpicker)
-library(mapDataAccess)
 
 #  source all UI 
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)
@@ -25,13 +24,7 @@ MAP <- ifelse(Sys.getenv("MAP_VERSION") == "1", TRUE, FALSE)
 # Second, check if this is a local test version with minio
 Minio_Test <- ifelse(Sys.getenv("MINIO_TEST") == "1", TRUE, FALSE)
 
-# Run the minio test version
-if (Minio_Test) {
-  
-  # Connect to a local minio run 
-  miniocon = map_data_connection(config_file = "./cfg/minio_config_local.yml")
-  
-}
+
 
 
 if (MAP) {

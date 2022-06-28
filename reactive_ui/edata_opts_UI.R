@@ -6,9 +6,13 @@ output$UploadedFileType <- renderUI({
   if (class(uploaded_data()) == "project edata") {
     HTML(paste("Uploaded", uploaded_data()$Project$DataType, "expression data"))
   } else if (class(uploaded_data()) == "midpoint pmart") {
-    HTML(paste(uploaded_data()$Tracking$`Original Files`$Project$DataType, "data exported from pmart", uploaded_data()$Tracking$Tab))
+    HTML(paste("The midpoint file named <strong>", uploaded_data()$Tracking$Name, "</strong> has",
+               uploaded_data()$Tracking$`Original Files`$Project$DataType, 
+               "data exported from pmart", uploaded_data()$Tracking$Tab
+    ))
   } else if (class(uploaded_data()) == "midpoint ipmart") {
-    HTML(paste("Multiple files uploaded from ipmart", uploaded_data()$Tracking$Tab))
+    HTML(paste("The midpoint file named <strong>", uploaded_data()$Tracking$Name, "</strong> has",
+               "multiple files uploaded from ipmart", uploaded_data()$Tracking$Tab))
   } else {
     HTML("Unknown file type")
   }

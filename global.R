@@ -14,6 +14,7 @@ library(pmartR)
 library(DT)
 library(trelliscopejs)
 library(colourpicker)
+library(mapDataAccess)
 
 #  source all UI 
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)
@@ -21,29 +22,43 @@ for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)
 # First, check if this is the MAP Version, or local version of the application
 MAP <- ifelse(Sys.getenv("MAP_VERSION") == "1", TRUE, FALSE)
 
+# Second, check if this is a local test version with minio
+Minio_Test <- ifelse(Sys.getenv("MINIO_TEST") == "1", TRUE, FALSE)
+
+# Run the minio test version
+if (Minio_Test) {
+  
+  # Connect to a local minio run 
+  miniocon = map_data_connection(config_file = "./cfg/minio_config_local.yml")
+  
+}
+
+
 if (MAP) {
   
   # Create a minio connection
   miniocon = map_data_connection(config_file='minio_config.yml')
   
+  browser()
+  
   # Register url, this is running in another docker container alongside this one
-  if(!file.exists("redis_config.yml")){
-    warning("No redis configuration found, attempting connection to default url: redis://redis1:6379")
-    redis_url <- "redis://redis1:6379"
-  } else {
-    redis_cfg = yaml::read_yaml("redis_config.yml")
-    redis_host = if(Sys.getenv("SHINY_LOCAL_OR_NETWORK")=="local") "0.0.0.0" else redis_cfg[['host']]
-    redis_url <- sprintf('redis://%s:%s/%s', 
-                         redis_host, 
-                         redis_cfg[['port']],
-                         redis_cfg[['db']])
-  }
-  
-  message("Setting up redis connection at:  ", redis_url)
-  
-  # Import celery package from the virtual environment
-  clry <- reticulate::import('celery')
-  celery_app = clry$Celery('app', broker=redis_url, backend=redis_url)
+  #if(!file.exists("redis_config.yml")){
+  #  warning("No redis configuration found, attempting connection to default url: redis://redis1:6379")
+  #  redis_url <- "redis://redis1:6379"
+  #} else {
+  #  redis_cfg = yaml::read_yaml("redis_config.yml")
+  #  redis_host = if(Sys.getenv("SHINY_LOCAL_OR_NETWORK")=="local") "0.0.0.0" else redis_cfg[['host']]
+  #  redis_url <- sprintf('redis://%s:%s/%s', 
+  #                       redis_host, 
+  #                       redis_cfg[['port']],
+  #                       redis_cfg[['db']])
+  #}
+  #
+  #message("Setting up redis connection at:  ", redis_url)
+  #
+  ## Import celery package from the virtual environment
+  #clry <- reticulate::import('celery')
+  #celery_app = clry$Celery('app', broker=redis_url, backend=redis_url)
   
 }
 

@@ -21,74 +21,99 @@ observeEvent(input$make_trelliscope, {
     theFun <- gsub("fold_change", "foldchange", theFun)
   }
   
-  # Delete the trellifolder
-  unlink("www/MODE", recursive = TRUE)
-  
-  withProgress({
+  # If MAP or REDIS_VERSION
+  if (Redis_Test | MAP) {
     
-    incProgress(0.5, "Building Trelliscope...")
-    
-    # Add additional values if plot inputs are not null 
     if (is.null(final_data$PlotInputs)) {
-      
-      # If no test_example_num, return NULL
-      if (is.na(test_example_num)) {return(NULL)}
-      
-      if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
-        
-        if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
-        
-        pvaluetest <- input$PValueTest
-        pvaluethresh <- input$PValueThresh
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
-        
-      } else if (theFun == "trelli_foldchange_volcano") {
-        
-        if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
-        
-        pvaluetest <- input$PValueTest
-        pvaluethresh <- input$PValueThresh
-        comparison <- input$SelectComparison
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
-        
-      } else {
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
-      } 
-      
-    } else {
-      
-      # Add list of ggplot commands
-      gg_params <- final_data$PlotInputs$Code
-      
-      # If no test_example_num, return NULL
-      if (is.na(test_example_num)) {return(NULL)}
-      
-      if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
-        
-        if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
-        
-        pvaluetest <- input$PValueTest
-        pvaluethresh <- input$PValueThresh
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, ggplot_params=gg_params) %>% print(view = FALSE)")))
-        
-      } else if (theFun == "trelli_foldchange_volcano") {
-        
-        if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
-        
-        pvaluetest <- input$PValueTest
-        pvaluethresh <- input$PValueThresh
-        comparison <- input$SelectComparison
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
-        
-      } else {
-        eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, ggplot_params=gg_params, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
-      }
-      
-    }
-
-    incProgress(0.5, "Finished!")
+      ggparams <- NULL
+    } else {ggparams <- final_data$PlotInputs$Code}
     
-  })
+    celery_app$send_task(
+      "trelliscope_builder",
+      kwargs = list(
+        username = "test",
+        paneled = paneled, 
+        theFun = theFun,
+        trelliPath = "/trelliscope",
+        cogs = input$ChooseCognostics,
+        ggplotParams = ggparams,
+        pValueTest = input$PValueTest,
+        pValueThresh =input$PValueThresh,
+        compare = input$SelectComparison
+      )
+    )
+    
+  } else {
+  
+    # Delete the trellifolder
+    unlink("www/MODE", recursive = TRUE)
+    
+    withProgress({
+      
+      incProgress(0.5, "Building Trelliscope...")
+      
+      # Add additional values if plot inputs are not null 
+      if (is.null(final_data$PlotInputs)) {
+        
+        # If no test_example_num, return NULL
+        if (is.na(test_example_num)) {return(NULL)}
+        
+        if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
+          
+          if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
+          
+          pvaluetest <- input$PValueTest
+          pvaluethresh <- input$PValueThresh
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
+          
+        } else if (theFun == "trelli_foldchange_volcano") {
+          
+          if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
+          
+          pvaluetest <- input$PValueTest
+          pvaluethresh <- input$PValueThresh
+          comparison <- input$SelectComparison
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
+          
+        } else {
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
+        } 
+        
+      } else {
+        
+        # Add list of ggplot commands
+        gg_params <- final_data$PlotInputs$Code
+        
+        # If no test_example_num, return NULL
+        if (is.na(test_example_num)) {return(NULL)}
+        
+        if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
+          
+          if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
+          
+          pvaluetest <- input$PValueTest
+          pvaluethresh <- input$PValueThresh
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, ggplot_params=gg_params) %>% print(view = FALSE)")))
+          
+        } else if (theFun == "trelli_foldchange_volcano") {
+          
+          if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
+          
+          pvaluetest <- input$PValueTest
+          pvaluethresh <- input$PValueThresh
+          comparison <- input$SelectComparison
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
+          
+        } else {
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', self_contained = TRUE, jsonp = FALSE, ggplot_params=gg_params, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
+        }
+        
+      }
+  
+      incProgress(0.5, "Finished!")
+      
+    })
+  }
   
 })
     

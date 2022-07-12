@@ -33,21 +33,4 @@ server <- function(input, output, session) {
 
   }, priority = 10)
   
-  # Run the minio test version
-  if (Minio_Test | MAP) {
-    
-    # Load map data access
-    library(mapDataAccess)
-    
-    # Connect to a local minio run 
-    source("./MAP_Functions.R", local = TRUE)
-    
-    # Create a reactive values to hold MAP specific objects
-    MapConnect <- reactiveValues(MapConnect = map_data_connection(config_file = "./cfg/minio_config_local.yml"), 
-                                 Data = NULL)
-    
-  } else {
-    hide(id = "loading-gray-overlay")
-  }
-  
 }

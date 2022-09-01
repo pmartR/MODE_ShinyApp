@@ -14,6 +14,11 @@ library(pmartR)
 library(DT)
 library(trelliscopejs)
 library(colourpicker)
+library(processx)
+library(markdown)
+
+# Load bioconductor separately
+library(limma)
 
 #  source all UI 
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)

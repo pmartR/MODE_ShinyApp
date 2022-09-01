@@ -6,6 +6,9 @@
 !global.R
 !ui.R
 !server.R
+!renv.lock
+!Makevars-docker
+!requirements.txt
 
 # folders
 !observers
@@ -16,4 +19,4 @@
 !ui_templates
 !www
 !cfg
-
+!mapDataAccess

@@ -21,25 +21,36 @@ observeEvent(input$make_trelliscope, {
     theFun <- gsub("fold_change", "foldchange", theFun)
   }
   
-  # If MAP or REDIS_VERSION
-  if (Redis_Test | MAP) {
+  # If MAP or REDIS_VERSION or Compose version 
+  if (Redis_Test | MAP | Compose_Test) {
     
     if (is.null(final_data$PlotInputs)) {
       ggparams <- NULL
     } else {ggparams <- final_data$PlotInputs$Code}
     
+    #username, 
+    #theFun,
+    #trelliPath,
+    #cogs,
+    #ggplotParams = NULL,
+    #pValueTest = NULL,
+    #pValueThresh = 0.05,
+    #compare = NULL
+    
     celery_app$send_task(
       "trelliscope_builder",
       kwargs = list(
-        username = "test",
-        paneled = paneled, 
+        username = Sys.getenv("SHINYPROXY_USERNAME"),
+        uuid = NULL,
+        panelVar = NULL,
         theFun = theFun,
-        trelliPath = "/trelliscope",
+        trelliPath = file.path("/trelliscope"),
         cogs = input$ChooseCognostics,
         ggplotParams = ggparams,
         pValueTest = input$PValueTest,
         pValueThresh =input$PValueThresh,
-        compare = input$SelectComparison
+        compare = input$SelectComparison,
+        ipmart_sub = NULL
       )
     )
     

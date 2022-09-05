@@ -4,7 +4,7 @@ server <- function(input, output, session) {
   
   
   # Check for minio if minio version or MAP is enabled 
-  if (Minio_Test | MAP) {
+  if (Minio_Test | MAP | Compose_Test) {
     
     # Load map data access
     library(mapDataAccess)
@@ -26,13 +26,13 @@ server <- function(input, output, session) {
   }
   
   # Add the redis container
-  if (MAP | Redis_Test) {
+  if (MAP | Redis_Test | Compose_Test) {
     
     if (Redis_Test) {
       
       redis_url <- "redis://redis1:6379/0"
       
-    } else if (MAP) {
+    } else if (MAP | Compose_Test) {
       
       # Register url, this is running in another docker container alongside this one
       if(!file.exists("./cfg/redis_config.yml")){

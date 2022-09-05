@@ -6,7 +6,11 @@
 # Install latest version of rocker image: base image for MODE
 FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/base:1.0.3
 
+RUN Rscript -e "devtools::install_github('yang-tang/shinyjqui')"
+RUN Rscript -e "devtools::install_github('hafen/trelliscopejs')"
+
 # Copy directories into /srv/shiny-server
+WORKDIR /srv/shiny-server
 COPY . .
 
 EXPOSE 5600

@@ -5,10 +5,14 @@
 # root text files
 !global.R
 !ui.R
+!UI_helper_functions.R
 !server.R
 !renv.lock
 !Makevars-docker
 !requirements.txt
+!minio_config.yml
+!redis_config.yml
+!MAP_Functions.R
 
 # folders
 !observers

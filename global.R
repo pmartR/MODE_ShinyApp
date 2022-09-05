@@ -16,6 +16,7 @@ library(trelliscopejs)
 library(colourpicker)
 library(processx)
 library(markdown)
+library(devtools)
 
 # Load bioconductor separately
 library(limma)

@@ -4,7 +4,7 @@
 #' OR we allow them to upload a file.
 uploaded_data <- reactive({
   
-  if (Minio_Test | MAP) {
+  if (Minio_Test | MAP | Compose_Test) {
     
     if (!is.null(MapConnect$Data)) {return(MapConnect$Data)} else {return(NULL)}
     

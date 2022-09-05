@@ -1,6 +1,6 @@
 make_front_page_upload_opts <- function(){
   
-  if (Minio_Test | MAP) {
+  if (Minio_Test | MAP | Compose_Test) {
     tagList(
       uiOutput("UploadedFileType"),
       uiOutput("SelectOmicsUI")

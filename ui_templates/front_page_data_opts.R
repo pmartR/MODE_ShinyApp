@@ -102,6 +102,7 @@ front_page_left_collapse <- function(){
         )
       ),
       hr(),
+      textInput("trelliscope_name", "Name Trelliscope", value = "NewTrelliscope"),
       actionButton("refresh", "Refresh Display", icon = icon("pencil-alt")),
       downloadButton("download", "Download Display")
     )

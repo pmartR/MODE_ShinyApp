@@ -28,29 +28,22 @@ observeEvent(input$make_trelliscope, {
       ggparams <- NULL
     } else {ggparams <- final_data$PlotInputs$Code}
     
-    #username, 
-    #theFun,
-    #trelliPath,
-    #cogs,
-    #ggplotParams = NULL,
-    #pValueTest = NULL,
-    #pValueThresh = 0.05,
-    #compare = NULL
+    query <- parseQueryString(session$clientData$url_search)
     
     celery_app$send_task(
       "trelliscope_builder",
       kwargs = list(
         username = Sys.getenv("SHINYPROXY_USERNAME"),
-        uuid = NULL,
-        panelVar = NULL,
+        uuid = query$data,
+        panelVar = input$TrelliPanelVariable,
         theFun = theFun,
-        trelliPath = file.path("/trelliscope"),
+        trelliPath = file.path("/trelliscope", mapDataAccess::.scrub_clean(input$trelliscope_name)), # Fix the name
         cogs = input$ChooseCognostics,
         ggplotParams = ggparams,
         pValueTest = input$PValueTest,
         pValueThresh =input$PValueThresh,
         compare = input$SelectComparison,
-        ipmart_sub = NULL
+        ipmart_sub = input$SelectOmics
       )
     )
     

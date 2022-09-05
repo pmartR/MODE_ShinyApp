@@ -376,7 +376,7 @@ output$ChooseCognosticsUI <- renderUI({
 
 #' @details Download the trelliscope display
 output$download <- downloadHandler(
-  filename = function() {"Trelliscope.zip"},
+  filename = function() {paste0(mapDataAccess::.scrub_clean(input$trelliscope_name), ".zip")},
   content = function(file) {zip(file, "www/trelli")}
 )
   

@@ -33,6 +33,19 @@ observeEvent(input$make_trelliscope, {
     
     query <- parseQueryString(session$clientData$url_search)
     
+    if (!is.null(input$NormSubsetFun)) {
+      normalParams <- switch(input$NormSubsetFun,
+       "all" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, apply_norm = TRUE, backtransform = TRUE),
+       "complete" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, apply_norm = TRUE, backtransform = TRUE),
+       "los" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("los" = input$NormalLOS), apply_norm = TRUE, backtransform = TRUE),
+       "ppp" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("ppp" = input$NormalPPP), apply_norm = TRUE, backtransform = TRUE),
+       "rip" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE),
+       "ppp_rip" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("ppp" = input$NormalPPP, "rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE)
+      ) 
+    } else {
+      normalParams <- NULL
+    }
+    
     celery_app$send_task(
       "trelliscope_builder",
       kwargs = list(
@@ -51,8 +64,8 @@ observeEvent(input$make_trelliscope, {
           edata_cname = input$edata_idcname_picker,
           data_scale_original = input$OrigDataScale, 
           data_scale = input$NewDataScale,
-          normalization_fun = ,
-          normalization_params = NULL
+          normalization_fun = "global",
+          normalization_params = normalParams
         )
       )
     )

@@ -50,6 +50,8 @@ observeEvent(input$make_trelliscope, {
       "trelliscope_builder",
       kwargs = list(
         username = Sys.getenv("SHINYPROXY_USERNAME"),
+        Compose_Test = Compose_Test,
+        MAP = MAP,
         uuid = query$data,
         panelVar = input$TrelliPanelVariable,
         theFun = theFun,

@@ -46,6 +46,9 @@ observeEvent(input$make_trelliscope, {
       normalParams <- NULL
     }
     
+    
+    message(paste0("......The function passed was ", theFun))
+    
     celery_app$send_task(
       "trelliscope_builder",
       kwargs = list(

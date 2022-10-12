@@ -376,7 +376,20 @@ output$ChooseCognosticsUI <- renderUI({
 
 #' @details Download the trelliscope display
 output$download <- downloadHandler(
-  filename = function() {paste0(mapDataAccess::.scrub_clean(input$trelliscope_name), ".zip")},
-  content = function(file) {zip(file, "www/trelli")}
+  filename = function() {
+    if (MAP | Compose_Test) {
+      paste0(MapConnect$Trelliscope, ".zip")
+    } else {
+      paste0(mapDataAccess::.scrub_clean(input$trelliscope_name), ".zip")
+    }
+  },
+  content = function(file) {
+    if (MAP | Compose_Test) {
+      message(paste0("./www/trelliscope/", MapConnect$Trelliscope, "/"))
+      zip(file, paste0("./www/trelliscope/", MapConnect$Trelliscope, "/"))
+    } else {
+      zip(file, "./www/trelli")
+    }
+  }
 )
   

@@ -1,6 +1,22 @@
-#' ping redis and send the selected task
-#' TODO:  This observer will eventually if-else over several options that 
-#' specify which type of display is to be created.
+# Define function for modal warnings, since "sendSweetAlert" was messing with the UI
+sendModalAlert <- function(message = "") {
+  showModal(modalDialog(
+    HTML(paste0('<span style="font-size: 22px;">', message, '</span>')),
+    title = "", size = "s", easyClose = TRUE
+  ))
+}
+
+# Return job status
+observeEvent(input$job_status, {
+  if (!is.null(MapConnect$Job)) {
+    if ("NULL" %in% MapConnect$Job$info) {sendModalAlert("Job finished!")} else {
+      sendModalAlert(gsub("INFO: ", "", MapConnect$Job$info))}
+  } else {
+    sendModalAlert("No jobs are currently running. Try the 'Refresh Display' button. If the display isn't there, try 'Create Trelliscope Display'")
+  }
+})
+
+# Make the trelliscope display locally (non-docker), or in a redis container
 observeEvent(input$make_trelliscope, {
   
   updateTabsetPanel(session, "trelliscope_mainpanel", "trelliscope_display")
@@ -46,9 +62,11 @@ observeEvent(input$make_trelliscope, {
       normalParams <- NULL
     }
     
-    message(paste0("......The function passed was ", theFun))
+    sendModalAlert(paste0("The trelliscope display titled ", trelliName, " has been submitted as a job.", 
+                          " Click 'Check Status' to see the status of the job and 'Refresh Display' to",
+                          " view it when it's finished."))
     
-    celery_app$send_task(
+    MapConnect$Job = celery_app$send_task(
       "trelliscope_builder",
       kwargs = list(
         username = Sys.getenv("SHINYPROXY_USERNAME"),

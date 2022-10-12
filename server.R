@@ -16,9 +16,9 @@ server <- function(input, output, session) {
     if (Minio_Test) {
       MapConnect <- reactiveValues(MapConnect = map_data_connection(config_file = "./cfg/minio_config_local.yml"), Data = NULL)
     } else if (Compose_Test) {
-      MapConnect <- reactiveValues(MapConnect = map_data_connection(config_file = "./cfg/minio_config_compose.yml"), Data = NULL, Trelliscope = NULL)
+      MapConnect <- reactiveValues(MapConnect = map_data_connection(config_file = "./cfg/minio_config_compose.yml"), Data = NULL, Trelliscope = NULL, Job = NULL)
     } else if (MAP) {
-      MapConnect <- reactiveValues(MapConnect = map_data_connection(config_file = "minio_config.yml"), Data = NULL, Trelliscope = NULL)
+      MapConnect <- reactiveValues(MapConnect = map_data_connection(config_file = "minio_config.yml"), Data = NULL, Trelliscope = NULL, Job = NULL)
     }
     
   } else {

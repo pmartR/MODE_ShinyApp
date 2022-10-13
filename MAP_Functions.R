@@ -21,7 +21,18 @@ list(
       # If the class is a project object 
       if (class(pullData) == "project edata") {
         
-        browser()
+        Project <- pullData
+        
+        # Create a loading screen
+        html(
+          "loading-gray-overlay", 
+          paste("<div class='fadein-out busy relative-centered', style='font-size:xx-large'>", "Loading expression data of the", 
+                Project$Project$DataType, "type...</div>")
+        )
+        
+        # Add data to MapConnect
+        MapConnect$Data <- Project
+        
         
       } else if (class(pullData) %in% c("midpoint pmart", "midpoint ipmart")) {
         

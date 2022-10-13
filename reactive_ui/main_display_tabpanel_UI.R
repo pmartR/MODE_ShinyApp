@@ -175,6 +175,8 @@ output$PlotOptionsPlot <- renderPlot({
   paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
   theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
   
+  if (theFun %in% c("trelli_", "trelli_NA")) {return(NULL)}
+  
   # foldchange is written without the underscore
   if (grepl("fold_change", theFun)) {
     theFun <- gsub("fold_change", "foldchange", theFun)
@@ -244,6 +246,8 @@ output$OnePlotPreview <- renderPlot({
   # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
   paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
   theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
+  
+  if (theFun %in% c("trelli_", "trelli_NA")) {return(NULL)}
   
   # foldchange is written without the underscore
   if (grepl("fold_change", theFun)) {
@@ -323,6 +327,8 @@ output$OnePlotlyPreview <- renderPlotly({
   # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
   paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
   theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
+  
+  if (theFun %in% c("trelli_", "trelli_NA")) {return(NULL)}
   
   # Determine test example number
   choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()

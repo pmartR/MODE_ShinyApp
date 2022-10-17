@@ -1,10 +1,14 @@
+*.Rproj
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
 .DS_Store
+.Rbuildignore
 www/*
 !www/MODEstyle.css
 
 untracked_resources
 mapDataAccess/
+/renv
+

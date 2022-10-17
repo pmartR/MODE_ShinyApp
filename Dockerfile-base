@@ -1,5 +1,5 @@
 ## MODE Application: BASE IMAGE dockerfile
-## Last Updated: 2021_06_09
+## Last Updated: 2022_08_31
 
 ## Use:
 ## export DOCKER_BUILDKIT=1
@@ -7,7 +7,7 @@
 ## docker push code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/base:<your version e.g. 1.0.0>
 
 # Install latest version of rocker image
-FROM rocker/shiny:4.0.3
+FROM rocker/shiny:4.2.1
 
 # Load general use libraries
 RUN apt-get update && apt-get install -y \
@@ -22,11 +22,22 @@ RUN apt-get update && apt-get install -y \
     libhiredis-dev \
     libzmq3-dev \
     libxml2-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libfreetype6-dev \ 
+    libpng-dev \
+    libtiff5-dev \
+    libjpeg-dev \
     vim python3-venv
 
 ## restore from renv.lock ##
 
 WORKDIR /srv/shiny-server/
+
+# Need to set linker flags to install pmartR in linux environment
+RUN mkdir $HOME/.R
+COPY Makevars-docker .
+RUN cp Makevars-docker $HOME/.R/Makevars
 
 # only need these three to restore
 COPY renv.lock .
@@ -34,8 +45,11 @@ COPY renv.lock .
 # pre-install renv
 RUN R -e "install.packages('renv', repos = 'https://cran.rstudio.com')"
 
-# 
+# Run renv restore to download packages
+RUN R -e 'options(renv.config.connect.timeout = 600)'
 RUN R -e 'renv::restore()'
+
+RUN R -e "devtools::install_github('hafen/trelliscopejs')"
 
 ## Setup Python venv ##
 USER root

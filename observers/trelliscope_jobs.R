@@ -199,15 +199,15 @@ observeEvent(input$make_trelliscope, {
   #)
 
 # grab finished trelliscope display from minio
-observeEvent(input$pull_trelliscope, {
-  req(input$minio_trelli_picker)
-  
-  withProgress(
-    message = "Pulling files from Minio...", value = 1, 
-    {
-      tmp_file <- mapDataAccess::get_file(miniocon, input$minio_trelli_picker, filename=tempfile())
-      unzip(tmp_file, exdir = "www")
-      file.remove(tmp_file)
-    }
-  )
-}, priority=10)
+#observeEvent(input$pull_trelliscope, {
+#  req(input$minio_trelli_picker)
+#  
+#  withProgress(
+#    message = "Pulling files from Minio...", value = 1, 
+#    {
+#      tmp_file <- mapDataAccess::get_file(miniocon, input$minio_trelli_picker, filename=tempfile())
+#      unzip(tmp_file, exdir = "www")
+#      file.remove(tmp_file)
+#    }
+#  )
+#}, priority=10)

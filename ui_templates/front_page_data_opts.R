@@ -46,11 +46,16 @@ make_plot_variable_options <- function() {
 make_trelliscope_plotting_options <- function() {
   tagList(
     uiOutput("ChooseCognosticsUI"),
-    uiOutput("FilterByPValueUI"),
     uiOutput("SubsetTrelliscopeUI")
   )
 }
 
+make_data_filtering_options <- function() {
+  tagList(
+    uiOutput("FilterByPValueUI"),
+    uiOutput("FilterByPValueTextUI")
+  )
+}
 
 front_page_left_collapse <- function(){
   bsCollapse(
@@ -83,6 +88,11 @@ front_page_left_collapse <- function(){
       title = "Make Plot",
       value = "make_plot_opts",
       make_plot_variable_options()
+    ),
+    bsCollapsePanel(
+      title = "Data Filtering Options",
+      value = "Data_filtering",
+      make_data_filtering_options()
     ),
     bsCollapsePanel(
       title = "Make Trelliscope",

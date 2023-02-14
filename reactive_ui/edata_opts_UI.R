@@ -282,8 +282,8 @@ output$PlotFoldchangeOptsUI <- renderUI({
       
       # Add the statistical test
       return(tagList(
-        materialSwitch("PValueTest", HTML("<strong>Indicate Significance?</strong>"), value = FALSE, status = "primary"),
-        numericInput("PValueThresh", "Significance (P Value) Threshold", 0.05, 0, 1, 0.001)
+        materialSwitch("PValueTest", HTML("<strong>Plot Significance?</strong>"), value = FALSE, status = "primary"),
+        numericInput("PValueThresh", "Significance (P-Value) Plotting Threshold", 0.05, 0, 1, 0.001)
       ))
       
     } else if (grepl("fold change volcano", unlist(final_data$PlotOptions[theRow, "Plot"]))) {
@@ -349,7 +349,6 @@ output$RenderPlotModsUI <- renderUI({
   
 })
 
-
 #' @details Add potential cognostics 
 output$ChooseCognosticsUI <- renderUI({
   
@@ -371,6 +370,41 @@ output$ChooseCognosticsUI <- renderUI({
 
   # Get cognostic options 
   pickerInput("ChooseCognostics", "Choose Cognostics", allCogs, allCogs, multiple = T)
+  
+})
+
+#' @details Filter All Data By PValue, if applicable 
+output$FilterByPValueUI <- renderUI({
+  
+  # Check that there is a final data frame 
+  if (is.null(final_data$TrelliData)) {
+    HTML("There are no panel filtering options for this data.")
+  } else {
+    
+    # Get all plot options and create a list of variable choices 
+    all_plot_opts <- summary(final_data$TrelliData)$Plot 
+    
+    # Add widget if filtering by p-value is possible 
+    if (grepl("fold change", all_plot_opts) %>% any()) {
+      numericInput("PValuePanel", "Filter data by P-value", 1, 0, 1, 0.001)
+    } else {
+      return(HTML("There are no panel filtering options for this data."))
+    }
+  
+  }
+  
+})
+
+#' @details Filter PValue consequences 
+output$FilterByPValueTextUI <- renderUI({
+  
+  # Return NULL if no PValuePanel
+  if (is.null(input$PValuePanel) | is.null(final_data$TrelliRow)) {return(NULL)}
+  
+  # Get total 
+  total <- final_data$PlotOptions[final_data$TrelliRow, "Number of Plots"] %>% unlist()
+  
+  browser()
   
 })
 

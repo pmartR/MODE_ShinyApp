@@ -4,5 +4,5 @@ access_key: minioadmin
 secret_key: minioadmin
 bucket: map
 secure: False
-python_venv: /Users/degn400/miniconda/envs/venv/
+python_venv: /Users/degn400/venv/
 verbose: true

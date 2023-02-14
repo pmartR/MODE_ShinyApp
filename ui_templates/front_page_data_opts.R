@@ -46,6 +46,7 @@ make_plot_variable_options <- function() {
 make_trelliscope_plotting_options <- function() {
   tagList(
     uiOutput("ChooseCognosticsUI"),
+    uiOutput("FilterByPValueUI"),
     uiOutput("SubsetTrelliscopeUI")
   )
 }
@@ -105,7 +106,9 @@ front_page_left_collapse <- function(){
       textInput("trelliscope_name", "Name Trelliscope", value = "NewTrelliscope"),
       actionButton("refresh", "Refresh Display", icon = icon("pencil-alt")),
       downloadButton("download", "Download Display"),
-      actionButton("job_status", "Check Job Status", icon = icon("clipboard-check"))
+      actionButton("job_status", "Check Job Status", icon = icon("clipboard-check")),
+      hr(),
+      uiOutput("BuildStats")
     )
   )
 }

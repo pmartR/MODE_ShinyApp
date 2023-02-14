@@ -240,6 +240,8 @@ output$PlotOptionsTable <- DT::renderDT({
 # Make static plot - render modified plot only if final_data$Trelli_Row is not NULL (the "Confirm Selection" button has been clicked)
 output$OnePlotPreview <- renderPlot({
   
+  if (is.null(final_data$TrelliRow)) {return(NULL)}
+  
   # Get the row 
   row <- final_data$TrelliRow
   

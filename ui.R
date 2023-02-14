@@ -10,7 +10,7 @@ ui <- fluidPage(
   ),
   div(class = "title-panel",
       tags$h1("MODE"),
-      tags$p("Trelliscope visualization of omic data, statistics, and integration")
+      tags$p("Trelliscope visualization of omic data and statistics")
       ),
   div(
     id = "loading-gray-overlay",

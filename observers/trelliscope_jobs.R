@@ -6,6 +6,22 @@ sendModalAlert <- function(message = "") {
   ))
 }
 
+# Add build stats 
+output$BuildStats <- renderUI({
+  
+  if (is.null(final_data$TrelliRow)) {return(HTML("Build time statistics will appear here."))}
+  
+  BuildTime <- round((final_data$PlotOptions[final_data$TrelliRow, "Number of Plots"] %>% unlist() %>% as.numeric()) / 87.6, 4)
+  
+  if (BuildTime < 12) {
+    HTML(paste("The estimated build time is", BuildTime, "minutes"))
+  } else {
+    HTML(paste("The estimated build time is", BuildTime, "minutes. Try filtering the data by p-values in MODE. If there are no p-values to filter, they can be calculated in PMart and iPMart."))
+  }
+
+  
+})
+
 # Return job status
 observeEvent(input$job_status, {
   if (!is.null(MapConnect$Job)) {
@@ -65,6 +81,8 @@ observeEvent(input$make_trelliscope, {
     sendModalAlert(paste0("The trelliscope display titled ", trelliName, " has been submitted as a job.", 
                           " Click 'Check Status' to see the status of the job and 'Refresh Display' to",
                           " view it when it's finished."))
+    
+    sc <- input$self_contained == "Yes"
     
     MapConnect$Job = celery_app$send_task(
       "trelliscope_builder",

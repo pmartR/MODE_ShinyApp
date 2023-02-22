@@ -282,7 +282,8 @@ output$PlotFoldchangeOptsUI <- renderUI({
       
       # Add the statistical test
       return(tagList(
-        materialSwitch("PValueTest", HTML("<strong>Plot Significance?</strong>"), value = FALSE, status = "primary"),
+        pickerInput("PValueTest", HTML("Which significance test would you like to plot?"), 
+                    choices = c("ANOVA" = "anova", "G-Test" = "gtest", "N/A" = "NA"), selected = "ANOVA"),
         numericInput("PValueThresh", "Significance (P-Value) Plotting Threshold", 0.05, 0, 1, 0.001)
       ))
       
@@ -294,7 +295,8 @@ output$PlotFoldchangeOptsUI <- renderUI({
       # Add the statistical test
       return(tagList(
         pickerInput("SelectComparison", "Select Comparison", theComparisons, theComparisons[1]),
-        materialSwitch("PValueTest", HTML("<strong>Indicate Significance?</strong>"), value = FALSE, status = "primary"),
+        pickerInput("PValueTest", HTML("Which significance test would you like to plot?"), 
+                    choices = c("ANOVA" = "anova", "G-Test" = "gtest", "N/A" = "NA"), selected = "ANOVA"),
         numericInput("PValueThresh", "P Value Threshold", 0.05, 0, 1, 0.001)
       ))
       
@@ -379,6 +381,8 @@ output$FilterByPValueUI <- renderUI({
   # Check that there is a final data frame 
   if (is.null(final_data$TrelliData)) {
     HTML("There are no panel filtering options for this data.")
+  } else if (is.null(final_data$TrelliRow)) {
+    HTML("Click 'Confirm Selection' to trigger this feature.")
   } else {
     
     # Get all plot options and create a list of variable choices 
@@ -386,7 +390,15 @@ output$FilterByPValueUI <- renderUI({
     
     # Add widget if filtering by p-value is possible 
     if (grepl("fold change", all_plot_opts) %>% any()) {
-      numericInput("PValuePanel", "Filter data by P-value", 1, 0, 1, 0.001)
+      
+      # Get comparisons
+      theComparisons <- c(attr(final_data$TrelliData$statRes, "comparisons"), "None")
+      
+      tagList(
+        numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
+        pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest"), selected = "ANOVA"),
+        pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
+      )
     } else {
       return(HTML("There are no panel filtering options for this data."))
     }
@@ -399,12 +411,26 @@ output$FilterByPValueUI <- renderUI({
 output$FilterByPValueTextUI <- renderUI({
   
   # Return NULL if no PValuePanel
-  if (is.null(input$PValuePanel) | is.null(final_data$TrelliRow)) {return(NULL)}
+  if (is.null(input$PValueFilterPanel) | is.null(final_data$TrelliRow)) {return(NULL)}
   
   # Get total 
-  total <- final_data$PlotOptions[final_data$TrelliRow, "Number of Plots"] %>% unlist()
+  total <- final_data$PlotOptions[final_data$TrelliRow, "Number of Plots"] %>% unlist() %>% as.numeric()
   
-  browser()
+  # Convert comparisons appropriately
+  Comparisons <- input$PValueFilterComparisons
+  if (Comparisons == "None") {Comparisons <- NULL}
+  
+  # Get filtered amount
+  filtered <- trelli_pvalue_filter(final_data$TrelliData, input$PValueFilterTest, input$PValueFilterPanel, Comparisons)
+  filt_summary <- filtered %>% summary()
+  nonfilt_amt <- filt_summary[filt_summary$Plot == unlist(final_data$PlotOptions[final_data$TrelliRow, "Plot"]) & 
+                           filt_summary$`Panel By Choice` == unlist(final_data$PlotOptions[final_data$TrelliRow, "Panel By Choice"]), "Number of Plots"] %>%
+    unlist() %>% as.numeric()
+  
+  # Return text
+  HTML(paste0("<p># Plots Pre-Filter: ", total, "</p>",
+              "<p># Plots Post-Filter: ", nonfilt_amt, "</p>",
+              "<p>Percentage of Plots Retained: ", round(nonfilt_amt/total * 100), "%</p>"))
   
 })
 

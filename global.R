@@ -21,6 +21,8 @@ library(devtools)
 # Load bioconductor separately
 library(limma)
 
+options(shiny.maxRequestSize = 10 * 1024^2) 
+
 #  source all UI 
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)
 

@@ -11,7 +11,39 @@ output$BuildStats <- renderUI({
   
   if (is.null(final_data$TrelliRow)) {return(HTML("Build time statistics will appear here."))}
   
-  BuildTime <- round((final_data$PlotOptions[final_data$TrelliRow, "Number of Plots"] %>% unlist() %>% as.numeric()) / 87.6, 4)
+  # Apply filtering if there is that option
+  if (!is.null(input$PValueFilterTest)) {
+    
+    # Pull comparisons
+    Comparisons <- input$PValueFilterComparisons
+    if (Comparisons == "None") {Comparisons <- NULL}
+    
+    # P Value test
+    PValTest <- input$PValueFilterTest 
+    if (PValTest == "none") {PValTest <- NULL}
+    
+    # Pull selected row information 
+    ThePlot <- final_data$PlotOptions[final_data$TrelliRow, "Plot"] %>% unlist()
+    PanelByChoice <- final_data$PlotOptions[final_data$TrelliRow, "Panel By Choice"] %>% unlist()
+    
+    # Calculate number of plots
+    FiltSummary <- trelli_pvalue_filter(
+      trelliData = final_data$TrelliData, 
+      p_value_test = PValTest,
+      p_value_thresh = input$PValueFilterPanel, 
+      comparison = Comparisons
+    ) %>% summary()
+    PlotNum <- FiltSummary %>%
+      dplyr::filter(`Panel By Choice` == PanelByChoice & Plot == ThePlot) %>%
+      dplyr::select(`Number of Plots`) %>%
+      unlist() %>%
+      as.numeric()
+    
+  } else {
+    PlotNum <- final_data$PlotOptions[final_data$TrelliRow, "Number of Plots"] %>% unlist() %>% as.numeric()
+  }
+  
+  BuildTime <- round(PlotNum / 87.6)
   
   if (BuildTime < 12) {
     HTML(paste("The estimated build time is", BuildTime, "minutes"))

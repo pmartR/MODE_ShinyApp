@@ -6,6 +6,59 @@ sendModalAlert <- function(message = "") {
   ))
 }
 
+# Add build stats 
+output$BuildStats <- renderUI({
+  
+  if (is.null(final_data$TrelliRow)) {return(HTML("Build time statistics will appear here."))}
+  
+  # Apply filtering if there is that option
+  if (!is.null(input$PValueFilterTest)) {
+    
+    # Pull comparisons
+    Comparisons <- input$PValueFilterComparisons
+    if (Comparisons == "None") {Comparisons <- NULL}
+    
+    # P Value test
+    PValTest <- input$PValueFilterTest 
+    if (PValTest == "none") {PValTest <- NULL}
+    
+    # Pull selected row information 
+    ThePlot <- final_data$PlotOptions[final_data$TrelliRow, "Plot"] %>% unlist()
+    PanelByChoice <- final_data$PlotOptions[final_data$TrelliRow, "Panel By Choice"] %>% unlist()
+    
+    # Calculate number of plots
+    FiltSummary <- trelli_pvalue_filter(
+      trelliData = final_data$TrelliData, 
+      p_value_test = PValTest,
+      p_value_thresh = input$PValueFilterPanel, 
+      comparison = Comparisons
+    ) %>% summary()
+    PlotNum <- FiltSummary %>%
+      dplyr::filter(`Panel By Choice` == PanelByChoice & Plot == ThePlot) %>%
+      dplyr::select(`Number of Plots`) %>%
+      unlist() %>%
+      as.numeric()
+    
+  } else {
+    PlotNum <- final_data$PlotOptions[final_data$TrelliRow, "Number of Plots"] %>% unlist() %>% as.numeric()
+  }
+  
+  BuildTime <- round(PlotNum / 87.6)
+  
+  if (BuildTime < 12) {
+    HTML(paste("The estimated build time is", BuildTime, "minutes"))
+  } else {
+    HTML(paste("The estimated build time is", BuildTime, "minutes. Try filtering the data by p-values in MODE. If there are no p-values to filter, they can be calculated in PMart and iPMart."))
+  }
+
+  
+})
+
+# Create job status if MAP version
+output$job_status_ui <- renderUI({
+  if (MAP) {actionButton("job_status", "Check Job Status", icon = icon("clipboard-check"))}
+})
+
 # Return job status
 observeEvent(input$job_status, {
   if (!is.null(MapConnect$Job)) {
@@ -24,12 +77,34 @@ observeEvent(input$make_trelliscope, {
   # Get the row 
   row <- final_data$TrelliRow
   
+  # Apply filtering if there is that option
+  if (!is.null(input$PValueFilterTest)) {
+    
+    # Pull comparisons
+    Comparisons <- input$PValueFilterComparisons
+    if (Comparisons == "None") {Comparisons <- NULL}
+    
+    # P Value test
+    PValTest <- input$PValueFilterTest 
+    if (PValTest == "none") {PValTest <- NULL}
+    
+    trelliData <- trelli_pvalue_filter(
+      trelliData = final_data$TrelliData, 
+      p_value_test = PValTest,
+      p_value_thresh = input$PValueFilterPanel, 
+      comparison = Comparisons
+    )
+    
+  } else {
+    trelliData <- final_data$TrelliData
+  }
+  
   # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
-  paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
+  paneled <- trelli_panel_by(trelliData, input$TrelliPanelVariable)
   theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
   
   # Determine test example number
-  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  choices <- trelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
   test_example_num <- match(input$PlotOptionsPanel, choices)
   
   # foldchange is written without the underscore
@@ -65,6 +140,8 @@ observeEvent(input$make_trelliscope, {
     sendModalAlert(paste0("The trelliscope display titled ", trelliName, " has been submitted as a job.", 
                           " Click 'Check Status' to see the status of the job and 'Refresh Display' to",
                           " view it when it's finished."))
+    
+    sc <- input$self_contained == "Yes"
     
     MapConnect$Job = celery_app$send_task(
       "trelliscope_builder",
@@ -165,49 +242,3 @@ observeEvent(input$make_trelliscope, {
   }
   
 })
-    
-  # TODO:  Smarter check that groups are valid
-  #req(edata_groups(), input$edata_idcname_picker)
-  #
-  #if(input$local_or_minio=="local"){
-  #  req(input$raw_data_upload)
-  #  object_name = uuid::UUIDgenerate()
-  #  refname = paste0(object_name, "_trelliscope")
-  #  mapDataAccess::put_file(miniocon, 
-  #                          id = object_name, 
-  #                          filename = input$raw_data_upload$datapath)
-  #}
-  #else if(input$local_or_minio == "minio"){
-  #  if(isTRUE(input$minio_choose_file != NOSELECT_)){
-  #    object_name = input$minio_choose_file
-  #    refname = paste0(get_data(miniocon, input$minio_choose_file)$Project$Name, "_trelliscope")
-  #  } else {
-  #    object_name = queryTags$query1
-  #    refname = paste0(get_data(miniocon, queryTags$query1)$Project$Name, "_trelliscope") 
-  #  }
-  #}
-  #
-  #celery_app$send_task(
-  #  "edata_simple_boxplots", 
-  #   kwargs=list(
-  #     object_name=object_name,
-  #     trelli_path=refname,
-  #     username=Sys.getenv("SHINYPROXY_USERNAME"),
-  #     panel_column=input$edata_idcname_picker,
-  #     groups=edata_groups()
-  #    )
-  #)
-
-# grab finished trelliscope display from minio
-#observeEvent(input$pull_trelliscope, {
-#  req(input$minio_trelli_picker)
-#  
-#  withProgress(
-#    message = "Pulling files from Minio...", value = 1, 
-#    {
-#      tmp_file <- mapDataAccess::get_file(miniocon, input$minio_trelli_picker, filename=tempfile())
-#      unzip(tmp_file, exdir = "www")
-#      file.remove(tmp_file)
-#    }
-#  )
-#}, priority=10)

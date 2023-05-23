@@ -194,6 +194,7 @@ output$PlotOptionsPlot <- renderPlot({
     if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
     
     pvaluetest <- input$PValueTest
+    if (pvaluetest == "NA") {pvaluetest <- NULL}
     pvaluethresh <- input$PValueThresh
     eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh)")))
     
@@ -202,6 +203,7 @@ output$PlotOptionsPlot <- renderPlot({
     if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
     
     pvaluetest <- input$PValueTest
+    if (pvaluetest == "NA") {pvaluetest <- NULL}
     pvaluethresh <- input$PValueThresh
     comparison <- input$SelectComparison
     eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison)")))
@@ -240,6 +242,8 @@ output$PlotOptionsTable <- DT::renderDT({
 # Make static plot - render modified plot only if final_data$Trelli_Row is not NULL (the "Confirm Selection" button has been clicked)
 output$OnePlotPreview <- renderPlot({
   
+  if (is.null(final_data$TrelliRow)) {return(NULL)}
+  
   # Get the row 
   row <- final_data$TrelliRow
   
@@ -269,6 +273,7 @@ output$OnePlotPreview <- renderPlot({
       if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
       
       pvaluetest <- input$PValueTest
+      if (pvaluetest == "NA") {pvaluetest <- NULL}
       pvaluethresh <- input$PValueThresh
       eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh)")))
       
@@ -277,6 +282,7 @@ output$OnePlotPreview <- renderPlot({
       if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
       
       pvaluetest <- input$PValueTest
+      if (pvaluetest == "NA") {pvaluetest <- NULL}
       pvaluethresh <- input$PValueThresh
       comparison <- input$SelectComparison
       eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison)")))
@@ -298,6 +304,7 @@ output$OnePlotPreview <- renderPlot({
       if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
       
       pvaluetest <- input$PValueTest
+      if (pvaluetest == "NA") {pvaluetest <- NULL}
       pvaluethresh <- input$PValueThresh
       eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, ggplot_params=gg_params)")))
       
@@ -306,6 +313,7 @@ output$OnePlotPreview <- renderPlot({
       if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
       
       pvaluetest <- input$PValueTest
+      if (pvaluetest == "NA") {pvaluetest <- NULL}
       pvaluethresh <- input$PValueThresh
       comparison <- input$SelectComparison
       eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params)")))

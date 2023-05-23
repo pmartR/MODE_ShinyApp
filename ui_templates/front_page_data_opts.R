@@ -50,6 +50,12 @@ make_trelliscope_plotting_options <- function() {
   )
 }
 
+make_data_filtering_options <- function() {
+  tagList(
+    uiOutput("FilterByPValueUI"),
+    uiOutput("FilterByPValueTextUI")
+  )
+}
 
 front_page_left_collapse <- function(){
   bsCollapse(
@@ -84,6 +90,11 @@ front_page_left_collapse <- function(){
       make_plot_variable_options()
     ),
     bsCollapsePanel(
+      title = "Data Filtering Options",
+      value = "Data_filtering",
+      make_data_filtering_options()
+    ),
+    bsCollapsePanel(
       title = "Make Trelliscope",
       value = "make_trelli_opts",
       make_trelliscope_plotting_options(),
@@ -105,7 +116,9 @@ front_page_left_collapse <- function(){
       textInput("trelliscope_name", "Name Trelliscope", value = "NewTrelliscope"),
       actionButton("refresh", "Refresh Display", icon = icon("pencil-alt")),
       downloadButton("download", "Download Display"),
-      actionButton("job_status", "Check Job Status", icon = icon("clipboard-check"))
+      uiOutput("job_status_ui"),
+      hr(),
+      uiOutput("BuildStats")
     )
   )
 }

@@ -54,6 +54,11 @@ output$BuildStats <- renderUI({
   
 })
 
+# Create job status if MAP version
+output$job_status_ui <- renderUI({
+  if (MAP) {actionButton("job_status", "Check Job Status", icon = icon("clipboard-check"))}
+})
+
 # Return job status
 observeEvent(input$job_status, {
   if (!is.null(MapConnect$Job)) {

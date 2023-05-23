@@ -116,7 +116,7 @@ front_page_left_collapse <- function(){
       textInput("trelliscope_name", "Name Trelliscope", value = "NewTrelliscope"),
       actionButton("refresh", "Refresh Display", icon = icon("pencil-alt")),
       downloadButton("download", "Download Display"),
-      actionButton("job_status", "Check Job Status", icon = icon("clipboard-check")),
+      uiOutput("job_status_ui"),
       hr(),
       uiOutput("BuildStats")
     )

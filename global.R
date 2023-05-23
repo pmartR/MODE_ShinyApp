@@ -50,3 +50,55 @@ WARN_TEXT <- list(
 source("UI_helper_functions.R", local=TRUE)
 
 sym_diff <- function(a,b) setdiff(union(a,b), intersect(a,b))
+
+# Define the filtering function for trelliData here: 
+trelli_pvalue_filter <- function(trelliData, 
+                                 p_value_test = "anova", 
+                                 p_value_thresh = 0.05, 
+                                 comparison = NULL) {
+  
+  if (any(class(trelliData) %in% c("trelliData")) == FALSE) {
+    stop("trelliData must be of the class trelliData.")
+  }
+  if (is.null(trelliData$statRes)) {
+    stop("trelliData must contain a statRes object.")
+  }
+  if (p_value_test %in% c("anova", "gtest", "combined") == FALSE) {
+    stop("p_value_test must be anova, gtest, or combined.")
+  }
+  if (!is.numeric(p_value_thresh)) {
+    stop("p_value_threshold must be a number.")
+  }
+  p_value_thresh <- abs(p_value_thresh)
+  if (!is.null(comparison)) {
+    if (!is.character(comparison) | length(comparison) > 
+        1) {
+      stop("comparison must be a string of length 1.")
+    }
+    Comparisons <- attr(trelliData$statRes, "comparisons")
+    if (comparison %in% Comparisons == FALSE) {
+      stop(paste0(comparison, "is not an acceptable comparison"))
+    }
+  }
+  biomolecule <- attr(trelliData$statRes, "cnames")$edata_cname
+  if (!is.null(comparison)) {
+    trelliData$trelliData.stat <- trelliData$trelliData.stat[trelliData$trelliData.stat$Comparison == 
+                                                               comparison, ]
+  }
+  if (p_value_test == "anova") {
+    trelliData$trelliData.stat <- trelliData$trelliData.stat[trelliData$trelliData.stat$p_value_anova <= 
+                                                               p_value_thresh, ]
+  }
+  else if (p_value_test == "gtest") {
+    trelliData$trelliData.stat <- trelliData$trelliData.stat[trelliData$trelliData.stat$p_value_gtest <= 
+                                                               p_value_thresh, ]
+  }
+  if (!is.null(trelliData$trelliData.omics)) {
+    biomolecule_subset <- trelliData$trelliData.stat[, biomolecule] %>% 
+      unlist()
+    trelliData$trelliData.omics <- trelliData$trelliData.omics[trelliData$trelliData.omics[[biomolecule]] %in% 
+                                                                 biomolecule_subset, ]
+  }
+  return(trelliData)
+  
+}

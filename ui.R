@@ -19,12 +19,12 @@ ui <- fluidPage(
   fluidRow(
     id = "trelliscope_fluidRow",
     column(
-      width = 4,
+      width = 3,
       front_page_left_collapse(),
       uiOutput("enter_debugger") # hidden if in debug mode
     ),
     column(
-      width = 8,
+      width = 9,
       front_page_display_panel(),
     )
   )

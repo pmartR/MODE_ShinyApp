@@ -6,10 +6,28 @@ make_front_page_upload_opts <- function(){
       uiOutput("SelectOmicsUI")
     )
   } else {
-    tagList(
-      fileInput("UploadFile", "Select an edata project or midpoint file"),
-      uiOutput("UploadedFileType"),
-      uiOutput("SelectOmicsUI")
+   div(
+      HTML('<p><span style="font-size: 16px;"><strong>Required Inputs.</strong></span></p><p>Click the check mark for more details on filetypes.</p>'),
+      splitLayout(
+        fileInput("EdataFile", "Expression Data"), 
+        actionButton("EdataFileHelp", "", icon("question"), style = "margin-top:25px")
+      ),
+      radioGroupButtons("EdataFileNormal", "Has this data been normalized?", c("Yes", "No"), "No"),
+      hr(),
+      HTML('<p><span style="font-size: 16px;"><strong>Optional Inputs.</strong></span></p>'),
+      splitLayout(
+        fileInput("FdataFile", "Sample Information"),
+        actionButton("FdataFileHelp", "", icon("question"), style = "margin-top:25px")
+      ),
+      splitLayout(
+        fileInput("EmetaFile", "Biomolecule Information"),
+        actionButton("EmetaFileHelp", "", icon("question"), style = "margin-top:25px")
+      ),
+      splitLayout(
+        fileInput("StatisticsFile", "Differential Statistics"),
+        actionButton("StatisticsFileHelp", "", icon("question"), style = "margin-top:25px")
+      ),
+      actionButton("UploadConfirm", "Confirm", icon("check"))
     )
   }
 }
@@ -64,7 +82,7 @@ front_page_left_collapse <- function(){
     bsCollapsePanel(
       div(
         subsection_header(
-          "Upload File",
+          "Upload Files",
           id = "main_trelli_upload_icon",
           style = "color:red;display:inline-block",
           icon = icon("exclamation-sign", lib = "glyphicon"),

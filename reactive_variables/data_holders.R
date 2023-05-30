@@ -42,21 +42,53 @@ uploaded_data <- reactive({
         sendModalAlert("Please upload a 'Sample Information' file to use data from 'Biomolecule Information' or 'Differential Statisitics' files")
       }
       
-      browser()
-      
       return(project.edata(
         projectname = "MODE_Generated",
         datatype = "Unknown",
         edata = edata,
-        
+        edata_filename = input$EdataFile$name
       ))
       
     } else {
       
-      browser()
+      # Check fdata 
+      fdata <- read.csv(input$FdataFile$datapath)
+    
+      fdata_test <- is.fdata(edata, fdata)
+      if (fdata_test != "Valid") {
+        sendModalAlert(fdata_test)
+        return(NULL)
+      }
+      
+      # Optional check emeta 
+      if (!is.null(input$EmetaFile)) {
+        emeta <- read.csv(input$EmetaFile$datapath)
+        emeta_test <- is.emeta(edata, emeta)
+        if (emeta_test != "Valid") {
+          sendModalAlert(emeta_test)
+          return(NULL)
+        }
+      }
+      
+      # Optional check of statistics
+      if (!is.null(input$StatisticsFile)) {
+        stats <- read.csv(input$StatisticsFile$datapath)
+        stats_test <- is.statistics(edata, fdata, stats)
+        if (stats_test != "Valid") {
+          sendModalAlert(stats_test)
+          return(NULL)
+        }
+      }
+      
+      # Return an edata file. We will generate a pmart midpoint elsewhere 
+      return(project.edata(
+        projectname = "MODE_Generated",
+        datatype = "Unknown",
+        edata = edata,
+        edata_filename = input$EdataFile$name
+      ))
       
     }
-    
     
   }
   

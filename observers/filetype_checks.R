@@ -87,7 +87,11 @@ is.emeta <- function(edata, emeta) {
   
 }
 
-is.statistics <- function(fdata, statistics) {
+is.statistics <- function(edata, fdata, statistics) {
+  
+  browser()
+  
+  
   
 }
 
@@ -113,7 +117,6 @@ project.edata <- function(projectname, datatype, edata, edata_filename = NULL) {
   return(ProjectObject)
   
 }
-
 
 
 

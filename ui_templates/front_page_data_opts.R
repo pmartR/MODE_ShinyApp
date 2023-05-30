@@ -7,11 +7,12 @@ make_front_page_upload_opts <- function(){
     )
   } else {
    div(
-      HTML('<p><span style="font-size: 16px;"><strong>Required Inputs.</strong></span></p><p>Click the check mark for more details on filetypes.</p>'),
+      HTML('<p><span style="font-size: 16px;"><strong>Required Inputs.</strong></span></p><p>Click the question mark for more details on filetypes.</p>'),
       splitLayout(
         fileInput("EdataFile", "Expression Data", accept = ".csv"), 
         actionButton("EdataFileHelp", "", icon("question"), style = "margin-top:25px")
       ),
+      uiOutput("EdataColSel"),
       HTML('<p><span style="font-size: 16px;"><strong>Optional Inputs.</strong></span></p>'),
       splitLayout(
         fileInput("FdataFile", "Sample Information", accept = ".csv"),

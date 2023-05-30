@@ -9,22 +9,20 @@ make_front_page_upload_opts <- function(){
    div(
       HTML('<p><span style="font-size: 16px;"><strong>Required Inputs.</strong></span></p><p>Click the check mark for more details on filetypes.</p>'),
       splitLayout(
-        fileInput("EdataFile", "Expression Data"), 
+        fileInput("EdataFile", "Expression Data", accept = ".csv"), 
         actionButton("EdataFileHelp", "", icon("question"), style = "margin-top:25px")
       ),
-      radioGroupButtons("EdataFileNormal", "Has this data been normalized?", c("Yes", "No"), "No"),
-      hr(),
       HTML('<p><span style="font-size: 16px;"><strong>Optional Inputs.</strong></span></p>'),
       splitLayout(
-        fileInput("FdataFile", "Sample Information"),
+        fileInput("FdataFile", "Sample Information", accept = ".csv"),
         actionButton("FdataFileHelp", "", icon("question"), style = "margin-top:25px")
       ),
       splitLayout(
-        fileInput("EmetaFile", "Biomolecule Information"),
+        fileInput("EmetaFile", "Biomolecule Information", accept = ".csv"),
         actionButton("EmetaFileHelp", "", icon("question"), style = "margin-top:25px")
       ),
       splitLayout(
-        fileInput("StatisticsFile", "Differential Statistics"),
+        fileInput("StatisticsFile", "Differential Statistics", accept = ".csv"),
         actionButton("StatisticsFileHelp", "", icon("question"), style = "margin-top:25px")
       ),
       actionButton("UploadConfirm", "Confirm", icon("check"))

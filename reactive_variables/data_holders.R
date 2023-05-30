@@ -8,29 +8,56 @@ uploaded_data <- reactive({
     
     if (!is.null(MapConnect$Data)) {return(MapConnect$Data)} else {return(NULL)}
     
+    # Get the file's class
+    if (class(file) %in% c("project edata", "midpoint pmart", "midpoint ipmart")) {
+      return(file)
+    } else {
+      sendSweetAlert(session, "Upload file is incorrect", 
+                     "MODE currently accepts edata projects, and midpoints from pmart and ipmart")
+      return(NULL)
+    }
+    
   } else {
     
     # Require an upload of a file
-    req(input$UploadFile)
+    req(input$UploadConfirm)
     
-    # Check that the file is an RDS object
-    tryCatch(
-      file <- readRDS(input$UploadFile$datapath),
-      error = function(e) {
-        sendSweetAlert(session, "Upload file is incorrect", 
-                       "MODE currently accepts RDS files from MAP")
-        return(NULL)
-      }) 
+    # First check that edata is included 
+    if (is.null(input$EdataFile)) {
+      sendModalAlert("Please upload an 'Expression Data' file")
+      return(NULL)
+    }
     
-  }
-  
-  # Get the file's class
-  if (class(file) %in% c("project edata", "midpoint pmart", "midpoint ipmart")) {
-    return(file)
-  } else {
-    sendSweetAlert(session, "Upload file is incorrect", 
-                   "MODE currently accepts edata projects, and midpoints from pmart and ipmart")
-    return(NULL)
+    # Now, double check edata 
+    edata <- read.csv(input$EdataFile$datapath)
+    edata_test <- is.edata(edata)
+    if (edata_test != "Valid") {
+      sendModalAlert(edata_test)
+      return(NULL)
+    }
+    
+    if (is.null(input$FdataFile)) {
+      
+      if (!is.null(input$EmetaFile) & !is.null(input$StatisticsFile)) {
+        sendModalAlert("Please upload a 'Sample Information' file to use data from 'Biomolecule Information' or 'Differential Statisitics' files")
+      }
+      
+      browser()
+      
+      return(project.edata(
+        projectname = "MODE_Generated",
+        datatype = "Unknown",
+        edata = edata,
+        
+      ))
+      
+    } else {
+      
+      browser()
+      
+    }
+    
+    
   }
   
 })

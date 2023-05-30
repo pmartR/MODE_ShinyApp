@@ -9,9 +9,8 @@ ui <- fluidPage(
     tags$link(rel = "stylesheet", type = "text/css", href = "MODEstyle.css")
   ),
   div(class = "title-panel",
-      tags$h1("MODE"),
-      tags$p("Trelliscope visualization of omic data and statistics")
-      ),
+      HTML('<p><img src="mode_icon.png" width=150></p><p><span style="font-size: 22px;">  Trelliscope visualization of omics data and statistics</span></p>')
+  ),
   div(
     id = "loading-gray-overlay",
     class = "loading-mask",

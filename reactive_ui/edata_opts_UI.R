@@ -75,7 +75,7 @@ output$WantGroupsUI <- renderUI({
 #' @details If users upload fdata (local version), they need to select groups
 output$FDataGroupUI <- renderUI({
   req(input$FDataColumn)
-  pickerInput("FDataGroup", "Which column in your Sample Information indicates sample names?", colnames(get_fdata())[colnames(get_fdata()) != input$FDataColumn])
+  pickerInput("FDataGroup", "Which column in your Sample Information indicates groups?", colnames(get_fdata())[colnames(get_fdata()) != input$FDataColumn])
 })
 
 #' @details Allow users to enter group names 

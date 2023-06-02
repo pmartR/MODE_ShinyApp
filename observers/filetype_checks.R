@@ -141,6 +141,3 @@ project.edata <- function(projectname, datatype, edata, edata_filename = NULL) {
   return(ProjectObject)
   
 }
-
-
-

@@ -89,8 +89,33 @@ is.emeta <- function(edata, emeta) {
 
 is.statistics <- function(edata, fdata, statistics) {
   
-  browser()
+  # Check for P_value_A_
+  if (!any(grepl("P_value_A_", colnames(statistics)))) {
+    return("'P_value_A_' must be included in at least one column of the Differential Statistics File.")
+  }
   
+  # Check for Fold_change_
+  if (!any(grepl("Fold_change_", colnames(statistics)))) {
+    return("'Fold_change_' must be included in at least one column of the Differential Statistics File.")
+  }
+  
+  # Check comparisons 
+  comparisons <- gsub("P_value_A_", "", colnames(statistics)[grepl("P_value_A_", colnames(statistics))])
+  theLevels <- lapply(comparisons, function(x) {strsplit(x, "_vs_")}) %>% unlist() %>% unique()
+  levelCheck <- lapply(theLevels, function(x) {any(fdata==x)}) %>% unlist()
+  
+  if (!all(levelCheck)) {
+    return(
+      paste("The following data is missing from the Sample Information:", paste0(theLevels[!levelCheck], collapse = ", "))
+    )
+  }
+  
+  
+  
+  
+  
+  
+  browser()
   
   
 }

@@ -12,7 +12,6 @@ make_front_page_upload_opts <- function(){
         fileInput("EdataFile", "Expression Data", accept = ".csv"), 
         actionButton("EdataFileHelp", "", icon("question"), style = "margin-top:25px")
       ),
-      uiOutput("EdataColSel"),
       HTML('<p><span style="font-size: 16px;"><strong>Optional Inputs.</strong></span></p>'),
       splitLayout(
         fileInput("FdataFile", "Sample Information", accept = ".csv"),
@@ -26,7 +25,9 @@ make_front_page_upload_opts <- function(){
         fileInput("StatisticsFile", "Differential Statistics", accept = ".csv"),
         actionButton("StatisticsFileHelp", "", icon("question"), style = "margin-top:25px")
       ),
-      actionButton("UploadConfirm", "Confirm", icon("check"))
+      actionButton("UploadConfirm", "Confirm", icon("check")),
+      hr(),
+      downloadButton("ExampleFiles", "Download Example Files")
     )
   }
 }

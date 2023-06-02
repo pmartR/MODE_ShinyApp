@@ -70,7 +70,7 @@ uploaded_data <- reactive({
         }
       }
       
-      # Optional check of statistics
+      # Optional check statistics
       if (!is.null(input$StatisticsFile)) {
         stats <- read.csv(input$StatisticsFile$datapath)
         stats_test <- is.statistics(edata, fdata, stats)

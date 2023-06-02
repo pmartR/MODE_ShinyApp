@@ -5,7 +5,7 @@
 .Ruserdata
 .DS_Store
 .Rbuildignore
-www/*
+www/trelli/*
 !www/MODEstyle.css
 
 untracked_resources

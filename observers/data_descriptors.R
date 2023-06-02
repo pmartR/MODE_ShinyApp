@@ -40,3 +40,11 @@ observeEvent(input$StatisticsFileHelp, {
   
 })
 
+# Trigger download
+output$ExampleFiles <- downloadHandler(
+  filename = function() {"MODE_Example_Data.zip"},
+  content = function(file) {
+    zip(file, "./www/example_files/")
+  }
+)
+

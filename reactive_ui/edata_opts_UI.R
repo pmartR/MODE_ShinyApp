@@ -59,7 +59,13 @@ output$choose_edata_colname <- renderUI({
 output$WantGroupsUI <- renderUI({
   req(uploaded_data())
   if (class(uploaded_data()) == "project edata") {
-    radioGroupButtons("WantGroups", "Would you like to assign groups?", c("Yes", "No"), "No")
+    
+    if (is.null(input$FdataFile)) {
+      radioGroupButtons("WantGroups", "Would you like to assign groups?", c("Yes", "No"), "No")
+    } else {
+      pickerInput("FDataColumn", "Select a Group", colnames(read.csv(input$FdataFile$datapath)))
+    }
+    
   }
 })
 

@@ -110,13 +110,12 @@ is.statistics <- function(edata, fdata, statistics) {
     )
   }
   
+  # Check file sizes
+  if (!(nrow(edata) == nrow(statistics))) {
+    return("Expression Data and Differential Statistics should have the same number of rows.")
+  }
   
-  
-  
-  
-  
-  browser()
-  
+  return("Valid")
   
 }
 

@@ -48,3 +48,13 @@ output$ExampleFiles <- downloadHandler(
   }
 )
 
+# Close upload file 
+observeEvent(input$UploadConfirm, {
+  
+  req(uploaded_data())
+  updateCollapse(session, id = "trelli_collapse", close = "front_page_upload_opts", open = "front_page_data_process_opts")
+
+})
+
+
+

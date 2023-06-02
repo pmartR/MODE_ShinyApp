@@ -55,22 +55,40 @@ observeEvent(input$CheckNormalization, {
     "Metabolomics-NMR" = "as.nmrData"
   )
   
-  # Create omicData object
-  omicData <- eval(parse(text = paste0(omicFUN, 
-       "(e_data = uploaded_data()$Data$e_data, 
+  if (is.null(get_fdata())) {
+    
+    # Create omicData object
+    omicData <- eval(parse(text = paste0(omicFUN, 
+      "(e_data = uploaded_data()$Data$e_data, 
        edata_cname = input$edata_idcname_picker, 
        f_data = edata_groups$fdata, 
        fdata_cname = 'Sample',
        data_scale = input$OrigDataScale)")))
+    
+    # Add grouping
+    omicData <- group_designation(omicData, "group")
+    
+  } else {
+    
+    # Create omicData object
+    omicData <- as.pepData(
+      e_data = get_edata(),
+      edata_cname = input$edata_idcname_picker,
+      f_data = get_fdata(), 
+      fdata_cname = input$FDataColumn,
+      data_scale = input$OrigDataScale
+    )
+    
+    # Add grouping
+    omicData <- group_designation(omicData, input$FDataGroup)
+    
+  }
   
   # Log transform if necessary
   if (input$OrigDataScale != input$NewDataScale) {
     omicData <- edata_transform(omicData, input$NewDataScale)
   }
-  
-  # Add grouping
-  omicData <- group_designation(omicData, "group")
-  
+
   # Run normalization
   pval <- switch(input$NormSubsetFun,
     "all" = normalize_global(omicData, input$NormSubsetFun, input$NormFun),

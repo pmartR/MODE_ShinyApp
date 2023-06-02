@@ -29,7 +29,7 @@ uploaded_data <- reactive({
     }
     
     # Now, double check edata 
-    edata <- read.csv(input$EdataFile$datapath)
+    edata <- get_edata()
     edata_test <- is.edata(edata)
     if (edata_test != "Valid") {
       sendModalAlert(edata_test)
@@ -52,7 +52,7 @@ uploaded_data <- reactive({
     } else {
       
       # Check fdata 
-      fdata <- read.csv(input$FdataFile$datapath)
+      fdata <- get_fdata()
     
       fdata_test <- is.fdata(edata, fdata)
       if (fdata_test != "Valid") {
@@ -62,7 +62,7 @@ uploaded_data <- reactive({
       
       # Optional check emeta 
       if (!is.null(input$EmetaFile)) {
-        emeta <- read.csv(input$EmetaFile$datapath)
+        emeta <- get_emeta()
         emeta_test <- is.emeta(edata, emeta)
         if (emeta_test != "Valid") {
           sendModalAlert(emeta_test)
@@ -72,7 +72,7 @@ uploaded_data <- reactive({
       
       # Optional check statistics
       if (!is.null(input$StatisticsFile)) {
-        stats <- read.csv(input$StatisticsFile$datapath)
+        stats <- get_stats()
         stats_test <- is.statistics(edata, fdata, stats)
         if (stats_test != "Valid") {
           sendModalAlert(stats_test)
@@ -90,6 +90,47 @@ uploaded_data <- reactive({
       
     }
     
+  }
+  
+})
+
+# Create special readers for e_data, f_data, e_meta, and statistics when uploaded sepearately 
+get_edata <- reactive({
+  
+  if (is.null(input$EdataFile)) {
+    return(NULL)
+  } else {
+    return(read.csv(input$EdataFile$datapath))
+  }
+  
+})
+
+get_fdata <- reactive({
+  
+  if (is.null(input$FdataFile)) {
+    return(NULL)
+  } else {
+    return(read.csv(input$FdataFile$datapath))
+  }
+  
+})
+
+get_emeta <- reactive({
+  
+  if (is.null(input$EmetaFile)) {
+    return(NULL)
+  } else {
+    return(read.csv(input$EmetaFile$datapath))
+  }
+  
+})
+
+get_stats <- reactive({
+  
+  if (is.null(input$StatisticsFile)) {
+    return(NULL)
+  } else {
+    return(read.csv(input$StatisticsFile$datapath))
   }
   
 })

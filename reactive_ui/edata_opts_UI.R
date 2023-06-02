@@ -63,10 +63,19 @@ output$WantGroupsUI <- renderUI({
     if (is.null(input$FdataFile)) {
       radioGroupButtons("WantGroups", "Would you like to assign groups?", c("Yes", "No"), "No")
     } else {
-      pickerInput("FDataColumn", "Select a Group", colnames(read.csv(input$FdataFile$datapath)))
+      list(
+        pickerInput("FDataColumn", "Which column in your Sample Information indicates sample names?", colnames(get_fdata())),
+        uiOutput("FDataGroupUI")
+      )
     }
     
   }
+})
+
+#' @details If users upload fdata (local version), they need to select groups
+output$FDataGroupUI <- renderUI({
+  req(input$FDataColumn)
+  pickerInput("FDataGroup", "Which column in your Sample Information indicates sample names?", colnames(get_fdata())[colnames(get_fdata()) != input$FDataColumn])
 })
 
 #' @details Allow users to enter group names 
@@ -192,7 +201,7 @@ output$MoreNormalizationUI <- renderUI({
 #' @details Check normalization choices
 output$CheckNormalizationUI <- renderUI({
   if (edata_groups$ToNormalization) {
-    if (length(unique(edata_groups$LockedGroupOrder)) == 1) {
+    if (is.null(get_fdata()) & length(unique(edata_groups$LockedGroupOrder)) == 1) {
       tagList(
         actionButton("ConfirmNormalization", "Confirm"),
         uiOutput("NormalizationTest")

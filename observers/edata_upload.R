@@ -163,6 +163,7 @@ observeEvent(input$ConfirmNormalization, {
       statsObj <- get_stats()
       class(statsObj) <- c(class(statsObj), "statRes")
       attr(statsObj, "cnames")$edata_cname <- input$edata_idcname_picker
+      attr(statsObj, "comparisons") <- colnames(statsObj)[grepl("P_value_A", colnames(statsObj))] %>% gsub(pattern = "P_value_A_", replacement = "") %>% unique()
     }
     
     # Now, we can finally create the trelliData object

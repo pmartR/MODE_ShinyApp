@@ -268,11 +268,12 @@ output$TrelliPlottingVariableUI <- renderUI({
 #' @details Select a panel to see
 output$PlotOptionsPanelUI <- renderUI({
   req(final_data$PlotOptions)
-  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  
+  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character() 
   
   div(
     id = "TrelliPlotOptDiv",
-    pickerInput("PlotOptionsPanel", "Select Panel Variable", choices = choices, selected = choices[1])
+    pickerInput("PlotOptionsPanel", "Select Panel Variable", choices = choices, selected = choices[1], options = list(`live-search` = TRUE))
   )
  
 })
@@ -464,7 +465,7 @@ output$download <- downloadHandler(
     if (MAP | Compose_Test) {
       paste0(MapConnect$Trelliscope, ".zip")
     } else {
-      paste0(mapDataAccess::.scrub_clean(input$trelliscope_name), ".zip")
+      paste0(.scrub_clean(input$trelliscope_name), ".zip")
     }
   },
   content = function(file) {

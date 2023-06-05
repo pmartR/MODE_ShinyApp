@@ -104,7 +104,7 @@ observeEvent(input$make_trelliscope, {
   theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
   
   # Determine test example number
-  choices <- trelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  choices <- trelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character() 
   test_example_num <- match(input$PlotOptionsPanel, choices)
   
   # foldchange is written without the underscore
@@ -113,7 +113,7 @@ observeEvent(input$make_trelliscope, {
   }
   
   # Name the trelliscope display
-  trelliName <- mapDataAccess::.scrub_clean(input$trelliscope_name)
+  trelliName <- .scrub_clean(input$trelliscope_name)
   
   # If MAP or REDIS_VERSION or Compose version 
   if (Redis_Test | MAP | Compose_Test) {
@@ -172,7 +172,7 @@ observeEvent(input$make_trelliscope, {
   } else {
   
     # Delete the trellifolder
-    unlink("www/MODE", recursive = TRUE)
+    unlink("www/trelli", recursive = TRUE)
     
     withProgress({
       

@@ -141,3 +141,9 @@ project.edata <- function(projectname, datatype, edata, edata_filename = NULL) {
   return(ProjectObject)
   
 }
+
+# A scaled down version of .scrub_clean from mapDataAccess
+.scrub_clean <- function(string) {
+  return(gsub("[^[:alnum:]]|[[:space:]]", " ", as.character(string)))
+}
+

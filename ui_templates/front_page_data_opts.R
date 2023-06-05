@@ -27,7 +27,7 @@ make_front_page_upload_opts <- function(){
       ),
       actionButton("UploadConfirm", "Confirm", icon("check")),
       hr(),
-      downloadButton("ExampleFiles", "Download Example Files")
+      downloadButton("ExampleFiles", "Download Normalized Example Files")
     )
   }
 }

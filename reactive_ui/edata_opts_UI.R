@@ -412,7 +412,7 @@ output$FilterByPValueUI <- renderUI({
       
       tagList(
         numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
-        pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest", "None" = "none"), selected = "ANOVA"),
+        pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest"), selected = "ANOVA"),
         pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
       )
     } else {

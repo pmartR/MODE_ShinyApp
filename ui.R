@@ -20,8 +20,7 @@ ui <- fluidPage(
     id = "trelliscope_fluidRow",
     column(
       width = 3,
-      front_page_left_collapse(),
-      uiOutput("enter_debugger") # hidden if in debug mode
+      front_page_left_collapse()
     ),
     column(
       width = 9,

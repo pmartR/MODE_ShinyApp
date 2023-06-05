@@ -43,8 +43,6 @@ observeEvent(input$MoveToNormalization, {
 #' @details Run normalization check 
 observeEvent(input$CheckNormalization, {
   
-  browser()
-  
   # Create an edata object to test 
   omicFUN <- switch(uploaded_data()$Project$DataType,
     "Peptide-level Label Free" = "as.pepData", 
@@ -72,7 +70,7 @@ observeEvent(input$CheckNormalization, {
     omicData <- group_designation(omicData, "group")
     
   } else {
-    
+
     # Create omicData object
     omicData <- as.pepData(
       e_data = get_edata(),

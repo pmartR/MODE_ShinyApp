@@ -161,11 +161,14 @@ observeEvent(input$ConfirmNormalization, {
       statsObj <- NULL
     } else {
       statsObj <- get_stats()
+      class(statsObj) <- c(class(statsObj), "statRes")
+      attr(statsObj, "cnames")$edata_cname <- input$edata_idcname_picker
     }
     
     # Now, we can finally create the trelliData object
     final_data$TrelliData <- as.trelliData(
-      omicsData = omicData
+      omicsData = omicData,
+      statRes = statsObj
     )
     
   } else {

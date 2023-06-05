@@ -43,6 +43,8 @@ observeEvent(input$MoveToNormalization, {
 #' @details Run normalization check 
 observeEvent(input$CheckNormalization, {
   
+  browser()
+  
   # Create an edata object to test 
   omicFUN <- switch(uploaded_data()$Project$DataType,
     "Peptide-level Label Free" = "as.pepData", 
@@ -54,6 +56,7 @@ observeEvent(input$CheckNormalization, {
     "Metabolomics-GC/LC-MS" = "as.metabData", 
     "Metabolomics-NMR" = "as.nmrData"
   )
+  if (is.null(omicFUN)) {omicFUN <- "as.pepData"}
   
   if (is.null(get_fdata())) {
     
@@ -88,7 +91,7 @@ observeEvent(input$CheckNormalization, {
   if (input$OrigDataScale != input$NewDataScale) {
     omicData <- edata_transform(omicData, input$NewDataScale)
   }
-
+  
   # Run normalization
   pval <- switch(input$NormSubsetFun,
     "all" = normalize_global(omicData, input$NormSubsetFun, input$NormFun),
@@ -188,6 +191,8 @@ observeEvent(input$ConfirmNormalization, {
                         "Metabolomics-GC/LC-MS" = "as.metabData", 
                         "Metabolomics-NMR" = "as.nmrData"
       )
+      
+      if (is.null(omicFUN)) {omicFUN <- "as.pepData"}
       
       # Create omicData object
       omicData <- eval(parse(text = paste0(omicFUN, 

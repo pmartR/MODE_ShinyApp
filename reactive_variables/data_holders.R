@@ -135,22 +135,6 @@ get_stats <- reactive({
   
 })
 
-# turn uploaded e_data into dataframe suitable for trelliscope
-nested_edata <- reactive({
-  
-  req(uploaded_data(), input$edata_idcname_picker)
-  
-  out_df = edata_to_plot_df(
-    uploaded_data()$Data$e_data,
-    panel_column = input$edata_idcname_picker,
-    names_to = "Sample",
-    values_to = "Value"
-  )
-  
-  return(out_df)
-  
-})
-
 
 
 

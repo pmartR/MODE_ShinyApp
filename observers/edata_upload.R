@@ -54,22 +54,41 @@ observeEvent(input$CheckNormalization, {
     "Metabolomics-GC/LC-MS" = "as.metabData", 
     "Metabolomics-NMR" = "as.nmrData"
   )
+  if (is.null(omicFUN)) {omicFUN <- "as.pepData"}
   
-  # Create omicData object
-  omicData <- eval(parse(text = paste0(omicFUN, 
-       "(e_data = uploaded_data()$Data$e_data, 
+  if (is.null(get_fdata())) {
+    
+    # Create omicData object
+    omicData <- eval(parse(text = paste0(omicFUN, 
+      "(e_data = uploaded_data()$Data$e_data, 
        edata_cname = input$edata_idcname_picker, 
        f_data = edata_groups$fdata, 
        fdata_cname = 'Sample',
        data_scale = input$OrigDataScale)")))
+    
+    # Add grouping
+    omicData <- group_designation(omicData, "group")
+    
+  } else {
+
+    # Create omicData object
+    omicData <- as.pepData(
+      e_data = get_edata(),
+      edata_cname = input$edata_idcname_picker,
+      f_data = get_fdata(), 
+      fdata_cname = input$FDataColumn,
+      data_scale = input$OrigDataScale
+    )
+    
+    # Add grouping
+    omicData <- group_designation(omicData, input$FDataGroup)
+    
+  }
   
   # Log transform if necessary
   if (input$OrigDataScale != input$NewDataScale) {
     omicData <- edata_transform(omicData, input$NewDataScale)
   }
-  
-  # Add grouping
-  omicData <- group_designation(omicData, "group")
   
   # Run normalization
   pval <- switch(input$NormSubsetFun,
@@ -92,91 +111,159 @@ observeEvent(input$CheckNormalization, {
 #' @details Apply normalization
 observeEvent(input$ConfirmNormalization, {
   
-  # If more than one group, then this needs to become an omicsData object 
-  if (unique(length(edata_groups$LockedGroupOrder)) > 1) {
+  # If no f_data is uploaded, then
+  if (!is.null(get_fdata())) {
     
-    # Create an edata object to test 
-    omicFUN <- switch(uploaded_data()$Project$DataType,
-                      "Peptide-level Label Free" = "as.pepData", 
-                      "Peptide-level Isobaric" = "as.isobaricpepData", 
-                      "Protein-level Label Free" = "as.proData", 
-                      "Protein-level Isobaric" = "as.proData", 
-                      "Lipidomics-Negative" = "as.lipidData", 
-                      "Lipidomics-Positive" = "as.lipidData", 
-                      "Metabolomics-GC/LC-MS" = "as.metabData", 
-                      "Metabolomics-NMR" = "as.nmrData"
+    # Pick a random e_meta cname since it doesn't matter at all for MODE
+    if (!is.null(get_emeta())) {
+      emeta_cnames <- colnames(get_emeta())
+      theEMETAcname <- emeta_cnames[emeta_cnames != input$edata_idcname_picker][1]
+    } else {
+      theEMETAcname <- NULL
+    }
+    
+    # Make the omicData object
+    omicData <- as.pepData(
+      e_data = get_edata(),
+      edata_cname = input$edata_idcname_picker,
+      f_data = get_fdata(),
+      fdata_cname = input$FDataColumn,
+      e_meta = get_emeta(),
+      emeta_cname = theEMETAcname,
+      data_scale = input$OrigDataScale
     )
-    
-    # Create omicData object
-    omicData <- eval(parse(text = paste0(omicFUN, 
-      "(e_data = uploaded_data()$Data$e_data, 
-       edata_cname = input$edata_idcname_picker, 
-       f_data = edata_groups$fdata, 
-       fdata_cname = 'Sample',
-       data_scale = input$OrigDataScale)")))
     
     # Log transform if necessary
     if (input$OrigDataScale != input$NewDataScale) {
       omicData <- edata_transform(omicData, input$NewDataScale)
     }
     
-    # Add grouping
-    omicData <- group_designation(omicData, "group")
+    # Group object
+    omicData <- group_designation(omicData, input$FDataGroup)
     
-    # Apply normalization
-    omicData <- switch(input$NormSubsetFun,
-      "all" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, apply_norm = TRUE, backtransform = TRUE),
-      "complete" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, apply_norm = TRUE, backtransform = TRUE),
-      "los" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("los" = input$NormalLOS), apply_norm = TRUE, backtransform = TRUE),
-      "ppp" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("ppp" = input$NormalPPP), apply_norm = TRUE, backtransform = TRUE),
-      "rip" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE),
-      "ppp_rip" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("ppp" = input$NormalPPP, "rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE)
-    ) 
+    # Normalize if necessary
+    if (input$IsNormalized == "No") {
+      
+      omicData <- switch(input$NormSubsetFun,
+                         "all" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, apply_norm = TRUE, backtransform = TRUE),
+                         "complete" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, apply_norm = TRUE, backtransform = TRUE),
+                         "los" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("los" = input$NormalLOS), apply_norm = TRUE, backtransform = TRUE),
+                         "ppp" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("ppp" = input$NormalPPP), apply_norm = TRUE, backtransform = TRUE),
+                         "rip" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE),
+                         "ppp_rip" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("ppp" = input$NormalPPP, "rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE)) 
+      
+      
+    } else {
+      attributes(omicData)$data_info$norm_info$is_normalized <- TRUE
+    }
     
-    # Save omicData 
-    final_data$OmicsData <- omicData
+    # Make statistics object
+    if (is.null(get_stats())) {
+      statsObj <- NULL
+    } else {
+      statsObj <- get_stats()
+      class(statsObj) <- c(class(statsObj), "statRes")
+      attr(statsObj, "cnames")$edata_cname <- input$edata_idcname_picker
+      attr(statsObj, "comparisons") <- colnames(statsObj)[grepl("P_value_A", colnames(statsObj))] %>% gsub(pattern = "P_value_A_", replacement = "") %>% unique()
+    }
     
-    # Create trelliData object 
-    final_data$TrelliData <- as.trelliData(omicsData = omicData)
+    # Now, we can finally create the trelliData object
+    final_data$TrelliData <- as.trelliData(
+      omicsData = omicData,
+      statRes = statsObj
+    )
     
   } else {
-    
-    # Create an edata object to test 
-    omic_type <- switch(uploaded_data()$Project$DataType,
-                      "Peptide-level Label Free" = "pepData", 
-                      "Peptide-level Isobaric" = "isobaricpepData", 
-                      "Protein-level Label Free" = "proData", 
-                      "Protein-level Isobaric" = "proData", 
-                      "Lipidomics-Negative" = "lipidData", 
-                      "Lipidomics-Positive" = "lipidData", 
-                      "Metabolomics-GC/LC-MS" = "metabData", 
-                      "Metabolomics-NMR" = "nmrData"
-    )
-    
-    # Pull normalization parameters
-    normalParams <- switch(input$NormSubsetFun,
-      "all" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, apply_norm = TRUE, backtransform = TRUE),
-      "complete" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, apply_norm = TRUE, backtransform = TRUE),
-      "los" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("los" = input$NormalLOS), apply_norm = TRUE, backtransform = TRUE),
-      "ppp" = normalize_global(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("ppp" = input$NormalPPP), apply_norm = TRUE, backtransform = TRUE),
-      "rip" = normalize_global(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE),
-      "ppp_rip" = normalize_global(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("ppp" = input$NormalPPP, "rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE)
-    ) 
-    
-    
-    # Otherwise, create trelliData.edata object
-    final_data$TrelliData <- as.trelliData.edata(
-      e_data = uploaded_data()$Data$e_data,
-      edata_cname = input$edata_idcname_picker,
-      omics_type = omic_type,
-      data_scale_original = input$OrigDataScale,
-      data_scale = input$NewDataScale,
-      normalization_fun = "global",
-      normalization_params = normalParams
-    )
+  
+    # If more than one group, then this needs to become an omicsData object 
+    if (unique(length(edata_groups$LockedGroupOrder)) > 1) {
+      
+      # Create an edata object to test 
+      omicFUN <- switch(uploaded_data()$Project$DataType,
+                        "Peptide-level Label Free" = "as.pepData", 
+                        "Peptide-level Isobaric" = "as.isobaricpepData", 
+                        "Protein-level Label Free" = "as.proData", 
+                        "Protein-level Isobaric" = "as.proData", 
+                        "Lipidomics-Negative" = "as.lipidData", 
+                        "Lipidomics-Positive" = "as.lipidData", 
+                        "Metabolomics-GC/LC-MS" = "as.metabData", 
+                        "Metabolomics-NMR" = "as.nmrData"
+      )
+      
+      if (is.null(omicFUN)) {omicFUN <- "as.pepData"}
+      
+      # Create omicData object
+      omicData <- eval(parse(text = paste0(omicFUN, 
+        "(e_data = uploaded_data()$Data$e_data, 
+         edata_cname = input$edata_idcname_picker, 
+         f_data = edata_groups$fdata, 
+         fdata_cname = 'Sample',
+         data_scale = input$OrigDataScale)")))
+      
+      # Log transform if necessary
+      if (input$OrigDataScale != input$NewDataScale) {
+        omicData <- edata_transform(omicData, input$NewDataScale)
+      }
+      
+      # Add grouping
+      omicData <- group_designation(omicData, "group")
+      
+      # Apply normalization
+      omicData <- switch(input$NormSubsetFun,
+        "all" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, apply_norm = TRUE, backtransform = TRUE),
+        "complete" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, apply_norm = TRUE, backtransform = TRUE),
+        "los" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("los" = input$NormalLOS), apply_norm = TRUE, backtransform = TRUE),
+        "ppp" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("ppp" = input$NormalPPP), apply_norm = TRUE, backtransform = TRUE),
+        "rip" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE),
+        "ppp_rip" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("ppp" = input$NormalPPP, "rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE)
+      ) 
+      
+      # Save omicData 
+      final_data$OmicsData <- omicData
+      
+      # Create trelliData object 
+      final_data$TrelliData <- as.trelliData(omicsData = omicData)
+      
+    } else {
+      
+      # Create an edata object to test 
+      omic_type <- switch(uploaded_data()$Project$DataType,
+                        "Peptide-level Label Free" = "pepData", 
+                        "Peptide-level Isobaric" = "isobaricpepData", 
+                        "Protein-level Label Free" = "proData", 
+                        "Protein-level Isobaric" = "proData", 
+                        "Lipidomics-Negative" = "lipidData", 
+                        "Lipidomics-Positive" = "lipidData", 
+                        "Metabolomics-GC/LC-MS" = "metabData", 
+                        "Metabolomics-NMR" = "nmrData"
+      )
+      
+      # Pull normalization parameters
+      normalParams <- switch(input$NormSubsetFun,
+        "all" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, apply_norm = TRUE, backtransform = TRUE),
+        "complete" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, apply_norm = TRUE, backtransform = TRUE),
+        "los" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("los" = input$NormalLOS), apply_norm = TRUE, backtransform = TRUE),
+        "ppp" = normalize_global(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("ppp" = input$NormalPPP), apply_norm = TRUE, backtransform = TRUE),
+        "rip" = normalize_global(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE),
+        "ppp_rip" = normalize_global(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("ppp" = input$NormalPPP, "rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE)
+      ) 
+      
+      
+      # Otherwise, create trelliData.edata object
+      final_data$TrelliData <- as.trelliData.edata(
+        e_data = uploaded_data()$Data$e_data,
+        edata_cname = input$edata_idcname_picker,
+        omics_type = omic_type,
+        data_scale_original = input$OrigDataScale,
+        data_scale = input$NewDataScale,
+        normalization_fun = "global",
+        normalization_params = normalParams
+      )
+      
+    }
     
   }
-  
+    
   # Close and update side bar
   updateCollapse(session, "trelli_collapse", open = "make_plot_opts",
                  close = c("front_page_upload_opts", "front_page_data_process_opts", "front_page_normalize_data"))

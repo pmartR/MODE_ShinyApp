@@ -5,21 +5,31 @@
 # Preview the edata in the file
 output$edata_preview <- DT::renderDT({
   
-  # Require uploaded data
-  req(uploaded_data())
+  if (Minio_Test | MAP | Compose_Test) {
   
-  # Extract edata
-  if (class(uploaded_data()) == "project edata") {
-    if (is.null(final_data$TrelliData)) {
-      edata <- uploaded_data()$Data$e_data
-    } else {
-      edata <- final_data$TrelliData$omicsData$e_data
+    # Require uploaded data
+    req(uploaded_data())
+    
+    # Extract edata
+    if (class(uploaded_data()) == "project edata") {
+      if (is.null(final_data$TrelliData)) {
+        edata <- uploaded_data()$Data$e_data
+      } else {
+        edata <- final_data$TrelliData$omicsData$e_data
+      }
+    } else if (class(uploaded_data()) == "midpoint pmart") {
+      edata <- uploaded_data()$`Data Objects`$OmicsData$e_data
+    } else if (class(uploaded_data()) == "midpoint ipmart") {
+      req(input$SelectOmics)
+      edata <- uploaded_data()$`Data Objects`[[input$SelectOmics]]$`Data Objects`$OmicsData$e_data
     }
-  } else if (class(uploaded_data()) == "midpoint pmart") {
-    edata <- uploaded_data()$`Data Objects`$OmicsData$e_data
-  } else if (class(uploaded_data()) == "midpoint ipmart") {
-    req(input$SelectOmics)
-    edata <- uploaded_data()$`Data Objects`[[input$SelectOmics]]$`Data Objects`$OmicsData$e_data
+  
+  } else {
+    
+    # Load and display CSV - files are checked when "confirm" is clicked 
+    req(input$EdataFile)
+    edata <- read.csv(input$EdataFile$datapath)
+  
   }
 
   # Visualize in an interactive table
@@ -47,7 +57,7 @@ shinyValue <- function(id, len, input) {
 
 # Create reactive for fdata
 fdata_table <- reactive({
-  
+
   # Require uploaded data 
   req(uploaded_data())
 
@@ -64,7 +74,7 @@ fdata_table <- reactive({
                          "GroupSelector", label = NULL, choices = c("NA", unlist(edata_groups$Group))),
     check.names = FALSE
   )
-    
+
 })
 
 # Preview the fdata in the file
@@ -76,29 +86,38 @@ output$fdata_preview <- DT::renderDT({
   # Create an fdata file if uploaded object is project edata
   if (class(uploaded_data()) == "project edata") {
   
-    session$sendCustomMessage("unbind-DT", "fdata_preview")
+    if (is.null(input$FdataFile)) {
     
-    if (edata_groups$ToNormalization == FALSE) {fdata <- edata_groups$Table} else {
-      Columns <- colnames(uploaded_data()$Data$e_data)
-      Edata_Col <- input$edata_idcname_picker
-      fdata <- data.frame(
-        "Sample" = Columns[Columns %in% Edata_Col == FALSE],
-        "Group" = edata_groups$LockedGroupOrder,
-        check.names = FALSE
+      session$sendCustomMessage("unbind-DT", "fdata_preview")
+      
+      if (edata_groups$ToNormalization == FALSE) {fdata <- edata_groups$Table} else {
+        Columns <- colnames(uploaded_data()$Data$e_data)
+        Edata_Col <- input$edata_idcname_picker
+        fdata <- data.frame(
+          "Sample" = Columns[Columns %in% Edata_Col == FALSE],
+          "Group" = edata_groups$LockedGroupOrder,
+          check.names = FALSE
+        )
+        edata_groups$fdata <- fdata
+        fdata
+      }
+      
+      # Visualize in an interactive table
+      DT::datatable(fdata, escape = FALSE, selection = "single", rownames = FALSE, 
+                options = list(pageLength = nrow(fdata), dom = "t", scrollX = T, ordering = FALSE,
+                initComplete = JS("function(settings){",
+                                  "  $('#Group').selectize()",
+                                  "}"),
+                preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+                drawCallback = JS('function() { Shiny.bindAll(this.api().table().node()); } '))
       )
-      edata_groups$fdata <- fdata
-      fdata
-    }
     
-    # Visualize in an interactive table
-    DT::datatable(fdata, escape = FALSE, selection = "single", rownames = FALSE, 
-              options = list(pageLength = nrow(fdata), dom = "t", scrollX = T, ordering = FALSE,
-              initComplete = JS("function(settings){",
-                                "  $('#Group').selectize()",
-                                "}"),
-              preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-              drawCallback = JS('function() { Shiny.bindAll(this.api().table().node()); } '))
-    )
+    } else {
+      fdata <- read.csv(input$FdataFile$datapath)
+      DT::datatable(fdata,
+                    selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                    options = list(pageLength = 10, scrollX = T))
+   }
   
   } else if (class(uploaded_data()) == "midpoint pmart") {
     
@@ -114,22 +133,36 @@ output$fdata_preview <- DT::renderDT({
                   options = list(pageLength = 10, scrollX = T))
     
   }
-
+    
 })
 
 # Preview the emeta in the file
 output$emeta_preview <- DT::renderDT({
   
-  req(uploaded_data())
+  if (Minio_Test | MAP | Compose_Test) {
   
-  if (class(uploaded_data()) == "midpoint pmart") {
-    DT::datatable(uploaded_data()$`Data Objects`$OmicsData$e_meta, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
-                 options = list(pageLength = 10, scrollX = T))
-  } else if (class(uploaded_data()) == "midpoint ipmart") {
-    req(input$SelectOmics)
-    DT::datatable(uploaded_data()$`Data Objects`[[input$SelectOmics]]$`Data Objects`$OmicsData$e_meta,
+    req(uploaded_data())
+    
+    if (class(uploaded_data()) == "midpoint pmart") {
+      DT::datatable(uploaded_data()$`Data Objects`$OmicsData$e_meta, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                   options = list(pageLength = 10, scrollX = T))
+    } else if (class(uploaded_data()) == "midpoint ipmart") {
+      req(input$SelectOmics)
+      DT::datatable(uploaded_data()$`Data Objects`[[input$SelectOmics]]$`Data Objects`$OmicsData$e_meta,
+                    selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                    options = list(pageLength = 10, scrollX = T))
+    }
+    
+  } else {
+    
+    # Load and display CSV - files are checked when "confirm" is clicked 
+    req(input$EmetaFile)
+    emeta <- read.csv(input$EmetaFile$datapath)
+    
+    DT::datatable(emeta,
                   selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
                   options = list(pageLength = 10, scrollX = T))
+    
   }
   
 })
@@ -137,16 +170,31 @@ output$emeta_preview <- DT::renderDT({
 # Preview the statistics in the file
 output$stat_preview <- DT::renderDT({
   
-  req(uploaded_data())
+  if (Minio_Test | MAP | Compose_Test) {
   
-  if (class(uploaded_data()) == "midpoint pmart") {
-    DT::datatable(uploaded_data()$`Data Objects`$OmicsStats, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
-                  options = list(pageLength = 10, scrollX = T))
-  } else if (class(uploaded_data()) == "midpoint ipmart") {
-    req(input$SelectOmics)
-    DT::datatable(uploaded_data()$`Data Objects`[[input$SelectOmics]]$`Data Objects`$OmicsStats,
+    req(uploaded_data())
+    
+    if (class(uploaded_data()) == "midpoint pmart") {
+      DT::datatable(uploaded_data()$`Data Objects`$OmicsStats, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                    options = list(pageLength = 10, scrollX = T))
+    } else if (class(uploaded_data()) == "midpoint ipmart") {
+      req(input$SelectOmics)
+      DT::datatable(uploaded_data()$`Data Objects`[[input$SelectOmics]]$`Data Objects`$OmicsStats,
+                    selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                    options = list(pageLength = 10, scrollX = T))
+    }
+    
+  } else {
+    
+    # Load and display CSV - files are checked when "confirm" is clicked 
+    req(input$StatisticsFile)
+    stats <- read.csv(input$StatisticsFile$datapath)
+    
+    DT::datatable(stats,
                   selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
                   options = list(pageLength = 10, scrollX = T))
+    
+    
   }
   
 })

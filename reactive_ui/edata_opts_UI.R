@@ -59,8 +59,23 @@ output$choose_edata_colname <- renderUI({
 output$WantGroupsUI <- renderUI({
   req(uploaded_data())
   if (class(uploaded_data()) == "project edata") {
-    radioGroupButtons("WantGroups", "Would you like to assign groups?", c("Yes", "No"), "No")
+    
+    if (is.null(input$FdataFile)) {
+      radioGroupButtons("WantGroups", "Would you like to assign groups?", c("Yes", "No"), "No")
+    } else {
+      list(
+        pickerInput("FDataColumn", "Which column in your Sample Information indicates sample names?", colnames(get_fdata())),
+        uiOutput("FDataGroupUI")
+      )
+    }
+    
   }
+})
+
+#' @details If users upload fdata (local version), they need to select groups
+output$FDataGroupUI <- renderUI({
+  req(input$FDataColumn)
+  pickerInput("FDataGroup", "Which column in your Sample Information indicates groups?", colnames(get_fdata())[colnames(get_fdata()) != input$FDataColumn])
 })
 
 #' @details Allow users to enter group names 
@@ -186,7 +201,7 @@ output$MoreNormalizationUI <- renderUI({
 #' @details Check normalization choices
 output$CheckNormalizationUI <- renderUI({
   if (edata_groups$ToNormalization) {
-    if (length(unique(edata_groups$LockedGroupOrder)) == 1) {
+    if (is.null(get_fdata()) & length(unique(edata_groups$LockedGroupOrder)) == 1) {
       tagList(
         actionButton("ConfirmNormalization", "Confirm"),
         uiOutput("NormalizationTest")
@@ -253,11 +268,12 @@ output$TrelliPlottingVariableUI <- renderUI({
 #' @details Select a panel to see
 output$PlotOptionsPanelUI <- renderUI({
   req(final_data$PlotOptions)
-  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  
+  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character() 
   
   div(
     id = "TrelliPlotOptDiv",
-    pickerInput("PlotOptionsPanel", "Select Panel Variable", choices = choices, selected = choices[1])
+    pickerInput("PlotOptionsPanel", "Select Panel Variable", choices = choices, selected = choices[1], options = list(`live-search` = TRUE))
   )
  
 })
@@ -396,7 +412,7 @@ output$FilterByPValueUI <- renderUI({
       
       tagList(
         numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
-        pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest", "None" = "none"), selected = "ANOVA"),
+        pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest"), selected = "ANOVA"),
         pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
       )
     } else {
@@ -449,7 +465,7 @@ output$download <- downloadHandler(
     if (MAP | Compose_Test) {
       paste0(MapConnect$Trelliscope, ".zip")
     } else {
-      paste0(mapDataAccess::.scrub_clean(input$trelliscope_name), ".zip")
+      paste0(.scrub_clean(input$trelliscope_name), ".zip")
     }
   },
   content = function(file) {

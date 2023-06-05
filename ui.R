@@ -9,9 +9,8 @@ ui <- fluidPage(
     tags$link(rel = "stylesheet", type = "text/css", href = "MODEstyle.css")
   ),
   div(class = "title-panel",
-      tags$h1("MODE"),
-      tags$p("Trelliscope visualization of omic data and statistics")
-      ),
+      HTML('<p><img src="mode_icon.png" width=150></p><p><span style="font-size: 22px;">  Trelliscope visualization of omics data and statistics</span></p>')
+  ),
   div(
     id = "loading-gray-overlay",
     class = "loading-mask",
@@ -20,12 +19,11 @@ ui <- fluidPage(
   fluidRow(
     id = "trelliscope_fluidRow",
     column(
-      width = 4,
-      front_page_left_collapse(),
-      uiOutput("enter_debugger") # hidden if in debug mode
+      width = 3,
+      front_page_left_collapse()
     ),
     column(
-      width = 8,
+      width = 9,
       front_page_display_panel(),
     )
   )

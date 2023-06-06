@@ -1,10 +1,14 @@
+*.Rproj
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
 .DS_Store
-www/*
+.Rbuildignore
+www/trelli/*
 !www/MODEstyle.css
 
 untracked_resources
 mapDataAccess/
+/renv
+

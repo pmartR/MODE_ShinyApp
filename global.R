@@ -1,8 +1,7 @@
 library(jsonlite)
-library(mapDataAccess)
 library(plotly)
 library(purrr)
-library(readr)
+library(readr) 
 library(reticulate)
 library(shiny)
 library(shinyBS)
@@ -10,33 +9,34 @@ library(shinyWidgets)
 library(shinyjs)
 library(shinyalert)
 library(stringr)
+library(shinyjqui)
+library(pmartR)
+library(DT)
+library(trelliscopejs)
+library(colourpicker)
+library(processx)
+library(markdown)
+library(devtools)
+
+# Load bioconductor separately
+library(limma)
+
+options(shiny.maxRequestSize = 10 * 1024^2) 
 
 #  source all UI 
 for (f in Sys.glob("./ui_templates/*.R")) source(f, local = TRUE)
 
-# 
-miniocon = map_data_connection(config_file='minio_config.yml')
-# Local: './cfg/minio_config_app.yml'
-# Compose: '/srv/shiny-server/cfg/minio_config_app.yml'
+# First, check if this is the MAP Version, or local version of the application
+MAP <- ifelse(Sys.getenv("MAP_VERSION") == "1", TRUE, FALSE)
 
-# Register url, this is running in another docker container alongside this one
-if(!file.exists("redis_config.yml")){
-  warning("No redis configuration found, attempting connection to default url: redis://redis1:6379")
-  redis_url <- "redis://redis1:6379"
-} else {
-  redis_cfg = yaml::read_yaml("redis_config.yml")
-  redis_host = if(Sys.getenv("SHINY_LOCAL_OR_NETWORK")=="local") "0.0.0.0" else redis_cfg[['host']]
-  redis_url <- sprintf('redis://%s:%s/%s', 
-                       redis_host, 
-                       redis_cfg[['port']],
-                       redis_cfg[['db']])
-}
+# Second, check if this is a local test version with minio
+Minio_Test <- ifelse(Sys.getenv("MINIO_TEST") == "1", TRUE, FALSE)
 
-message("Setting up redis connection at:  ", redis_url)
+# Third, check if this is a local test version with redis
+Redis_Test <- ifelse(Sys.getenv("REDIS_TEST") == "1", TRUE, FALSE)
 
-# Import celery package from the virtual environment
-clry <- reticulate::import('celery')
-celery_app = clry$Celery('app', broker=redis_url, backend=redis_url)
+# Fourth, have an option for a docker compose local test
+Compose_Test <- ifelse(Sys.getenv("COMPOSE_TEST") == "1", TRUE, FALSE)
 
 # use this for all "None selected" options where applicable
 NOSELECT_ = "__nullselect__"
@@ -50,3 +50,4 @@ WARN_TEXT <- list(
 source("UI_helper_functions.R", local=TRUE)
 
 sym_diff <- function(a,b) setdiff(union(a,b), intersect(a,b))
+

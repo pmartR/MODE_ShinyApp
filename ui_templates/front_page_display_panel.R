@@ -2,23 +2,40 @@ front_page_display_panel <- function(){
   tabsetPanel(
     id = "trelliscope_mainpanel",
     tabPanel(
-      title = "Table Preview",
-      uiOutput("groups_preview"),
-      dataTableOutput("one_dataset_preview"),
+      title = "Preview Tables", 
+      value = "preview_tables",
+        br(),
+        HTML("<strong>Expression Data</strong>"), hr(),
+        DT::DTOutput("edata_preview"), br(), br(),
+        HTML("<strong>Sample Data</strong>"), hr(),
+        DT::DTOutput("fdata_preview"), br(), br(),
+        HTML("<strong>Expression Metadata</strong>"), hr(),
+        DT::DTOutput("emeta_preview"), br(), br(),
+        HTML("<strong>Statistics</strong>"), hr(),
+        DT::DTOutput("stat_preview")
     ),
     tabPanel(
-      title = "Plot Preview",
-      plotlyOutput("one_plot_preview"),
-      bsButton("refresh_panel_preview", "Update plot", style = "primary")
+      title = "Select Plot",
+      value = "select_plot",
+      jqui_resizable(plotOutput("PlotOptionsPlot")),
+      DT::DTOutput("PlotOptionsTable")
+    ),
+    tabPanel(
+      title = "Modify Plot",
+      value = "modify_plot",
+      jqui_resizable(plotOutput("OnePlotPreview")),
+      uiOutput("RenderPlotModsUI")
     ),
     tabPanel(
       title = "Trelliscope Display",
+      value = "trelliscope_display",
         div(class = "horizontal-aligned",
-          uiOutput("trelli_download_picker"),
-          uiOutput("pull_trelliscope_ui")
+          #uiOutput("trelli_download_picker"),
+          #uiOutput("pull_trelliscope_ui")
           # actionButton("reload_trelliscope_iframe", "Reload Display")
+          uiOutput("trelliscope")
         ),
-        uiOutput("trelliscope_from_iframe")
+        #uiOutput("trelliscope_from_iframe")
     )
   )
 }

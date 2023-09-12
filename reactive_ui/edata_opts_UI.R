@@ -477,4 +477,23 @@ output$download <- downloadHandler(
     }
   }
 )
+
+#' @details If the app is MODE classic, render the UI to select fold change columns
+output$Select_FC_UI <- renderUI({
+  
+  if (!is.null(get_stats())) {
+    
+    theselected <- colnames(get_stats()) 
+    
+    # Try to identify fold change columns
+    if (any(grepl("Fold_change", colnames(get_stats())))) {
+      theselected <- colnames(get_stats())[grepl("Fold_change", colnames(get_stats()))]
+    } 
+    
+    pickerInput(inputId = "Select_FC", label = "Select Fold Change Columns", 
+                choices = colnames(get_stats()), selected = theselected, multiple = T)
+    
+  }
+  
+})
   

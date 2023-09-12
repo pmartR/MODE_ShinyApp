@@ -80,6 +80,8 @@ fdata_table <- reactive({
 # Preview the fdata in the file
 output$fdata_preview <- DT::renderDT({
   
+  if (Minio_Test | MAP | Compose_Test) {
+  
   # Require uploaded data 
   req(uploaded_data())
   
@@ -129,6 +131,18 @@ output$fdata_preview <- DT::renderDT({
     
     req(input$SelectOmics)
     DT::datatable(uploaded_data()$`Data Objects`[[input$SelectOmics]]$`Data Objects`$OmicsData$f_data,
+                  selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                  options = list(pageLength = 10, scrollX = T))
+    
+  }
+    
+  } else {
+    
+    # Load and display CSV - files are checked when "confirm" is clicked 
+    req(input$FdataFile)
+    fdata <- read.csv(input$FdataFile$datapath)
+    
+    DT::datatable(fdata,
                   selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
                   options = list(pageLength = 10, scrollX = T))
     

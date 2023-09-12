@@ -25,6 +25,9 @@ make_front_page_upload_opts <- function(){
         fileInput("StatisticsFile", "Differential Statistics", accept = ".csv"),
         actionButton("StatisticsFileHelp", "", icon("question"), style = "margin-top:25px")
       ),
+      uiOutput("Select_FC_UI"),
+      uiOutput("Select_PVAL_A_UI"),
+      uiOutput("Select_PVAL_G_UI"),
       actionButton("UploadConfirm", "Confirm", icon("check")),
       hr(),
       downloadButton("ExampleFiles", "Download Normalized Example Files")

@@ -38,8 +38,9 @@ uploaded_data <- reactive({
     
     if (is.null(input$FdataFile)) {
       
-      if (!is.null(input$EmetaFile) & !is.null(input$StatisticsFile)) {
+      if (!is.null(input$EmetaFile) | !is.null(input$StatisticsFile)) {
         sendModalAlert("Please upload a 'Sample Information' file to use data from 'Biomolecule Information' or 'Differential Statisitics' files")
+        return(NULL)
       }
       
       return(project.edata(

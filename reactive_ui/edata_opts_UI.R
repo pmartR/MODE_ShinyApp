@@ -201,7 +201,7 @@ output$MoreNormalizationUI <- renderUI({
 #' @details Check normalization choices
 output$CheckNormalizationUI <- renderUI({
   if (edata_groups$ToNormalization) {
-    if (is.null(get_fdata()) & length(unique(edata_groups$LockedGroupOrder)) == 1) {
+    if ((!is.null(input$IsNormalized) && input$IsNormalized == "Yes") | (is.null(get_fdata()) & length(unique(edata_groups$LockedGroupOrder)) == 1)) {
       tagList(
         actionButton("ConfirmNormalization", "Confirm"),
         uiOutput("NormalizationTest")
@@ -298,8 +298,6 @@ output$PlotFoldchangeOptsUI <- renderUI({
       
       # Add the statistical test
       return(tagList(
-        pickerInput("PValueTest", HTML("Which significance test would you like to plot?"), 
-                    choices = c("ANOVA" = "anova", "G-Test" = "gtest", "N/A" = "NA"), selected = "ANOVA"),
         numericInput("PValueThresh", "Significance (P-Value) Plotting Threshold", 0.05, 0, 1, 0.001)
       ))
       
@@ -311,8 +309,6 @@ output$PlotFoldchangeOptsUI <- renderUI({
       # Add the statistical test
       return(tagList(
         pickerInput("SelectComparison", "Select Comparison", theComparisons, theComparisons[1]),
-        pickerInput("PValueTest", HTML("Which significance test would you like to plot?"), 
-                    choices = c("ANOVA" = "anova", "G-Test" = "gtest", "N/A" = "NA"), selected = "ANOVA"),
         numericInput("PValueThresh", "P Value Threshold", 0.05, 0, 1, 0.001)
       ))
       
@@ -384,7 +380,7 @@ output$ChooseCognosticsUI <- renderUI({
   if (grepl("fold_change", theFun)) {theFun <- gsub("fold_change", "foldchange", theFun)}
   
   # Get cognostic defaults
-  allCogs <- eval(formals(theFun)$cognostics)
+  allCogs <- return_cognostic(the_function = theFun, the_object = final_data$TrelliData)
 
   # Get cognostic options 
   pickerInput("ChooseCognostics", "Choose Cognostics", allCogs, allCogs, multiple = T)

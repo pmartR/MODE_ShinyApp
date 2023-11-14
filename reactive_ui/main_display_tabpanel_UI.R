@@ -285,22 +285,18 @@ output$PlotOptionsPlot <- renderPlot({
   
   if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
     
-    if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
+    if (is.null(input$PValueThresh)) {return(NULL)}
     
-    pvaluetest <- input$PValueTest
-    if (pvaluetest == "NA") {pvaluetest <- NULL}
     pvaluethresh <- input$PValueThresh
-    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh)")))
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_thresh = pvaluethresh)")))
     
   } else if (theFun == "trelli_foldchange_volcano") {
     
-    if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
-    
-    pvaluetest <- input$PValueTest
-    if (pvaluetest == "NA") {pvaluetest <- NULL}
+    if (is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
+
     pvaluethresh <- input$PValueThresh
     comparison <- input$SelectComparison
-    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison)")))
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_thresh = pvaluethresh, comparison = comparison)")))
     
   } else {
     eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)")))
@@ -364,22 +360,18 @@ output$OnePlotPreview <- renderPlot({
     
     if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
       
-      if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
+      if (is.null(input$PValueThresh)) {return(NULL)}
       
-      pvaluetest <- input$PValueTest
-      if (pvaluetest == "NA") {pvaluetest <- NULL}
       pvaluethresh <- input$PValueThresh
-      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh)")))
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_thresh = pvaluethresh)")))
       
     } else if (theFun == "trelli_foldchange_volcano") {
       
-      if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
+      if (is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
       
-      pvaluetest <- input$PValueTest
-      if (pvaluetest == "NA") {pvaluetest <- NULL}
       pvaluethresh <- input$PValueThresh
       comparison <- input$SelectComparison
-      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison)")))
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_thresh = pvaluethresh, comparison = comparison)")))
       
     } else {
       eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)")))
@@ -395,22 +387,18 @@ output$OnePlotPreview <- renderPlot({
     
     if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
       
-      if (is.null(input$PValueTest) | is.null(input$PValueThresh)) {return(NULL)}
+      if (is.null(input$PValueThresh)) {return(NULL)}
       
-      pvaluetest <- input$PValueTest
-      if (pvaluetest == "NA") {pvaluetest <- NULL}
       pvaluethresh <- input$PValueThresh
-      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, ggplot_params=gg_params)")))
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_thresh = pvaluethresh, ggplot_params=gg_params)")))
       
     } else if (theFun == "trelli_foldchange_volcano") {
       
-      if (is.null(input$PValueTest) | is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
+      if (is.null(input$PValueThresh) | is.null(input$SelectComparison)) {return(NULL)}
       
-      pvaluetest <- input$PValueTest
-      if (pvaluetest == "NA") {pvaluetest <- NULL}
       pvaluethresh <- input$PValueThresh
       comparison <- input$SelectComparison
-      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_test = pvaluetest, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params)")))
+      eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params)")))
       
     } else {
       eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, ggplot_params=gg_params)")))

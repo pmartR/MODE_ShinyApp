@@ -4,7 +4,6 @@ ui <- fluidPage(
                             src = c(href = "https://code.jquery.com/"),
                             script = "jquery-3.5.1.min.js"),
   useShinyjs(),
-  useShinyalert(),
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "MODEstyle.css")
   ),

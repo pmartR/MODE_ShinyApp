@@ -79,7 +79,7 @@ observeEvent(input$PlotRedraw, {
   
   # Determine if NULL 
   IsNULL <- lapply(Collected$Inputs, function(x) {
-    if (is.na(x) || x == "" || x == "FALSE" || x == "Original Colors") {return("Yes")} else {return("No")}
+    if (is.null(x) || is.na(x) || x == "" || x == "FALSE" || x == "Original Colors") {return("Yes")} else {return("No")}
   }) %>% unlist()
   
   if (all(IsNULL == "Yes")) {final_data$PlotInputs <- NULL} else {final_data$PlotInputs <- Collected[IsNULL == "No",]} 

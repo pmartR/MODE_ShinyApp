@@ -174,7 +174,7 @@ observeEvent(input$ConfirmNormalization, {
     )
     
   } else {
-  
+    
     # If more than one group, then this needs to become an omicsData object 
     if (unique(length(edata_groups$LockedGroupOrder)) > 1) {
       
@@ -192,13 +192,33 @@ observeEvent(input$ConfirmNormalization, {
       
       if (is.null(omicFUN)) {omicFUN <- "as.pepData"}
       
-      # Create omicData object
-      omicData <- eval(parse(text = paste0(omicFUN, 
+      if (!is.null(edata_groups$fdata)) {
+        
+        # Create omicData object
+        omicData <- eval(parse(text = paste0(omicFUN, 
         "(e_data = uploaded_data()$Data$e_data, 
          edata_cname = input$edata_idcname_picker, 
          f_data = edata_groups$fdata, 
          fdata_cname = 'Sample',
          data_scale = input$OrigDataScale)")))
+        
+        
+      } else {
+        
+        fdata <- data.frame(
+          "Sample" = colnames(get_edata())[colnames(get_edata()) != input$edata_idcname_picker],
+          "group" = "Group1"
+        )
+        
+        # Create omicData object
+        omicData <- eval(parse(text = paste0(omicFUN, 
+                                             "(e_data = uploaded_data()$Data$e_data, 
+         edata_cname = input$edata_idcname_picker, 
+         f_data = fdata, 
+         fdata_cname = 'Sample',
+         data_scale = input$OrigDataScale)")))
+        
+      }
       
       # Log transform if necessary
       if (input$OrigDataScale != input$NewDataScale) {

@@ -103,8 +103,8 @@ observeEvent(input$CheckNormalization, {
   pval_test <- round(pval_test, 4)
   
   # Save text results
-  edata_groups$NormalizationText <- ifelse(pval_test >= 0.1, paste("P-Value:", pval_test), 
-                                           paste("P-Value:", pval_test, "Consider another normalization"))
+  edata_groups$NormalizationText <- ifelse(pval_test >= 0.1, paste("P-Value:", pval_test, "You may proceed with this normalization approach"), 
+                                           paste("P-Value:", pval_test, "Consider another normalization approach"))
   
 })
 

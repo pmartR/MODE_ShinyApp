@@ -4,7 +4,7 @@
 observeEvent(input$EdataFileHelp, {
   
   showModal(modalDialog(
-    HTML("<center><img src='datatype_descriptors/Edata_Description.png'></center>"),
+    HTML("<center><img src='datatype_descriptors/Edata_Description.png' width=90%></center>"),
     title = HTML("<center>Expression Data File Help</center>"), size = "l", easyClose = TRUE
   ))
   
@@ -14,7 +14,7 @@ observeEvent(input$EdataFileHelp, {
 observeEvent(input$FdataFileHelp, {
   
   showModal(modalDialog(
-    HTML("<center><img src='datatype_descriptors/Fdata_Description.png'></center>"),
+    HTML("<center><img src='datatype_descriptors/Fdata_Description.png' width=90%></center>"),
     title = HTML("<center>Sample Information File Help</center>"), size = "l", easyClose = TRUE
   ))
   
@@ -24,7 +24,7 @@ observeEvent(input$FdataFileHelp, {
 observeEvent(input$EmetaFileHelp, {
   
   showModal(modalDialog(
-    HTML("<center><img src='datatype_descriptors/Emeta_Description.png'></center>"),
+    HTML("<center><img src='datatype_descriptors/Emeta_Description.png' width=90%></center>"),
     title = HTML("<center>Biomolecule Information File Help</center>"), size = "l", easyClose = TRUE
   ))
   
@@ -34,7 +34,7 @@ observeEvent(input$EmetaFileHelp, {
 observeEvent(input$StatisticsFileHelp, {
   
   showModal(modalDialog(
-    HTML("<center><img src='datatype_descriptors/Statistics_Description.png' width=80%></center>"),
+    HTML("<center><img src='datatype_descriptors/Statistics_Description.png' width=90%></center>"),
     title = HTML("<center>Differential Statistics File Help</center>"), size = "l", easyClose = TRUE
   ))
   

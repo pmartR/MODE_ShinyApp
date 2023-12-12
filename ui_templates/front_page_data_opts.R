@@ -6,6 +6,7 @@ make_front_page_upload_opts <- function(){
       uiOutput("SelectOmicsUI")
     )
   } else {
+    
    div(
      
      # Input data selector
@@ -14,19 +15,19 @@ make_front_page_upload_opts <- function(){
      fluidRow(
        
        # E Data
-       column(10, fileInput("EdataFile", "Expression Data - Required", accept = ".csv"), div(style = "margin-top: -20px")),
+       column(10, fileInput("EdataFile", "Expression Data - Required", accept = ".csv"), div(style = "margin-top: -15px")),
        column(2, actionButton("EdataFileHelp", "", icon("question"), style = "margin-top:25px")),
               
        # F Data       
-       column(10, fileInput("FdataFile", "Sample Information - Optional", accept = ".csv"), div(style = "margin-top: -20px")),
+       column(10, fileInput("FdataFile", "Sample Information - Optional", accept = ".csv"), div(style = "margin-top: -15px")),
        column(2, actionButton("FdataFileHelp", "", icon("question"), style = "margin-top:25px")),
      
        # E Meta
-       column(10, fileInput("EmetaFile", "Biomolecule Information - Optional", accept = ".csv"), div(style = "margin-top: -20px")),
+       column(10, fileInput("EmetaFile", "Biomolecule Information - Optional", accept = ".csv"), div(style = "margin-top: -15px")),
        column(2, actionButton("EmetaFileHelp", "", icon("question"), style = "margin-top:25px")),
     
        # Statistics File
-       column(10, fileInput("StatisticsFile", "Differential Statistics - Optional", accept = ".csv"), div(style = "margin-top: -20px")),
+       column(10, fileInput("StatisticsFile", "Differential Statistics - Optional", accept = ".csv"), div(style = "margin-top: -15px")),
        column(2, actionButton("StatisticsFileHelp", "", icon("question"), style = "margin-top:25px"))
       
       ),
@@ -37,16 +38,20 @@ make_front_page_upload_opts <- function(){
      uiOutput("Select_PVAL_G_UI"),
      
      # Confirm
-     actionButton("UploadConfirm", "Confirm", icon("check")),
-     hr(),
-     
-     # Example data
-     downloadButton("ExampleFiles", "Download Normalized MS Example Files"),
-     hr(),
-     downloadButton("ExampleFiles2", "Download RNA-Seq Example Files")
+     actionButton("UploadConfirm", "Confirm", icon("check"))
      
     )
   }
+}
+
+make_example_file_opts <- function() {
+  div(id = "example_file_opts", 
+    downloadButton("ExampleFiles", "Download Normalized MS Example Files (Small)"),
+    hr(),
+    downloadButton("ExampleFiles2", "Download Normalized MS Example Files (Large)"),
+    hr(),
+    downloadButton("ExampleFiles3", "Download RNA-Seq Example Files")
+  )
 }
 
 make_front_page_data_process_opts <- function(){
@@ -109,6 +114,15 @@ front_page_left_collapse <- function(){
       value = "front_page_upload_opts",
       make_front_page_upload_opts()
     ),
+    
+    if ((Minio_Test | MAP | Compose_Test) == FALSE) {
+      bsCollapsePanel(
+        title = "Example Data", 
+        value = "example_file_opts",
+        make_example_file_opts()
+      )
+    },
+    
     bsCollapsePanel(
       title = "Format Data", 
       value = "front_page_data_process_opts",
@@ -120,14 +134,14 @@ front_page_left_collapse <- function(){
       make_front_page_normalize_data()
     ),
     bsCollapsePanel(
-      title = "Make Plot",
-      value = "make_plot_opts",
-      make_plot_variable_options()
-    ),
-    bsCollapsePanel(
       title = "Data Filtering Options",
       value = "Data_filtering",
       make_data_filtering_options()
+    ),
+    bsCollapsePanel(
+      title = "Make Plot",
+      value = "make_plot_opts",
+      make_plot_variable_options()
     ),
     bsCollapsePanel(
       title = "Make Trelliscope",

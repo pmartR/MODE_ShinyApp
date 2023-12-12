@@ -7,30 +7,44 @@ make_front_page_upload_opts <- function(){
     )
   } else {
    div(
-      HTML('<p><span style="font-size: 16px;"><strong>Required Inputs.</strong></span></p><p>Click the question mark for more details on filetypes.</p>'),
-      splitLayout(
-        fileInput("EdataFile", "Expression Data", accept = ".csv"), 
-        actionButton("EdataFileHelp", "", icon("question"), style = "margin-top:25px")
+     
+     # Input data selector
+     pickerInput("input_datatype", "Is the input data MS/NMR or RNA-Seq?", c("MS/NMR", "RNA-Seq"), "MS/NMR"),
+    
+     fluidRow(
+       
+       # E Data
+       column(10, fileInput("EdataFile", "Expression Data - Required", accept = ".csv"), div(style = "margin-top: -20px")),
+       column(2, actionButton("EdataFileHelp", "", icon("question"), style = "margin-top:25px")),
+              
+       # F Data       
+       column(10, fileInput("FdataFile", "Sample Information - Optional", accept = ".csv"), div(style = "margin-top: -20px")),
+       column(2, actionButton("FdataFileHelp", "", icon("question"), style = "margin-top:25px")),
+     
+       # E Meta
+       column(10, fileInput("EmetaFile", "Biomolecule Information - Optional", accept = ".csv"), div(style = "margin-top: -20px")),
+       column(2, actionButton("EmetaFileHelp", "", icon("question"), style = "margin-top:25px")),
+    
+       # Statistics File
+       column(10, fileInput("StatisticsFile", "Differential Statistics - Optional", accept = ".csv"), div(style = "margin-top: -20px")),
+       column(2, actionButton("StatisticsFileHelp", "", icon("question"), style = "margin-top:25px"))
+      
       ),
-      HTML('<p><span style="font-size: 16px;"><strong>Optional Inputs.</strong></span></p>'),
-      splitLayout(
-        fileInput("FdataFile", "Sample Information", accept = ".csv"),
-        actionButton("FdataFileHelp", "", icon("question"), style = "margin-top:25px")
-      ),
-      splitLayout(
-        fileInput("EmetaFile", "Biomolecule Information", accept = ".csv"),
-        actionButton("EmetaFileHelp", "", icon("question"), style = "margin-top:25px")
-      ),
-      splitLayout(
-        fileInput("StatisticsFile", "Differential Statistics", accept = ".csv"),
-        actionButton("StatisticsFileHelp", "", icon("question"), style = "margin-top:25px")
-      ),
-      uiOutput("Select_FC_UI"),
-      uiOutput("Select_PVAL_A_UI"),
-      uiOutput("Select_PVAL_G_UI"),
-      actionButton("UploadConfirm", "Confirm", icon("check")),
-      hr(),
-      downloadButton("ExampleFiles", "Download Normalized Example Files")
+     
+     # Statistics samples 
+     uiOutput("Select_FC_UI"),
+     uiOutput("Select_PVAL_A_UI"),
+     uiOutput("Select_PVAL_G_UI"),
+     
+     # Confirm
+     actionButton("UploadConfirm", "Confirm", icon("check")),
+     hr(),
+     
+     # Example data
+     downloadButton("ExampleFiles", "Download Normalized MS Example Files"),
+     hr(),
+     downloadButton("ExampleFiles2", "Download RNA-Seq Example Files")
+     
     )
   }
 }

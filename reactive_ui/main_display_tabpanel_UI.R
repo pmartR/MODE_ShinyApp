@@ -299,7 +299,7 @@ output$PlotOptionsPlot <- renderPlot({
     eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T, p_value_thresh = pvaluethresh, comparison = comparison)")))
     
   } else {
-    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=T)")))
+    eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=TRUE)")))
   }
   
 })

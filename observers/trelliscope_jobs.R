@@ -104,7 +104,7 @@ observeEvent(input$make_trelliscope, {
   theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))
   
   # Determine test example number
-  choices <- trelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character() 
+  choices <- trelliData$trelliData[[input$TrelliPanelVariable]] %>% unique() %>% as.character() 
   test_example_num <- match(input$PlotOptionsPanel, choices)
   
   # foldchange is written without the underscore

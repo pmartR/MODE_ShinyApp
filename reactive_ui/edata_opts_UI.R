@@ -115,16 +115,48 @@ output$EnterNAValuesUI <- renderUI({
 #' @details Allow users to select a transformation
 output$SelectTransformationUI <- renderUI({
   req(uploaded_data())
-  
   if (class(uploaded_data()) == "project edata") {
     tagList(
-      pickerInput("OrigDataScale", "On what scale is your data?",
-                  choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
-                  selected = "abundance"),
+      uiOutput("OrigDataScaleUI"),
+      uiOutput("NewDataScaleUI")
+    )
+  }
+  
+})
+
+#' @details Render original datascale dropdown if the data is not transcriptomics.
+output$OrigDataScaleUI <- renderUI({
+  
+  if (input$input_datatype == "MS/NMR") {
+    pickerInput("OrigDataScale", "On what scale is your data?",
+                choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
+                selected = "abundance")
+  } else {
+    return(NULL)
+  }
+
+  
+})
+
+#' @details Render transformed datascale dropdown if hte data is not transcriptomics.
+#' Add a "No Transformation" option if anything but raw intensity is selected as the
+#' original scale. 
+output$NewDataScaleUI <- renderUI({
+  
+  # Original data scale should be rendered. It will not be rendered if the data is transcriptomics. 
+  if (is.null(input$OrigDataScale)) {return(NULL)}
+  
+  # If data scale is not the raw intensity, allow for a no transformation option. Otherwise,
+  # don't allow it. 
+  if (input$input_datatype == "MS/NMR") {
+    if (input$OrigDataScale == "abundance") {
+      theChoices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log")
       pickerInput("NewDataScale", "What scale do you want to transform to?",
                   choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
                   selected = "abundance")
-    )
+    } else {return(NULL)}
+  } else {
+    return(NULL)
   }
   
 })
@@ -267,9 +299,10 @@ output$TrelliPlottingVariableUI <- renderUI({
 
 #' @details Select a panel to see
 output$PlotOptionsPanelUI <- renderUI({
+  
   req(final_data$PlotOptions)
   
-  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character() 
+  choices <- final_data$TrelliData$trelliData[[input$TrelliPanelVariable]] %>% unique() %>% as.character() 
   
   div(
     id = "TrelliPlotOptDiv",

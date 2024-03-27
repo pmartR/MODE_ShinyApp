@@ -277,7 +277,7 @@ output$PlotOptionsPlot <- renderPlot({
   }
   
   # Determine test example number
-  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  choices <- final_data$TrelliData$trelliData[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
   test_example_num <- match(input$PlotOptionsPanel, choices)
   
   # If no test_example_num, return NULL
@@ -349,7 +349,7 @@ output$OnePlotPreview <- renderPlot({
   }
   
   # Determine test example number
-  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  choices <- final_data$TrelliData$trelliData[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
   test_example_num <- match(input$PlotOptionsPanel, choices)
   
   # Add additional values if plot inputs are not null 
@@ -421,7 +421,7 @@ output$OnePlotlyPreview <- renderPlotly({
   if (theFun %in% c("trelli_", "trelli_NA")) {return(NULL)}
   
   # Determine test example number
-  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
+  choices <- final_data$TrelliData$trelliData[[input$TrelliPanelVariable]] %>% unique() %>% as.character()
   test_example_num <- match(input$PlotOptionsPanel, choices)
   
   # Add additional values if plot inputs are not null 

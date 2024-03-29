@@ -38,7 +38,10 @@ make_front_page_upload_opts <- function(){
      uiOutput("Select_PVAL_G_UI"),
      
      # Confirm
-     actionButton("UploadConfirm", "Confirm", icon("check"))
+     list(
+       actionButton("UploadConfirm", "Confirm", icon("check")),
+       actionButton("ExampleDataPopUp", "Click Here for Examples", icon("handshake"))
+     )
      
     )
   }

@@ -119,14 +119,14 @@ front_page_left_collapse <- function(){
       make_front_page_normalize_data()
     ),
     bsCollapsePanel(
-      title = "Filter Panels (Optional)",
-      value = "Data_filtering",
-      make_data_filtering_options()
-    ),
-    bsCollapsePanel(
       title = "Design Plot",
       value = "make_plot_opts",
       make_plot_variable_options()
+    ),
+    bsCollapsePanel(
+      title = "Filter Plots (Optional)",
+      value = "Data_filtering",
+      make_data_filtering_options()
     ),
     bsCollapsePanel(
       title = "Create Trelliscope",

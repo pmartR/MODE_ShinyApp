@@ -23,7 +23,7 @@ observeEvent(input$MoveToNormalization, {
   
   # Check that the final transformation is at least log transformed, unless it is 
   # isobaric peptide data or nmr data.
-  if (input$NewDataScale == "abundance" & uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
+  if (input$OrigDataScale == "abundance" & uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
     sendSweetAlert(session, "Expression Data Transformation Error", 
       "Please choose a log transformation for the Expression Data.", "error")
     return(NULL)
@@ -165,6 +165,11 @@ observeEvent(input$ConfirmNormalization, {
       class(statsObj) <- c(class(statsObj), "statRes")
       attr(statsObj, "cnames")$edata_cname <- input$edata_idcname_picker
       attr(statsObj, "comparisons") <- colnames(statsObj)[grepl("P_value_A", colnames(statsObj))] %>% gsub(pattern = "P_value_A_", replacement = "") %>% unique()
+    }
+    
+    if (input$OrigDataScale != "abundance") {
+      attr(omicData, "data_info")$data_scale_orig <- input$OrigDataScale
+      attr(omicData, "data_info")$data_scale <- input$OrigDataScale
     }
     
     # Now, we can finally create the trelliData object

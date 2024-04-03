@@ -42,9 +42,21 @@ observeEvent(input$StatisticsFileHelp, {
 
 # Trigger download
 output$ExampleFiles <- downloadHandler(
-  filename = function() {"MODE_Example_Data.zip"},
+  filename = function() {"MODE_Example_Data_SmallMS.zip"},
   content = function(file) {
-    zip(file, "./www/example_files/")
+    zip(file, "./www/metabolomics_example_files/")
+  }
+)
+output$ExampleFiles2 <- downloadHandler(
+  filename = function() {"MODE_Example_Data_LargeMS.zip"},
+  content = function(file) {
+    zip(file, "./www/proteomics_example_files/")
+  }
+)
+output$ExampleFiles3 <- downloadHandler(
+  filename = function() {"MODE_Example_Data_RNASeq.zip"},
+  content = function(file) {
+    zip(file, "./www/rnaseq_example_files/")
   }
 )
 

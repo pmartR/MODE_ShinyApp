@@ -292,3 +292,17 @@ observeEvent(input$ConfirmNormalization, {
   updateTabsetPanel(session, "trelliscope_mainpanel", "select_plot")
   
 })
+
+#' @details Download example data
+observeEvent(input$ExampleDataPopUp, {
+  showModal(modalDialog(fluidPage(fluidRow( 
+    downloadButton("ExampleFiles", "Download Normalized MS Example Files (Small)"),
+    hr(),
+    downloadButton("ExampleFiles2", "Download Normalized MS Example Files (Large)"),
+    hr(),
+    downloadButton("ExampleFiles3", "Download RNA-Seq Example Files"))),
+    title = HTML('<p style="text-align: center;"><strong>Select an Example Dataset</strong></p>'),
+    footer = modalButton("Exit"),
+    size = "m", easyClose = T))
+})
+

@@ -47,16 +47,6 @@ make_front_page_upload_opts <- function(){
   }
 }
 
-make_example_file_opts <- function() {
-  div(id = "example_file_opts", 
-    downloadButton("ExampleFiles", "Download Normalized MS Example Files (Small)"),
-    hr(),
-    downloadButton("ExampleFiles2", "Download Normalized MS Example Files (Large)"),
-    hr(),
-    downloadButton("ExampleFiles3", "Download RNA-Seq Example Files")
-  )
-}
-
 make_front_page_data_process_opts <- function(){
   div(id = "front_page_plot_opts",
     uiOutput('choose_edata_colname'),
@@ -118,16 +108,8 @@ front_page_left_collapse <- function(){
       make_front_page_upload_opts()
     ),
     
-    if ((Minio_Test | MAP | Compose_Test) == FALSE) {
-      bsCollapsePanel(
-        title = "Example Data", 
-        value = "example_file_opts",
-        make_example_file_opts()
-      )
-    },
-    
     bsCollapsePanel(
-      title = "Format Data", 
+      title = "Pre-Process Data", 
       value = "front_page_data_process_opts",
       make_front_page_data_process_opts()
     ),
@@ -137,17 +119,17 @@ front_page_left_collapse <- function(){
       make_front_page_normalize_data()
     ),
     bsCollapsePanel(
-      title = "Data Filtering Options",
+      title = "Filter Panels (Optional)",
       value = "Data_filtering",
       make_data_filtering_options()
     ),
     bsCollapsePanel(
-      title = "Make Plot",
+      title = "Design Plot",
       value = "make_plot_opts",
       make_plot_variable_options()
     ),
     bsCollapsePanel(
-      title = "Make Trelliscope",
+      title = "Create Trelliscope",
       value = "make_trelli_opts",
       make_trelliscope_plotting_options(),
       hr(),

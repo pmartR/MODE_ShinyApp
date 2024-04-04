@@ -134,7 +134,7 @@ observeEvent(input$ConfirmNormalization, {
     )
     
     # Log transform if necessary
-    if (input$OrigDataScale != input$NewDataScale) {
+    if (input$OrigDataScale == "abundance") {
       omicData <- edata_transform(omicData, input$NewDataScale)
     }
     

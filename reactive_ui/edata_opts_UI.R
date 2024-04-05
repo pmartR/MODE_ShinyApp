@@ -193,7 +193,7 @@ output$PValueAColsUI <- renderUI({
     plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
     
     # Autosuggest and build
-    p_value_a_poss <- plot_options[grepl("P_value_A|P-Value ANOVA|P Value ANOVA", plot_options)]
+    p_value_a_poss <- plot_options[grepl("P_value_A_", plot_options)]
     if (length(p_value_a_poss) == 0) {p_value_a_poss <- "NA"}
     pickerInput("PValueACols", "Select the P-Value ANOVA Columns", choices = plot_options,
                 selected = p_value_a_poss, multiple = TRUE)
@@ -212,7 +212,7 @@ output$PValueGColsUI <- renderUI({
     
     plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
   
-    p_value_g_poss <- plot_options[grepl("P_value_G|P-Value G-Test|P-Value G-test|P Value G Test", plot_options)]
+    p_value_g_poss <- plot_options[grepl("P_value_G_", plot_options)]
     if (length(p_value_g_poss) == 0) {p_value_g_poss <- "NA"}
     pickerInput("PValueGCols", "Select the P-Value G-Test Columns", choices = plot_options,
                 selected = p_value_g_poss, multiple = TRUE)
@@ -232,7 +232,7 @@ output$PValueColsUI <- renderUI({
     plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
     
     # Autosuggest and build
-    p_value_poss <- plot_options[grepl("P_value_|P-Value|P Value|p value", plot_options)]
+    p_value_poss <- plot_options[grepl("P_value_", plot_options)]
     if (length(p_value_poss) == 0) {p_value_poss <- "NA"}
     pickerInput("PValueCols", "Select the P-Value Columns", choices = plot_options,
                 selected = p_value_poss, multiple = TRUE)

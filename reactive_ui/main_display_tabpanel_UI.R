@@ -245,6 +245,53 @@ output$stat_preview <- DT::renderDT({
   
 })
 
+# Extract the comparison table 
+output$comparison_table <- DT::renderDT({
+  
+  if (!is.null(input$FoldChangeCols)) {
+  
+    if (input$input_datatype == "MS/NMR") {
+      
+      fc_cols <- input$FoldChangeCols
+      pa_cols <- input$PValueACols
+      pg_cols <- input$PValueGCols
+      
+      df <- tryCatch(data.frame(
+        "Fold Change Columns" = fc_cols,
+        "P Value ANOVA Columns" = pa_cols,
+        "P Value G-Test Columns" = pg_cols
+      ) %>%
+        dplyr::mutate(Comparison = gsub("Fold_change_", "", Fold.Change.Columns)) %>%
+        dplyr::relocate(Comparison), 
+                     error = function(e) {return(data.frame())})
+      
+    } else {
+      
+      fc_cols <- input$FoldChangeCols
+      p_cols <- input$PValueCols
+      
+      df <- tryCatch(data.frame(
+        "Fold Change Columns" = fc_cols,
+        "P Value Columns" = p_cols
+      ) %>%
+        dplyr::mutate(Comparison = gsub("Fold_change_", "", Fold.Change.Columns)) %>%
+        dplyr::relocate(Comparison), 
+      error = function(e) {return(data.frame())})
+      
+    }
+    
+    if (nrow(df) != 0) {
+      edata_groups$ComparisonTable <- df
+      DT::datatable(df,
+                    selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                    options = list(pageLength = 10, scrollX = T))
+
+    }
+    
+  }
+  
+})
+
 ######################
 ## SELECT PLOT PAGE ##
 ######################

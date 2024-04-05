@@ -6,7 +6,8 @@ edata_groups <- reactiveValues(
   ToNormalization = FALSE, # Indicate whether to move on to normalization or not
   LockedGroupOrder = NULL, # The vector of the groups in locked order 
   fdata = NULL, # Holds the created fdata object 
-  NormalizationText = "" # Contains any text for the normalization output
+  NormalizationText = "", # Contains any text for the normalization output
+  ComparisonTable = NULL # Holds Comparison Table
 )
 
 final_data <- reactiveValues(

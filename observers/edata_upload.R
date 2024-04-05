@@ -29,6 +29,33 @@ observeEvent(input$MoveToNormalization, {
     return(NULL)
   }
   
+  ## Differential Statistics Check
+  if (!is.null(edata_groups$ComparisonTable)) {
+    
+    # If the data.frame is 0 rows, then there is an issue
+    if (nrow(edata_groups$ComparisonTable) == 0) {
+      sendModalAlert(paste0("Differential Statistics Error! 1) Make sure this is ",
+        "a unique column name per fold change. 2) Make sure there is a unique column ",
+        "name per p-value or that it is entirely 'NA'. The 'Comparison Table' will ",
+        "appear if this step is done correctly. See documentation for more help."))
+      return(NULL)
+    } 
+    
+    # Fold change cannot be empty
+    if (any("NA" %in% edata_groups$ComparisonTable$Fold.Change.Columns)) {
+      sendModalAlert("Differential Statistics Error! Fold Change Columns cannot be NA.")
+      return(NULL)
+    }
+    
+    # Fold change must have unique entries 
+    if (length(edata_groups$ComparisonTable$Fold.Change.Columns) !=
+        length(unique(edata_groups$ComparisonTable$Fold.Change.Columns))) {
+      sendModalAlert("Differential Statistics Error! Fold Change Columns must be unique.")
+      return(NULL)
+    }
+    
+  }
+  
   # We are ready for normalization
   edata_groups$ToNormalization <- TRUE
   edata_groups$LockedGroupOrder <- shinyValue("GroupSelector", ncol(uploaded_data()$Data$e_data) - 1, input)
@@ -86,25 +113,31 @@ observeEvent(input$CheckNormalization, {
   }
   
   # Log transform if necessary
-  if (input$OrigDataScale != input$NewDataScale) {
+  if (input$OrigDataScale == "abundance" & input$OrigDataScale != input$NewDataScale) {
     omicData <- edata_transform(omicData, input$NewDataScale)
   }
   
   # Run normalization
-  pval <- switch(input$NormSubsetFun,
-    "all" = normalize_global(omicData, input$NormSubsetFun, input$NormFun),
-    "complete" = normalize_global(omicData, input$NormSubsetFun, input$NormFun),
-    "los" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("los" = input$NormalLOS)),
-    "ppp" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("ppp" = input$NormalPPP)),
-    "rip" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("rip" = input$NormalRIP)),
-    "ppp_rip" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("ppp" = input$NormalPPP, "rip" = input$NormalRIP))
-  ) %>% normRes_tests()
-  pval_test <- pval$p_location
-  pval_test <- round(pval_test, 4)
+  pval <- tryCatch({
+    pval_test <- switch(input$NormSubsetFun,
+      "all" = normalize_global(omicData, input$NormSubsetFun, input$NormFun),
+      "complete" = normalize_global(omicData, input$NormSubsetFun, input$NormFun),
+      "los" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("los" = input$NormalLOS)),
+      "ppp" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("ppp" = input$NormalPPP)),
+      "rip" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("rip" = input$NormalRIP)),
+      "ppp_rip" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, params = list("ppp" = input$NormalPPP, "rip" = input$NormalRIP))
+    ) %>% normRes_tests()
+    pval_test <- pval_test$p_location
+    pval_test <- round(pval_test, 4)
+    pval_test <- ifelse(pval_test >= 0.1, paste("P-Value:", pval_test, "You may proceed with this normalization approach"), 
+         paste("P-Value:", pval_test, "Consider another normalization approach"))
+    pval_test}, 
+    error = function(e) return("This normalization approach is not possible with your current data. Try another approach."))
+  
+  browser()
   
   # Save text results
-  edata_groups$NormalizationText <- ifelse(pval_test >= 0.1, paste("P-Value:", pval_test, "You may proceed with this normalization approach"), 
-                                           paste("P-Value:", pval_test, "Consider another normalization approach"))
+  edata_groups$NormalizationText <- pval
   
 })
 

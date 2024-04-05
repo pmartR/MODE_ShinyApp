@@ -280,8 +280,9 @@ output$comparison_table <- DT::renderDT({
       
     }
     
+    edata_groups$ComparisonTable <- df
+    
     if (nrow(df) != 0) {
-      edata_groups$ComparisonTable <- df
       DT::datatable(df,
                     selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
                     options = list(pageLength = 10, scrollX = T))

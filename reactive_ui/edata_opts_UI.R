@@ -107,7 +107,7 @@ output$GroupText <- renderUI({
 #' @details Get NA values 
 output$EnterNAValuesUI <- renderUI({
   req(uploaded_data())
-  if (class(uploaded_data()) == "project edata") {
+  if (class(uploaded_data()) == "project edata" & input$input_datatype == "MS/NMR") {
     textInput("NASymbol", "What value denotes missing data?", value = NA)
   }
 })
@@ -158,6 +158,86 @@ output$NewDataScaleUI <- renderUI({
   } else {
     return(NULL)
   }
+  
+})
+
+#' @details For the local version only, supply additional information re: statistics
+output$FoldChangeColsUI <- renderUI({
+  
+  req(uploaded_data())
+  
+  if (is.null(get_stats()) | is.null(input$edata_idcname_picker)) {return(NULL)}
+  
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test)) {
+    
+    plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
+      
+    # Fold change columns --> autoselect if possible
+    fc_poss <- plot_options[grepl("Fold_change|fold change|Fold Change", plot_options)]
+    if (length(fc_poss) == 0) {fc_poss <- "NA"}
+    pickerInput("FoldChangeCols", "Select the Fold Change Columns", choices = plot_options,
+                selected = fc_poss, multiple = TRUE)
+    
+  } else {return(NULL)}
+  
+})
+
+output$PValueAColsUI <- renderUI({
+  
+  req(uploaded_data())
+  
+  if (is.null(get_stats()) | is.null(input$edata_idcname_picker)) {return(NULL)}
+  
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) & input$input_datatype == "MS/NMR") {
+    
+    plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
+    
+    # Autosuggest and build
+    p_value_a_poss <- plot_options[grepl("P_value_A|P-Value ANOVA|P Value ANOVA", plot_options)]
+    if (length(p_value_a_poss) == 0) {p_value_a_poss <- "NA"}
+    pickerInput("PValueACols", "Select the P-Value ANOVA Columns", choices = plot_options,
+                selected = p_value_a_poss, multiple = TRUE)
+    
+  } else {return(NULL)}
+  
+})
+
+output$PValueGColsUI <- renderUI({
+  
+  req(uploaded_data())
+  
+  if (is.null(get_stats()) | is.null(input$edata_idcname_picker)) {return(NULL)}
+  
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) & input$input_datatype == "MS/NMR") {
+    
+    plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
+  
+    p_value_g_poss <- plot_options[grepl("P_value_G|P-Value G-Test|P-Value G-test|P Value G Test", plot_options)]
+    if (length(p_value_g_poss) == 0) {p_value_g_poss <- "NA"}
+    pickerInput("PValueGCols", "Select the P-Value G-Test Columns", choices = plot_options,
+                selected = p_value_g_poss, multiple = TRUE)
+
+  } else {return(NULL)}
+  
+})
+
+output$PValueColsUI <- renderUI({
+  
+  req(uploaded_data())
+  
+  if (is.null(get_stats()) | is.null(input$edata_idcname_picker)) {return(NULL)}
+  
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) & input$input_datatype == "RNA-Seq") {
+    
+    plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
+    
+    # Autosuggest and build
+    p_value_poss <- plot_options[grepl("P_value_|P-Value|P Value|p value", plot_options)]
+    if (length(p_value_poss) == 0) {p_value_poss <- "NA"}
+    pickerInput("PValueCols", "Select the P-Value Columns", choices = plot_options,
+                selected = p_value_poss, multiple = TRUE)
+    
+  } else {return(NULL)}
   
 })
 
@@ -507,22 +587,3 @@ output$download <- downloadHandler(
   }
 )
 
-#' @details If the app is MODE classic, render the UI to select fold change columns
-output$Select_FC_UI <- renderUI({
-  
-  if (!is.null(get_stats())) {
-    
-    theselected <- colnames(get_stats()) 
-    
-    # Try to identify fold change columns
-    if (any(grepl("Fold_change", colnames(get_stats())))) {
-      theselected <- colnames(get_stats())[grepl("Fold_change", colnames(get_stats()))]
-    } 
-    
-    pickerInput(inputId = "Select_FC", label = "Select Fold Change Columns", 
-                choices = colnames(get_stats()), selected = theselected, multiple = T)
-    
-  }
-  
-})
-  

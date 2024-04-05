@@ -32,11 +32,6 @@ make_front_page_upload_opts <- function(){
       
       ),
      
-     # Statistics samples 
-     uiOutput("Select_FC_UI"),
-     uiOutput("Select_PVAL_A_UI"),
-     uiOutput("Select_PVAL_G_UI"),
-     
      # Confirm
      list(
        actionButton("UploadConfirm", "Confirm", icon("check")),
@@ -54,6 +49,11 @@ make_front_page_data_process_opts <- function(){
     uiOutput("GroupDesignationUI"),
     uiOutput("EnterNAValuesUI"),
     uiOutput("SelectTransformationUI"),
+    uiOutput("FoldChangeColsUI"),
+    uiOutput("PValueAColsUI"), # MS/NMR only
+    uiOutput("PValueGColsUI"), # MS/NMR only
+    uiOutput("PValueColsUI"), # RNA-Seq only
+    uiOutput("TypeComparisonsUI"),
     uiOutput("MoveToNormalizationUI")
   )
 }

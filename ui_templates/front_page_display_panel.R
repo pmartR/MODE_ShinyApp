@@ -12,7 +12,9 @@ front_page_display_panel <- function(){
         HTML("<strong>Expression Metadata</strong>"), hr(),
         DT::DTOutput("emeta_preview"), br(), br(),
         HTML("<strong>Statistics</strong>"), hr(),
-        DT::DTOutput("stat_preview")
+        DT::DTOutput("stat_preview"), br(), br(),
+        HTML("<strong>Comparison Table</strong>"), hr(),
+        DT::DTOutput("comparison_table")
     ),
     tabPanel(
       title = "Select Plot",

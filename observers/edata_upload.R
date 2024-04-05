@@ -23,10 +23,12 @@ observeEvent(input$MoveToNormalization, {
   
   # Check that the final transformation is at least log transformed, unless it is 
   # isobaric peptide data or nmr data.
-  if (input$OrigDataScale == "abundance" & uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
-    sendSweetAlert(session, "Expression Data Transformation Error", 
-      "Please choose a log transformation for the Expression Data.", "error")
-    return(NULL)
+  if (input$input_datatype == "MS/NMR") {
+    if (input$OrigDataScale == "abundance" & uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
+      sendSweetAlert(session, "Expression Data Transformation Error", 
+                     "Please choose a log transformation for the Expression Data.", "error")
+      return(NULL)
+    } 
   }
   
   ## Differential Statistics Check
@@ -134,8 +136,6 @@ observeEvent(input$CheckNormalization, {
     pval_test}, 
     error = function(e) return("This normalization approach is not possible with your current data. Try another approach."))
   
-  browser()
-  
   # Save text results
   edata_groups$NormalizationText <- pval
   
@@ -143,6 +143,8 @@ observeEvent(input$CheckNormalization, {
 
 #' @details Apply normalization
 observeEvent(input$ConfirmNormalization, {
+  
+  browser()
   
   # If no f_data is uploaded, then
   if (!is.null(get_fdata())) {

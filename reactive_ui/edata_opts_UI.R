@@ -252,68 +252,73 @@ output$MoveToNormalizationUI <- renderUI({
 #' @details Allow user to indicate whether their data is normalized or not
 output$IsNormalizedUI <- renderUI({
   
-  if (class(uploaded_data()) == "project edata") {
-    if (edata_groups$ToNormalization) {
-      radioGroupButtons("IsNormalized", "Is your data normalized?", c("Yes", "No"), "No")
+  if (input$input_datatype == "MS/NMR") {
+    if (class(uploaded_data()) == "project edata") {
+      if (edata_groups$ToNormalization) {
+        radioGroupButtons("IsNormalized", "Is your data normalized?", c("Yes", "No"), "No")
+      }
+    } else {
+      HTML("Input data was normalized in a different application.")
     }
-  } else {
-    HTML("Input data was normalized in a different application.")
-  }
+  } else {HTML("Normalization is not needed for this step. Click 'Confirm'")}
 
 })
 
 #' @detail Select normalization parameters
 output$SelectNormalizationUI <- renderUI({
   
-  if (class(uploaded_data()) == "project edata") {
-  
-    if (edata_groups$ToNormalization & !is.null(input$IsNormalized) && input$IsNormalized == "No") {
-      tagList(
-        pickerInput("NormSubsetFun", "Select Subset Function", c(
-          "Everything" = "all", "Top L order statistics (los)" = "los", "Percentage present (ppp)" = "ppp",
-          "Complete" = "complete", "Rank invariant (rip)" = "rip", "Percentage present and rank invariant (ppp+rip)" = "ppp_rip"
-        ), selected = "Everything"),
-        pickerInput("NormFun", "Select Normalization Function", c(
-          "Mean" = "mean", "Median" = "median", "Z-norm" = "zscore", "Median Absolute Distance" = "mad"
-        ), selected = "Median"),
-        uiOutput("MoreNormalizationUI")
-      )
-    }
+  if (input$input_datatype == "MS/NMR") {
+    if (class(uploaded_data()) == "project edata") {
     
+      if (edata_groups$ToNormalization & !is.null(input$IsNormalized) && input$IsNormalized == "No") {
+        tagList(
+          pickerInput("NormSubsetFun", "Select Subset Function", c(
+            "Everything" = "all", "Top L order statistics (los)" = "los", "Percentage present (ppp)" = "ppp",
+            "Complete" = "complete", "Rank invariant (rip)" = "rip", "Percentage present and rank invariant (ppp+rip)" = "ppp_rip"
+          ), selected = "Everything"),
+          pickerInput("NormFun", "Select Normalization Function", c(
+            "Mean" = "mean", "Median" = "median", "Z-norm" = "zscore", "Median Absolute Distance" = "mad"
+          ), selected = "Median"),
+          uiOutput("MoreNormalizationUI")
+        )
+      }
+    }
   }
-  
+    
 })
 
 #' @detail Expanded normalization parameters 
 output$MoreNormalizationUI <- renderUI({
   
-  if (class(uploaded_data()) == "project edata") {
-  
-    if (edata_groups$ToNormalization) {
-      
-      # Make a switch function for the additional normalization parameters
-      additional_parameters <- switch(input$NormSubsetFun,
-        "los" = numericInput("NormalLOS", "Top L order statistics (los)", "0.05"),
-        "ppp" = numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
-        "rip" = numericInput("NormalRIP", "Rank Invariant (rip)", "0.2"),
-        "ppp_rip" = tagList(
-          numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
-          numericInput("NormalRIP", "Rank Invariant (rip)", "0.2")
+  if (input$input_datatype == "MS/NMR") {
+    if (class(uploaded_data()) == "project edata") {
+    
+      if (edata_groups$ToNormalization) {
+        
+        # Make a switch function for the additional normalization parameters
+        additional_parameters <- switch(input$NormSubsetFun,
+          "los" = numericInput("NormalLOS", "Top L order statistics (los)", "0.05"),
+          "ppp" = numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+          "rip" = numericInput("NormalRIP", "Rank Invariant (rip)", "0.2"),
+          "ppp_rip" = tagList(
+            numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+            numericInput("NormalRIP", "Rank Invariant (rip)", "0.2")
+          )
         )
-      )
-      
-      additional_parameters
-  
+        
+        additional_parameters
+      }
     }
-  
   }
   
 })
 
 #' @details Check normalization choices
 output$CheckNormalizationUI <- renderUI({
+  
   if (edata_groups$ToNormalization) {
-    if ((!is.null(input$IsNormalized) && input$IsNormalized == "Yes") | (is.null(get_fdata()) & length(unique(edata_groups$LockedGroupOrder)) == 1)) {
+    if (input$input_datatype == "RNA-Seq" | (!is.null(input$IsNormalized) && input$IsNormalized == "Yes") | 
+        (is.null(get_fdata()) & length(unique(edata_groups$LockedGroupOrder)) == 1)) {
       tagList(
         actionButton("ConfirmNormalization", "Confirm"),
         uiOutput("NormalizationTest")

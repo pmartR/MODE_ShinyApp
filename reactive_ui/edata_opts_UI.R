@@ -362,6 +362,9 @@ output$TrelliPlottingVariableUI <- renderUI({
   
   # Get all plot options and create a list of variable choices 
   all_plot_opts <- summary(final_data$TrelliData)$Plot 
+  
+  browser()
+  
   variable_choices <- c()
   
   if (lapply(all_plot_opts, function(x) {grepl("abundance", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "abundance")}

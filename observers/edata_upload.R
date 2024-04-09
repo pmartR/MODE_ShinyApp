@@ -144,8 +144,6 @@ observeEvent(input$CheckNormalization, {
 #' @details Apply normalization
 observeEvent(input$ConfirmNormalization, {
   
-  browser()
-  
   # If no f_data is uploaded, then
   if (!is.null(get_fdata())) {
     
@@ -158,18 +156,29 @@ observeEvent(input$ConfirmNormalization, {
     }
     
     # Make the omicData object
-    omicData <- as.pepData(
-      e_data = get_edata(),
-      edata_cname = input$edata_idcname_picker,
-      f_data = get_fdata(),
-      fdata_cname = input$FDataColumn,
-      e_meta = get_emeta(),
-      emeta_cname = theEMETAcname,
-      data_scale = input$OrigDataScale
-    )
+    if (input$input_datatype == "MS/NMR") {
+      omicData <- as.pepData(
+        e_data = get_edata(),
+        edata_cname = input$edata_idcname_picker,
+        f_data = get_fdata(),
+        fdata_cname = input$FDataColumn,
+        e_meta = get_emeta(),
+        emeta_cname = theEMETAcname,
+        data_scale = input$OrigDataScale
+      )
+    } else {
+      omicData <- as.seqData(
+        e_data = get_edata(),
+        edata_cname = input$edata_idcname_picker,
+        f_data = get_fdata(),
+        fdata_cname = input$FDataColumn,
+        e_meta = get_emeta(), 
+        emeta_cname = theEMETAcname
+      )
+    }
     
     # Log transform if necessary
-    if (input$OrigDataScale == "abundance") {
+    if (input$input_datatype == "MS/NMR" & input$OrigDataScale == "abundance") {
       omicData <- edata_transform(omicData, input$NewDataScale)
     }
     
@@ -177,7 +186,7 @@ observeEvent(input$ConfirmNormalization, {
     omicData <- group_designation(omicData, input$FDataGroup)
     
     # Normalize if necessary
-    if (input$IsNormalized == "No") {
+    if (input$input_datatype == "MS/NMR" & input$IsNormalized == "No") {
       
       omicData <- switch(input$NormSubsetFun,
                          "all" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, apply_norm = TRUE, backtransform = TRUE),
@@ -199,10 +208,11 @@ observeEvent(input$ConfirmNormalization, {
       statsObj <- get_stats()
       class(statsObj) <- c(class(statsObj), "statRes")
       attr(statsObj, "cnames")$edata_cname <- input$edata_idcname_picker
-      attr(statsObj, "comparisons") <- colnames(statsObj)[grepl("P_value_A", colnames(statsObj))] %>% gsub(pattern = "P_value_A_", replacement = "") %>% unique()
+      attr(statsObj, "comparisons") <- colnames(statsObj)[grepl("P_value_A_|P_value_G_|P_value_", colnames(statsObj))] %>% 
+        gsub(pattern = "P_value_A_|P_value_G_|P_value_", replacement = "") %>% unique()
     }
     
-    if (input$OrigDataScale != "abundance") {
+    if (input$input_datatype == "MS/NMR" & input$OrigDataScale != "abundance") {
       attr(omicData, "data_info")$data_scale_orig <- input$OrigDataScale
       attr(omicData, "data_info")$data_scale <- input$OrigDataScale
     }
@@ -323,7 +333,7 @@ observeEvent(input$ConfirmNormalization, {
     }
     
   }
-    
+  
   # Close and update side bar
   updateCollapse(session, "trelli_collapse", open = "make_plot_opts",
                  close = c("front_page_upload_opts", "front_page_data_process_opts", "front_page_normalize_data"))

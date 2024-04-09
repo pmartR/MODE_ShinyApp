@@ -363,12 +363,17 @@ output$TrelliPlottingVariableUI <- renderUI({
   # Get all plot options and create a list of variable choices 
   all_plot_opts <- summary(final_data$TrelliData)$Plot 
   
-  browser()
-  
   variable_choices <- c()
   
+  # MS/NMR only options 
   if (lapply(all_plot_opts, function(x) {grepl("abundance", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "abundance")}
   if (lapply(all_plot_opts, function(x) {grepl("missingness", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "missingness")}
+  
+  # RNA-seq only options 
+  if (lapply(all_plot_opts, function(x) {grepl("rnaseq", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "rnaseq")}
+  if (lapply(all_plot_opts, function(x) {grepl("nonzero", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "nonzero")}
+  
+  # Statistics results only options
   if (lapply(all_plot_opts, function(x) {grepl("fold change", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "fold change")}
 
   # Remove foldchange when the panel by choice is fdata_cname
@@ -429,7 +434,7 @@ output$PlotFoldchangeOptsUI <- renderUI({
       
       # Add the statistical test
       return(tagList(
-        pickerInput("SelectComparison", "Select Comparison", theComparisons, theComparisons[1]),
+        pickerInput("SelectComparison", "Select Comparison", theComparisons, theComparisons[1], multiple = T),
         numericInput("PValueThresh", "P Value Threshold", 0.05, 0, 1, 0.001)
       ))
       

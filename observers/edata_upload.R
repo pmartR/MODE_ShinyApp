@@ -144,9 +144,16 @@ observeEvent(input$CheckNormalization, {
 #' @details Apply normalization
 observeEvent(input$ConfirmNormalization, {
   
-  # If no f_data is uploaded, then
-  if (!is.null(get_fdata())) {
-    
+  if (!MAP) {
+
+    # If no fdata, generate a fdata file 
+    if (!is.null(get_emeta())) {
+      emeta_cnames <- colnames(get_emeta())
+      theEMETAcname <- emeta_cnames[emeta_cnames != input$edata_idcname_picker][1]
+    } else {
+      theEMETAcname <- NULL
+    }
+        
     # Pick a random e_meta cname since it doesn't matter at all for MODE
     if (!is.null(get_emeta())) {
       emeta_cnames <- colnames(get_emeta())
@@ -178,7 +185,7 @@ observeEvent(input$ConfirmNormalization, {
     }
     
     # Log transform if necessary
-    if (input$input_datatype == "MS/NMR" & input$OrigDataScale == "abundance") {
+    if (input$input_datatype == "MS/NMR" & !is.null(input$OrigDataData) && input$OrigDataScale == "abundance") {
       omicData <- edata_transform(omicData, input$NewDataScale)
     }
     
@@ -186,7 +193,7 @@ observeEvent(input$ConfirmNormalization, {
     omicData <- group_designation(omicData, input$FDataGroup)
     
     # Normalize if necessary
-    if (input$input_datatype == "MS/NMR" & input$IsNormalized == "No") {
+    if (input$input_datatype == "MS/NMR" & !is.null(input$IsNormalized) && input$IsNormalized == "No") {
       
       omicData <- switch(input$NormSubsetFun,
                          "all" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, apply_norm = TRUE, backtransform = TRUE),
@@ -212,7 +219,7 @@ observeEvent(input$ConfirmNormalization, {
         gsub(pattern = "P_value_A_|P_value_G_|P_value_", replacement = "") %>% unique()
     }
     
-    if (input$input_datatype == "MS/NMR" & input$OrigDataScale != "abundance") {
+    if (input$input_datatype == "MS/NMR" & !is.null(input$OrigDataScale) && input$OrigDataScale != "abundance") {
       attr(omicData, "data_info")$data_scale_orig <- input$OrigDataScale
       attr(omicData, "data_info")$data_scale <- input$OrigDataScale
     }
@@ -225,7 +232,7 @@ observeEvent(input$ConfirmNormalization, {
     
   } else {
     
-    # If more than one group, then this needs to become an omicsData object 
+    # If less than one group, then this needs to become an omicsData object 
     if (unique(length(edata_groups$LockedGroupOrder)) > 1) {
       
       # Create an edata object to test 

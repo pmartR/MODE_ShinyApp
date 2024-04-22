@@ -382,6 +382,14 @@ output$TrelliPlottingVariableUI <- renderUI({
     variable_choices <- variable_choices[variable_choices != "fold change"]
   }
   
+  # Remove missingness or nonzero if panel by choice is emeta_columns
+  if (input$TrelliPanelVariable %in% attr(final_data$TrelliData, "emeta_col") & "missingness" %in% variable_choices) {
+    variable_choices <- variable_choices[variable_choices != "missingness"]
+  }
+  if (input$TrelliPanelVariable %in% attr(final_data$TrelliData, "emeta_col") & "nonzero" %in% variable_choices) {
+    variable_choices <- variable_choices[variable_choices != "nonzero"]
+  }
+  
   div(
     id = "TrelliPlottingDiv", 
     pickerInput("TrelliPlottingVariable", "What data would you like to plot?", 
@@ -523,24 +531,65 @@ output$FilterByPValueUI <- renderUI({
     HTML("Click 'Confirm Selection' to trigger this feature.")
   } else {
     
+    # See if the sample filter is possible
+    samp_filter_possible <- input$TrelliPanelVariable == attr(final_data$TrelliData, "edata_col")
+    
+    # Set sample filter name 
+    samp_title <- ifelse(input$input_datatype == "MS/NMR", "Minimum number of non-missing samples",
+                         "Minimum number of non-zero samples")
+    
     # Get all plot options and create a list of variable choices 
     all_plot_opts <- summary(final_data$TrelliData)$Plot 
+    fold_change_possible <- grepl("fold change", all_plot_opts) %>% any()
     
-    # Add widget if filtering by p-value is possible 
-    if (grepl("fold change", all_plot_opts) %>% any()) {
+    # Build possible widgets. tagList does not append correctly, so this is the 
+    # most reasonable method to build the different tagLists
+    if (samp_filter_possible & fold_change_possible == FALSE) {
+      filter_ui_list <- tagList(numericInput("DataPointFilterPanel", samp_title, 0))
+    } else if (samp_filter_possible == FALSE & fold_change_possible) {
       
-      # Get comparisons
+      # Pull comparisons
       theComparisons <- c(attr(final_data$TrelliData$statRes, "comparisons"), "None")
       
-      tagList(
-        numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
-        pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest"), selected = "ANOVA"),
-        pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
-      )
+      # Program alternate routes for MS/NMR or RNA-Seq
+      if (input$input_datatype == "MS/NMR") {
+        filter_ui_list <- tagList(
+          numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
+          pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest"), selected = "ANOVA"),
+          pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
+        )
+      } else {
+        filter_ui_list <- tagList(
+          numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
+          pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
+        )
+      }
+
+    } else if (samp_filter_possible & fold_change_possible) {
+      
+      # Pull comparisons
+      theComparisons <- c(attr(final_data$TrelliData$statRes, "comparisons"), "None")
+      
+      # Program alternate routes for MS/NMR or RNA-Seq
+      if (input$input_datatype == "MS/NMR") {
+        filter_ui_list <- tagList(
+          numericInput("DataPointFilterPanel", samp_title, 0),
+          numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
+          pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest"), selected = "ANOVA"),
+          pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
+        )
+      } else {
+        filter_ui_list <- tagList(
+          numericInput("DataPointFilterPanel", samp_title, 0),
+          numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
+          pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
+        )
+      }
+      
     } else {
-      return(HTML("There are no panel filtering options for this data."))
+      return("No filtering options are currently available for this data. Try paneling by biomolecule, or adding statistics data.")
     }
-  
+    return(filter_ui_list)
   }
   
 })
@@ -548,36 +597,69 @@ output$FilterByPValueUI <- renderUI({
 #' @details Filter PValue consequences 
 output$FilterByPValueTextUI <- renderUI({
   
-  # Return NULL if no PValuePanel
-  if (is.null(input$PValueFilterPanel) | is.null(final_data$TrelliRow)) {return(NULL)}
-  
+  if (is.null(input$DataPointFilterPanel) & is.null(input$PValueFilterPanel)) {return("")}
+
   # Get total 
   total <- final_data$PlotOptions[final_data$TrelliRow, "Number of Plots"] %>% unlist() %>% as.numeric()
   
-  # Convert comparisons appropriately
-  Comparisons <- input$PValueFilterComparisons
-  if (Comparisons == "None") {Comparisons <- NULL}
+  # Get trelliData
+  trelliData <- final_data$TrelliData
+  subtrelli <- trelliData$trelliData
   
-  # P Value test
-  PValTest <- input$PValueFilterTest 
-  if (PValTest == "none") {PValTest <- NULL}
+  # Apply sample filter
+  if (!is.null(input$DataPointFilterPanel)) {
+    if (input$input_datatype == "MS/NMR") {
+      toRM <- subtrelli %>% 
+        group_by_(attr(trelliData, "edata_col")) %>% 
+        summarise(Count = sum(!is.na(Abundance))) %>%
+        filter(Count <= input$DataPointFilterPanel) %>%
+        select(attr(trelliData, "edata_col")) %>%
+        unlist()
+    } else {
+      toRM <- subtrelli %>% 
+        group_by_(attr(trelliData, "edata_col")) %>% 
+        summarise(NonZero = sum(Count != 0)) %>%
+        filter(NonZero <= input$DataPointFilterPanel) %>%
+        select(attr(trelliData, "edata_col")) %>%
+        unlist()
+    }
+    subtrelli <- subtrelli[unlist(subtrelli[attr(trelliData, "edata_col")])%in% toRM == FALSE,]
+  }
   
-  # Get filtered amount
-  filtered <- trelli_pvalue_filter(
-    trelliData = final_data$TrelliData, 
-    p_value_test = PValTest,
-    p_value_thresh = input$PValueFilterPanel, 
-    comparison = Comparisons
-  )
-  filt_summary <- filtered %>% summary()
-  nonfilt_amt <- filt_summary[filt_summary$Plot == unlist(final_data$PlotOptions[final_data$TrelliRow, "Plot"]) & 
-                           filt_summary$`Panel By Choice` == unlist(final_data$PlotOptions[final_data$TrelliRow, "Panel By Choice"]), "Number of Plots"] %>%
-    unlist() %>% as.numeric()
+  # Apply p-value filter 
+  if (!is.null(input$PValueFilterPanel)) {
+    
+    if (input$input_datatype == "MS/NMR") {
+      
+      browser()
+      
+      #if (input$PValueFilterTest == "")
+      
+      
+      
+      
+    } else {
+      
+      if (input$PValueFilterComparisons == "None") {
+        toKP <- apply(subtrelli[input$PValueCols] <= input$PValueFilterPanel, 1, any)
+        subtrelli <- subtrelli[toKP,]
+      } else {
+        column_name <- paste0("P_value_", input$PValueFilterComparisons)
+        subtrelli <- subtrelli[unlist(subtrelli[column_name]) <= input$PValueFilterPanel,]
+      }
+      
+    }
+    
+  }
+  
+  # Count nonfilt amount
+  nonfilt_amt <- subtrelli %>% select(!!input$TrelliPanelVariable) %>% unique() %>% unlist() %>% length()
   
   # Return text
   HTML(paste0("<p># Plots Pre-Filter: ", total, "</p>",
               "<p># Plots Post-Filter: ", nonfilt_amt, "</p>",
-              "<p>Percentage of Plots Retained: ", round(nonfilt_amt/total * 100), "%</p>"))
+              "<p>Percentage of Plots Retained: ", round(nonfilt_amt/total * 100), "%</p>",
+              "<p>Approximate build time: ", ceiling(nonfilt_amt/60), " min</p>"))
   
 })
 

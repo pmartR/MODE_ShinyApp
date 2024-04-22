@@ -517,7 +517,7 @@ output$ChooseCognosticsUI <- renderUI({
   allCogs <- return_cognostic(the_function = theFun, the_object = final_data$TrelliData)
 
   # Get cognostic options 
-  pickerInput("ChooseCognostics", "Choose Cognostics", allCogs, allCogs, multiple = T)
+  pickerInput("ChooseCognostics", "Choose Metas", allCogs, allCogs, multiple = T)
   
 })
 
@@ -630,13 +630,32 @@ output$FilterByPValueTextUI <- renderUI({
   if (!is.null(input$PValueFilterPanel)) {
     
     if (input$input_datatype == "MS/NMR") {
-      
-      browser()
-      
-      #if (input$PValueFilterTest == "")
-      
-      
-      
+
+      if (input$PValueFilterTest == "anova") {
+        if ("NA" %in% input$PValueACols) {
+          sendModalAlert("Please set the p-value ANOVA columns in the Pre-Processing step to use this filter.")
+        } else {
+          if (input$PValueFilterComparisons == "None") {
+            toKP <- apply(subtrelli[input$PValueACols] <= input$PValueFilterPanel, 1, any)
+            subtrelli <- subtrelli[toKP,]
+          } else {
+            column_name <- paste0("P_value_A_", input$PValueFilterComparisons)
+            subtrelli <- subtrelli[unlist(subtrelli[column_name]) <= input$PValueFilterPanel,]
+          }
+        }
+      } else {
+        if ("NA" %in% input$PValueGCols) {
+          sendModalAlert("Please set the p-value G-Test columns in the Pre-Processing step to use this filter.")
+        } else {
+          if (input$PValueFilterComparisons == "None") {
+            toKP <- apply(subtrelli[input$PValueGCols] <= input$PValueFilterPanel, 1, any)
+            subtrelli <- subtrelli[toKP,]
+          } else {
+            column_name <- paste0("P_value_G_", input$PValueFilterComparisons)
+            subtrelli <- subtrelli[unlist(subtrelli[column_name]) <= input$PValueFilterPanel,]
+          }
+        }
+      }
       
     } else {
       

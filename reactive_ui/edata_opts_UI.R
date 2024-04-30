@@ -671,6 +671,8 @@ output$FilterByPValueTextUI <- renderUI({
     
   }
   
+  final_data$TrelliData_Filtered <- subtrelli
+  
   # Count nonfilt amount
   nonfilt_amt <- subtrelli %>% select(!!input$TrelliPanelVariable) %>% unique() %>% unlist() %>% length()
   

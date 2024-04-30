@@ -12,27 +12,19 @@ output$BuildStats <- renderUI({
   if (is.null(final_data$TrelliRow)) {return(HTML("Build time statistics will appear here."))}
   
   # Apply filtering if there is that option
-  if (!is.null(input$PValueFilterTest)) {
+  if (!is.null(final_data$TrelliData_filtered)) {
     
-    # Pull comparisons
-    Comparisons <- input$PValueFilterComparisons
-    if (Comparisons == "None") {Comparisons <- NULL}
-    
-    # P Value test
-    PValTest <- input$PValueFilterTest 
-    if (PValTest == "none") {PValTest <- NULL}
+    browser()
     
     # Pull selected row information 
     ThePlot <- final_data$PlotOptions[final_data$TrelliRow, "Plot"] %>% unlist()
     PanelByChoice <- final_data$PlotOptions[final_data$TrelliRow, "Panel By Choice"] %>% unlist()
     
     # Calculate number of plots
-    FiltSummary <- trelli_pvalue_filter(
-      trelliData = final_data$TrelliData, 
-      p_value_test = PValTest,
-      p_value_thresh = input$PValueFilterPanel, 
-      comparison = Comparisons
-    ) %>% summary()
+    if (!is.null(final_data$TrelliData_filtered)) {
+      browser()
+    }
+    
     PlotNum <- FiltSummary %>%
       dplyr::filter(`Panel By Choice` == PanelByChoice & Plot == ThePlot) %>%
       dplyr::select(`Number of Plots`) %>%
@@ -45,7 +37,7 @@ output$BuildStats <- renderUI({
   
   BuildTime <- ceiling(PlotNum / 60)
   
-  if (BuildTime < 5) {
+  if (BuildTime <= 10) {
     HTML(paste("The estimated build time is", BuildTime, "minutes"))
   } else {
     HTML(paste("The estimated build time is", BuildTime, "minutes. Consider filtering down the number of plots with the 'Filter Plots' sidebar"))
@@ -78,23 +70,9 @@ observeEvent(input$make_trelliscope, {
   row <- final_data$TrelliRow
   
   # Apply filtering if there is that option
-  if (!is.null(input$PValueFilterTest)) {
-    
-    # Pull comparisons
-    Comparisons <- input$PValueFilterComparisons
-    if (Comparisons == "None") {Comparisons <- NULL}
-    
-    # P Value test
-    PValTest <- input$PValueFilterTest 
-    if (PValTest == "none") {PValTest <- NULL}
-    
-    trelliData <- trelli_pvalue_filter(
-      trelliData = final_data$TrelliData, 
-      p_value_test = PValTest,
-      p_value_thresh = input$PValueFilterPanel, 
-      comparison = Comparisons
-    )
-    
+  if (!is.null(final_data$TrelliData_Filtered)) {
+    trelliData <- final_data$TrelliData
+    trelliData$trelliData <- final_data$TrelliData_Filtered
   } else {
     trelliData <- final_data$TrelliData
   }

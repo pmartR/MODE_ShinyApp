@@ -17,7 +17,7 @@ return_cognostic <- function(the_function, the_object) {
   ## TRELLI ABUNDANCE BOXPLOT ##
   if (the_function == "trelli_abundance_boxplot") {
     
-    metas <- c(metas, "count", "mean abundance", "median abundance", "cv abundance")
+    metas <- c(metas, "count", "mean abundance")
     
     if (is.null(the_object$statRes)) {
       return(metas)
@@ -77,7 +77,7 @@ return_cognostic <- function(the_function, the_object) {
   ## TRELLI RNASEQ BOXPLOT ##
   if (the_function == "trelli_rnaseq_boxplot") {
     
-    metas <- c(metas, "count", "mean lcpm", "median lcpm", "cv lcpm")
+    metas <- c(metas, "count", "mean lcpm")
     
     if (is.null(the_object$statRes)) {
       return(metas)

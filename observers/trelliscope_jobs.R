@@ -12,24 +12,12 @@ output$BuildStats <- renderUI({
   if (is.null(final_data$TrelliRow)) {return(HTML("Build time statistics will appear here."))}
   
   # Apply filtering if there is that option
-  if (!is.null(final_data$TrelliData_filtered)) {
-    
-    browser()
+  if (!is.null(final_data$TrelliData_Filtered)) {
     
     # Pull selected row information 
     ThePlot <- final_data$PlotOptions[final_data$TrelliRow, "Plot"] %>% unlist()
     PanelByChoice <- final_data$PlotOptions[final_data$TrelliRow, "Panel By Choice"] %>% unlist()
-    
-    # Calculate number of plots
-    if (!is.null(final_data$TrelliData_filtered)) {
-      browser()
-    }
-    
-    PlotNum <- FiltSummary %>%
-      dplyr::filter(`Panel By Choice` == PanelByChoice & Plot == ThePlot) %>%
-      dplyr::select(`Number of Plots`) %>%
-      unlist() %>%
-      as.numeric()
+    PlotNum <- final_data$TrelliData_Filtered %>% select(!!input$TrelliPanelVariable) %>% unique() %>% unlist() %>% length()
     
   } else {
     PlotNum <- final_data$PlotOptions[final_data$TrelliRow, "Number of Plots"] %>% unlist() %>% as.numeric()
@@ -72,7 +60,7 @@ observeEvent(input$make_trelliscope, {
   # Apply filtering if there is that option
   if (!is.null(final_data$TrelliData_Filtered)) {
     trelliData <- final_data$TrelliData
-    trelliData$trelliData <- final_data$TrelliData_Filtered
+    trelliData$trelliData <- final_data$TrelliData_Filtered[!is.na(final_data$TrelliData_Filtered[[input$TrelliPanelVariable]]),]
   } else {
     trelliData <- final_data$TrelliData
   }
@@ -83,7 +71,6 @@ observeEvent(input$make_trelliscope, {
   
   # Determine test example number
   choices <- trelliData$trelliData[[input$TrelliPanelVariable]] %>% unique() %>% as.character() 
-  test_example_num <- match(input$PlotOptionsPanel, choices)
   
   # foldchange is written without the underscore
   if (grepl("fold_change", theFun)) {
@@ -157,9 +144,6 @@ observeEvent(input$make_trelliscope, {
       # Add additional values if plot inputs are not null 
       if (is.null(final_data$PlotInputs)) {
         
-        # If no test_example_num, return NULL
-        if (is.na(test_example_num)) {return(NULL)}
-        
         if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
           
           if (is.null(input$PValueThresh)) {return(NULL)}
@@ -183,9 +167,6 @@ observeEvent(input$make_trelliscope, {
         
         # Add list of ggplot commands
         gg_params <- final_data$PlotInputs$Code
-        
-        # If no test_example_num, return NULL
-        if (is.na(test_example_num)) {return(NULL)}
         
         if (theFun %in% c("trelli_foldchange_bar", "trelli_foldchange_boxplot", "trelli_foldchange_heatmap")) {
           

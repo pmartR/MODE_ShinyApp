@@ -2,6 +2,7 @@
 library(purrr)
 library(readr) 
 library(stringr)
+library(dplyr)
 
 # Shiny packages 
 library(jsonlite)

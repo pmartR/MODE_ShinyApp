@@ -610,20 +610,20 @@ output$FilterByPValueTextUI <- renderUI({
   if (!is.null(input$DataPointFilterPanel)) {
     if (input$input_datatype == "MS/NMR") {
       toRM <- subtrelli %>% 
-        group_by_(attr(trelliData, "edata_col")) %>% 
+        group_by_at(attr(trelliData, "edata_col")) %>% 
         summarise(Count = sum(!is.na(Abundance))) %>%
         filter(Count <= input$DataPointFilterPanel) %>%
         select(attr(trelliData, "edata_col")) %>%
         unlist()
     } else {
       toRM <- subtrelli %>% 
-        group_by_(attr(trelliData, "edata_col")) %>% 
+        group_by_at(attr(trelliData, "edata_col")) %>% 
         summarise(NonZero = sum(Count != 0)) %>%
         filter(NonZero <= input$DataPointFilterPanel) %>%
         select(attr(trelliData, "edata_col")) %>%
         unlist()
     }
-    subtrelli <- subtrelli[unlist(subtrelli[attr(trelliData, "edata_col")])%in% toRM == FALSE,]
+    subtrelli <- subtrelli[unlist(subtrelli[attr(trelliData, "edata_col")]) %in% toRM == FALSE,]
   }
   
   # Apply p-value filter 
@@ -675,11 +675,13 @@ output$FilterByPValueTextUI <- renderUI({
   
   # Count nonfilt amount
   nonfilt_amt <- subtrelli %>% select(!!input$TrelliPanelVariable) %>% unique() %>% unlist() %>% length()
+  perc <- round(nonfilt_amt/total * 100)
+  if (perc == 0) {perc <- "< 1"}
   
   # Return text
   HTML(paste0("<p># Plots Pre-Filter: ", total, "</p>",
               "<p># Plots Post-Filter: ", nonfilt_amt, "</p>",
-              "<p>Percentage of Plots Retained: ", round(nonfilt_amt/total * 100), "%</p>",
+              "<p>Percentage of Plots Retained: ", perc, "%</p>",
               "<p>Approximate build time: ", ceiling(nonfilt_amt/60), " min</p>"))
   
 })

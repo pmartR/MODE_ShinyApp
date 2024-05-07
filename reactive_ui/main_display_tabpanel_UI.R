@@ -374,6 +374,17 @@ output$PlotOptionsTable <- DT::renderDT({
     subPlotTable$`Number of Plots` <- strsplit(subPlotTable$`Number of Plots`[1], ", ") %>% unlist() %>% .[pos]
   }
   
+  # If data type is rna-seq, make sure to remove the non-zero option when not appropriate
+  if (input$input_datatype == "RNA-Seq") {
+    if (!is.null(input$TrelliPlottingVariable)) {
+      if (input$TrelliPlottingVariable == "rnaseq") {
+        subPlotTable <- subPlotTable %>% filter(Plot != "rnaseq nonzero bar")
+      } else if (input$TrelliPlottingVariable == "nonzero") {
+        subPlotTable <- subPlotTable %>% filter(Plot == "rnaseq nonzero bar")
+      }
+    }
+  }
+  
   final_data$PlotOptions <- subPlotTable
   
   # Visualize in an interactive table

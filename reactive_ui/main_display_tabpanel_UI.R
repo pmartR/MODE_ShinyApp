@@ -364,8 +364,17 @@ output$PlotOptionsTable <- DT::renderDT({
   PlotOptions <- summary(final_data$TrelliData)
   
   # Save resulting table
-  final_data$PlotOptions <- PlotOptions[PlotOptions$`Panel By Choice` == input$TrelliPanelVariable & 
+  subPlotTable <- PlotOptions[grepl(input$TrelliPanelVariable, PlotOptions$`Panel By Choice`) & 
                                         grepl(input$TrelliPlottingVariable, PlotOptions$Plot),]
+  
+  # If there's a comma in the Number of Plots, fix it 
+  if (grepl(", ", subPlotTable$`Number of Plots`[1], fixed = T)) {
+    pos <- which(unlist(strsplit(unlist(subPlotTable$`Panel By Choice`[1]), ", ")) == input$TrelliPanelVariable)
+    subPlotTable$`Panel By Choice` <- input$TrelliPanelVariable
+    subPlotTable$`Number of Plots` <- strsplit(subPlotTable$`Number of Plots`[1], ", ") %>% unlist() %>% .[pos]
+  }
+  
+  final_data$PlotOptions <- subPlotTable
   
   # Visualize in an interactive table
   DT::datatable(final_data$PlotOptions, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 

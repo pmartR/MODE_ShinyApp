@@ -1,22 +1,30 @@
-library(jsonlite)
-library(plotly)
+# Data maintenance packages 
 library(purrr)
 library(readr) 
-library(reticulate)
+library(stringr)
+
+# Shiny packages 
+library(jsonlite)
+library(plotly)
 library(shiny)
 library(shinyBS)
 library(shinyWidgets)
 library(shinyjs)
 library(shinyalert)
-library(stringr)
 library(shinyjqui)
-library(pmartR)
+library(shinycssloaders)
 library(DT)
-library(trelliscope)
 library(colourpicker)
 library(processx)
 library(markdown)
 library(devtools)
+
+# Python interface packages 
+library(reticulate)
+
+# MODE-specific packages 
+library(pmartR)
+library(trelliscope)
 
 # Load bioconductor separately
 library(limma)

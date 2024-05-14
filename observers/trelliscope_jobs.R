@@ -135,7 +135,9 @@ observeEvent(input$make_trelliscope, {
   } else {
   
     # Delete the trellifolder
-    unlink("www/trelli", recursive = TRUE)
+    unlink("www/trelli_json", recursive = TRUE)
+    unlink("www/trelli", recursive = TRUE) 
+
     
     withProgress({
       
@@ -149,7 +151,8 @@ observeEvent(input$make_trelliscope, {
           if (is.null(input$PValueThresh)) {return(NULL)}
           
           pvaluethresh <- input$PValueThresh
-          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, p_value_thresh = pvaluethresh, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli_json', name = trelliName, p_value_thresh = pvaluethresh, cognostics = input$ChooseCognostics, jsonp = FALSE) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, p_value_thresh = pvaluethresh, cognostics = input$ChooseCognostics, jsonp = TRUE) %>% print(view = FALSE)")))
           
         } else if (theFun == "trelli_foldchange_volcano") {
           
@@ -157,10 +160,12 @@ observeEvent(input$make_trelliscope, {
           
           pvaluethresh <- input$PValueThresh
           comparison <- input$SelectComparison
-          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, p_value_thresh = pvaluethresh, comparison = comparison, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli_json', name = trelliName, p_value_thresh = pvaluethresh, comparison = comparison, cognostics = input$ChooseCognostics, jsonp = FALSE) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, p_value_thresh = pvaluethresh, comparison = comparison, cognostics = input$ChooseCognostics, jsonp = TRUE) %>% print(view = FALSE)")))
           
         } else {
-          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli_json', name = trelliName, cognostics = input$ChooseCognostics, jsonp = FALSE) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, cognostics = input$ChooseCognostics, jsonp = TRUE) %>% print(view = FALSE)")))
         } 
         
       } else {
@@ -173,7 +178,8 @@ observeEvent(input$make_trelliscope, {
           if (is.null(input$PValueThresh)) {return(NULL)}
           
           pvaluethresh <- input$PValueThresh
-          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, p_value_thresh = pvaluethresh, ggplot_params=gg_params) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli_json', name = trelliName, p_value_thresh = pvaluethresh, ggplot_params=gg_params, jsonp = FALSE) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, p_value_thresh = pvaluethresh, ggplot_params=gg_params, jsonp = TRUE) %>% print(view = FALSE)")))
           
         } else if (theFun == "trelli_foldchange_volcano") {
           
@@ -181,10 +187,12 @@ observeEvent(input$make_trelliscope, {
           
           pvaluethresh <- input$PValueThresh
           comparison <- input$SelectComparison
-          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli_json', name = trelliName, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params, cognostics = input$ChooseCognostics, jsonp = FALSE) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, p_value_thresh = pvaluethresh, comparison = comparison, ggplot_params=gg_params, cognostics = input$ChooseCognostics, jsonp = TRUE) %>% print(view = FALSE)")))
           
         } else {
-          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, ggplot_params=gg_params, cognostics = input$ChooseCognostics) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli_json', name = trelliName, ggplot_params=gg_params, cognostics = input$ChooseCognostics, jsonp = FALSE) %>% print(view = FALSE)")))
+          eval(parse(text = paste0(theFun, "(trelliData=paneled, path='www/trelli', name = trelliName, ggplot_params=gg_params, cognostics = input$ChooseCognostics, jsonp = TRUE) %>% print(view = FALSE)")))
         }
         
       }

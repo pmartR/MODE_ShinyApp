@@ -606,9 +606,9 @@ output$trelliscope <- renderUI({
     
     
   } else if (!MAP) {
-    if (file.exists("./www/trelli/index.html") | input$refresh == 1) {
+    if (file.exists("./www/trelli_json/index.html") | input$refresh == 1) {
       tags$iframe(src = "")
-      tags$iframe(src = "./trelli/index.html", width = "1000px", height = "600px")
+      tags$iframe(src = "./trelli_json/index.html", width = "1000px", height = "600px")
     }
   } else if (MAP) {
     tags$iframe(src = "trelliscope/CrazyName/index.html", width = "1000px", height = "600px")

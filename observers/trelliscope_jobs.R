@@ -10,9 +10,11 @@ sendModalAlert <- function(message = "") {
 output$BuildStats <- renderUI({
   
   if (is.null(final_data$TrelliRow)) {return(HTML("Build time statistics will appear here."))}
-  
+
   # Apply filtering if there is that option
   if (!is.null(final_data$TrelliData_Filtered)) {
+    
+    Sys.sleep(1)
     
     # Pull selected row information 
     ThePlot <- final_data$PlotOptions[final_data$TrelliRow, "Plot"] %>% unlist()
@@ -41,12 +43,16 @@ output$job_status_ui <- renderUI({
 
 # Return job status
 observeEvent(input$job_status, {
-  if (!is.null(MapConnect$Job)) {
-    if ("NULL" %in% MapConnect$Job$info) {sendModalAlert("Job finished!")} else {
-      sendModalAlert(gsub("INFO: ", "", MapConnect$Job$info))}
-  } else {
-    sendModalAlert("No jobs are currently running. Try the 'Refresh Display' button. If the display isn't there, try 'Create Trelliscope Display'")
-  }
+  
+  tryCatch({
+    if (!is.null(MapConnect$Job$info)) {
+      if ("NULL" %in% MapConnect$Job$info) {sendModalAlert("Job finished!")} else {
+        sendModalAlert(gsub("INFO: ", "", MapConnect$Job$info))}
+    } else {
+      sendModalAlert("No message currently detected. If expecting build messages, try again in a few seconds.")
+    }
+  }, error = function() {sendModalAlert("No message currently detected. If expecting build messages, try again in a few seconds.")})
+
 })
 
 # Make the trelliscope display locally (non-docker), or in a redis container
@@ -78,7 +84,8 @@ observeEvent(input$make_trelliscope, {
   }
   
   # Name the trelliscope display
-  trelliName <- .scrub_clean(input$trelliscope_name)
+  scrub_clean2 <- function(string) {gsub("[^[:alnum:]]|[[:space:]]|:|-", " ", as.character(string))}
+  trelliName <- scrub_clean2(input$trelliscope_name)
   
   # If MAP or REDIS_VERSION or Compose version 
   if (Redis_Test | MAP | Compose_Test) {

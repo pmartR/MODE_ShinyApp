@@ -7,10 +7,11 @@ observeEvent(input$PlotOptionsConfirm, {
   # Indicate that plots should be locked and save variable selections 
   disable("TrelliPanelDiv")
   disable("TrelliPlottingDiv")
+  disable("ChoosePlotDiv")
   
   # Store row 
-  row <- input$PlotOptionsTable_row_last_clicked
-  if (is.null(row)) {row <- 1}
+  PlotOptions <- final_data$PlotOptions
+  row <- which(PlotOptions$Plot == input$ChoosePlotType)
   final_data$TrelliRow <- row
   
   # Open trelliscope tab
@@ -29,6 +30,7 @@ observeEvent(input$PlotOptionsUnconfirm, {
   # Indicate that plots should be locked and save variable selections 
   enable("TrelliPanelDiv")
   enable("TrelliPlottingDiv")
+  enable("ChoosePlotDiv")
   
   # Store row 
   final_data$TrelliRow <- NULL

@@ -412,6 +412,24 @@ output$PlotOptionsPanelUI <- renderUI({
  
 })
 
+#' @details Select a plotting option
+output$ChoosePlotTypeUI <- renderUI({
+  
+  # Require TrelliData object 
+  if (is.null(final_data$PlotOptions)) {return(NULL)}
+  
+  # Get the summary of all possible plots
+  PlotOptions <- final_data$PlotOptions
+  
+  # Make picker input
+  div(
+    id = "ChoosePlotDiv",
+    pickerInput("ChoosePlotType", "Choose the Plot Type", choices = PlotOptions$Plot, selected = PlotOptions$Plot[1])
+  )
+  
+})
+
+
 #' @detail Plot foldchange options
 output$PlotFoldchangeOptsUI <- renderUI({
   
@@ -515,7 +533,14 @@ output$ChooseCognosticsUI <- renderUI({
   
   # Get cognostic defaults
   allCogs <- return_cognostic(the_function = theFun, the_object = final_data$TrelliData)
-
+  
+  # If grouped_by f_data column, we need to remove emeta cognostics
+  if (input$TrelliPanelVariable == attr(final_data$TrelliData, "fdata_col")) {
+    if (!is.null(attr(final_data$TrelliData, "emeta_col"))) {
+      allCogs <- allCogs %>% .[(. %in% attr(final_data$TrelliData, "emeta_col")) == FALSE]
+    }
+  }
+  
   # Get cognostic options 
   pickerInput("ChooseCognostics", "Choose Metas", allCogs, allCogs, multiple = T)
   

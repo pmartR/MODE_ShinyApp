@@ -24,11 +24,14 @@ observeEvent(input$MoveToNormalization, {
   # Check that the final transformation is at least log transformed, unless it is 
   # isobaric peptide data or nmr data.
   if (input$input_datatype == "MS/NMR") {
-    if (input$OrigDataScale == "abundance" & uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
+    
+    if (input$OrigDataScale == "abundance" & input$NewDataScale == "abundance" & 
+        uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
       sendSweetAlert(session, "Expression Data Transformation Error", 
                      "Please choose a log transformation for the Expression Data.", "error")
       return(NULL)
     } 
+    
   }
   
   ## Differential Statistics Check
@@ -162,13 +165,25 @@ observeEvent(input$ConfirmNormalization, {
       theEMETAcname <- NULL
     }
     
+    # Make an exception for when there's no f data 
+    fdata <- get_fdata()
+    if (is.null(fdata)) {
+      fdata <- pmartR::as.trelliData.edata(e_data = get_edata(), edata_cname = input$edata_idcname_picker, omics_type = "pepData")$omicsData$f_data
+      fdata$Condition <- 1
+    }
+      
+    fdata_col <- input$FDataColumn
+    if (is.null(fdata_col)) {
+      fdata_col <- "Sample"
+    } 
+      
     # Make the omicData object
     if (input$input_datatype == "MS/NMR") {
       omicData <- as.pepData(
         e_data = get_edata(),
         edata_cname = input$edata_idcname_picker,
-        f_data = get_fdata(),
-        fdata_cname = input$FDataColumn,
+        f_data = fdata,
+        fdata_cname = fdata_col,
         e_meta = get_emeta(),
         emeta_cname = theEMETAcname,
         data_scale = input$OrigDataScale
@@ -177,20 +192,24 @@ observeEvent(input$ConfirmNormalization, {
       omicData <- as.seqData(
         e_data = get_edata(),
         edata_cname = input$edata_idcname_picker,
-        f_data = get_fdata(),
-        fdata_cname = input$FDataColumn,
+        f_data = fdata,
+        fdata_cname = fdata_col,
         e_meta = get_emeta(), 
         emeta_cname = theEMETAcname
       )
     }
     
     # Log transform if necessary
-    if (input$input_datatype == "MS/NMR" & !is.null(input$OrigDataData) && input$OrigDataScale == "abundance") {
+    if (input$input_datatype == "MS/NMR" & !is.null(input$OrigDataScale) && input$OrigDataScale == "abundance") {
       omicData <- edata_transform(omicData, input$NewDataScale)
     }
     
     # Group object
-    omicData <- group_designation(omicData, input$FDataGroup)
+    if (!is.null(input$FDataGroup)) {
+      omicData <- group_designation(omicData, input$FDataGroup)
+    } else {
+      omicData <- group_designation(omicData, "Condition")
+    }
     
     # Normalize if necessary
     if (input$input_datatype == "MS/NMR" & !is.null(input$IsNormalized) && input$IsNormalized == "No") {

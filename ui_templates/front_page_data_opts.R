@@ -70,6 +70,7 @@ make_plot_variable_options <- function() {
   tagList(
     uiOutput("TrelliPanelVariableUI"),
     uiOutput("TrelliPlottingVariableUI"),
+    uiOutput("ChoosePlotTypeUI"),
     uiOutput("PlotOptionsPanelUI"),
     uiOutput("PlotFoldchangeOptsUI"),
     uiOutput("PlotOptionsConfirmUI")
@@ -147,7 +148,7 @@ front_page_left_collapse <- function(){
         )
       ),
       hr(),
-      textInput("trelliscope_name", "Name Trelliscope", value = "NewTrelliscope"),
+      textInput("trelliscope_name", "Name Trelliscope", value = format(Sys.time())),
       actionButton("refresh", "Refresh Display", icon = icon("pencil-alt")),
       downloadButton("download", "Download Display"),
       uiOutput("job_status_ui"),

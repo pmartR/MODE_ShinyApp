@@ -67,11 +67,18 @@ fdata_table <- reactive({
   Columns <- colnames(uploaded_data()$Data$e_data)
   Edata_Col <- input$edata_idcname_picker
   
+  # Get groups
+  theGroups <- input$GroupName %>% strsplit(",") %>% unlist()
+  targetLength <- Columns[Columns %in% Edata_Col == FALSE] %>% length()
+  if (length(theGroups) != targetLength) {
+    if (length(theGroups) > targetLength) {theGroups <- theGroups[1:targetLength]}
+    if (length(theGroups) < targetLength) {theGroups <- c(theGroups, rep(NA, targetLength - length(theGroups)))}
+  }
+  
   # Generate sample f data 
   edata_groups$Table <- data.frame(
     "Sample" = Columns[Columns %in% Edata_Col == FALSE],
-    "Group" = shinyInput(selectizeInput, length(uploaded_data()$Data$e_data) - 1, 
-                         "GroupSelector", label = NULL, choices = c("NA", unlist(edata_groups$Group))),
+    "Condition" = theGroups,
     check.names = FALSE
   )
 
@@ -89,30 +96,13 @@ output$fdata_preview <- DT::renderDT({
   if (class(uploaded_data()) == "project edata") {
   
     if (is.null(input$FdataFile)) {
-    
-      session$sendCustomMessage("unbind-DT", "fdata_preview")
       
-      if (edata_groups$ToNormalization == FALSE) {fdata <- edata_groups$Table} else {
-        Columns <- colnames(uploaded_data()$Data$e_data)
-        Edata_Col <- input$edata_idcname_picker
-        fdata <- data.frame(
-          "Sample" = Columns[Columns %in% Edata_Col == FALSE],
-          "Group" = edata_groups$LockedGroupOrder,
-          check.names = FALSE
-        )
-        edata_groups$fdata <- fdata
-        fdata
+      if (is.null(get_fdata())) {return(NULL)} else {
+        DT::datatable(get_fdata(),
+                      selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                      options = list(pageLength = 10, scrollX = T))
       }
-      
-      # Visualize in an interactive table
-      DT::datatable(fdata, escape = FALSE, selection = "single", rownames = FALSE, 
-                options = list(pageLength = nrow(fdata), dom = "t", scrollX = T, ordering = FALSE,
-                initComplete = JS("function(settings){",
-                                  "  $('#Group').selectize()",
-                                  "}"),
-                preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-                drawCallback = JS('function() { Shiny.bindAll(this.api().table().node()); } '))
-      )
+
     
     } else {
       
@@ -144,31 +134,13 @@ output$fdata_preview <- DT::renderDT({
     # Load and display CSV - files are checked when "confirm" is clicked 
     if (is.null(input$FdataFile)) {
       
-      session$sendCustomMessage("unbind-DT", "fdata_preview")
-      
-      if (edata_groups$ToNormalization == FALSE) {fdata <- edata_groups$Table} else {
-        Columns <- colnames(uploaded_data()$Data$e_data)
-        Edata_Col <- input$edata_idcname_picker
-        fdata <- data.frame(
-          "Sample" = Columns[Columns %in% Edata_Col == FALSE],
-          "Group" = edata_groups$LockedGroupOrder,
-          check.names = FALSE
-        )
-        edata_groups$fdata <- fdata
-        fdata
+      if (is.null(get_fdata())) {return(NULL)} else {
+        DT::datatable(get_fdata(),
+                      selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
+                      options = list(pageLength = 10, scrollX = T))
       }
-      
-      # Visualize in an interactive table
-      DT::datatable(fdata, escape = FALSE, selection = "single", rownames = FALSE, 
-                    options = list(pageLength = nrow(fdata), dom = "t", scrollX = T, ordering = FALSE,
-                                   initComplete = JS("function(settings){",
-                                                     "  $('#Group').selectize()",
-                                                     "}"),
-                                   preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-                                   drawCallback = JS('function() { Shiny.bindAll(this.api().table().node()); } ')))
 
     } else {
-      
       
       fdata <- read.csv(input$FdataFile$datapath)
       DT::datatable(fdata,

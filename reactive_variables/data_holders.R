@@ -109,7 +109,11 @@ get_edata <- reactive({
 get_fdata <- reactive({
   
   if (is.null(input$FdataFile)) {
-    return(NULL)
+    if (!is.null(edata_groups$Table)) {
+      return(edata_groups$Table)
+    } else {
+      return(NULL)
+    }
   } else {
     return(read.csv(input$FdataFile$datapath))
   }

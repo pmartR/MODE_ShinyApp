@@ -87,21 +87,13 @@ output$GroupDesignationUI <- renderUI({
   
     if (!is.null(input$WantGroups) && input$WantGroups == "Yes") {
       tagList(
-        textInput("GroupName", HTML("<strong>Enter Group Name</strong>")),
-        list(actionButton("GroupAdd", "Add", icon = icon("plus")),
-             actionButton("LockGroups", "Confirm", icon = icon("hand-spock"))
-        ),
-        uiOutput("GroupText"),
+        textInput("GroupName", HTML("<strong>Enter Group Names Separated by Commas</strong>")),
+        actionButton("LockGroups", "Confirm", icon = icon("hand-spock")),
         br(), br()
       )
     }
   }
     
-})
-
-#' @details Add group text
-output$GroupText <- renderUI({
-  HTML(paste("Groups:", unlist(edata_groups$Group) %>% paste0(collapse = "<p></p>")))
 })
 
 #' @details Get NA values 

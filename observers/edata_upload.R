@@ -10,9 +10,7 @@ observeEvent(input$LockGroups, {
   fdata_table()
   
   # Disable widgets
-  disable("GroupAdd")
   disable("LockGroups")
-  disable("GroupName")
   
 })
 
@@ -63,7 +61,6 @@ observeEvent(input$MoveToNormalization, {
   
   # We are ready for normalization
   edata_groups$ToNormalization <- TRUE
-  edata_groups$LockedGroupOrder <- shinyValue("GroupSelector", ncol(uploaded_data()$Data$e_data) - 1, input)
   
   # Collapse above tabs and open next one
   updateCollapse(session, "trelli_collapse", open = "front_page_normalize_data",
@@ -86,34 +83,50 @@ observeEvent(input$CheckNormalization, {
     "Metabolomics-GC/LC-MS" = "as.metabData", 
     "Metabolomics-NMR" = "as.nmrData"
   )
+  
   if (is.null(omicFUN)) {omicFUN <- "as.pepData"}
   
   if (is.null(get_fdata())) {
+    
+    fdata_fake <- data.frame(
+      Sample = colnames(get_edata()) %>% .[. != input$edata_idcname_picker],
+      Condition = "A"
+    )
     
     # Create omicData object
     omicData <- eval(parse(text = paste0(omicFUN, 
       "(e_data = uploaded_data()$Data$e_data, 
        edata_cname = input$edata_idcname_picker, 
-       f_data = edata_groups$fdata, 
+       f_data = fdata_fake, 
        fdata_cname = 'Sample',
        data_scale = input$OrigDataScale)")))
     
     # Add grouping
-    omicData <- group_designation(omicData, "group")
+    omicData <- group_designation(omicData, "Condition")
     
   } else {
-
+    
+    fdata_col <- input$FDataColumn
+    if (is.null(fdata_col)) {
+      fdata_col <- "Sample"
+    }
+    
+    groups <- input$FDataGroup
+    if (is.null(groups)) {
+      groups <- "Condition"
+    }
+    
     # Create omicData object
     omicData <- as.pepData(
       e_data = get_edata(),
       edata_cname = input$edata_idcname_picker,
       f_data = get_fdata(), 
-      fdata_cname = input$FDataColumn,
+      fdata_cname = fdata_col,
       data_scale = input$OrigDataScale
     )
     
     # Add grouping
-    omicData <- group_designation(omicData, input$FDataGroup)
+    omicData <- group_designation(omicData, groups)
     
   }
   
@@ -138,6 +151,8 @@ observeEvent(input$CheckNormalization, {
          paste("P-Value:", pval_test, "Consider another normalization approach"))
     pval_test}, 
     error = function(e) return("This normalization approach is not possible with your current data. Try another approach."))
+
+  if (is.na(pval)) {pval <- "Add groups to test normalization"}
   
   # Save text results
   edata_groups$NormalizationText <- pval
@@ -268,15 +283,23 @@ observeEvent(input$ConfirmNormalization, {
       
       if (is.null(omicFUN)) {omicFUN <- "as.pepData"}
       
-      if (!is.null(edata_groups$fdata)) {
+      if (!is.null(get_fdata())) {
+        
+        fdata_fake <- data.frame(
+          Sample = colnames(get_edata()) %>% .[. != input$edata_idcname_picker],
+          Condition = "A"
+        )
         
         # Create omicData object
         omicData <- eval(parse(text = paste0(omicFUN, 
         "(e_data = uploaded_data()$Data$e_data, 
          edata_cname = input$edata_idcname_picker, 
-         f_data = edata_groups$fdata, 
+         f_data = fdata_fake, 
          fdata_cname = 'Sample',
          data_scale = input$OrigDataScale)")))
+        
+        # Add grouping
+        omicData <- group_designation(omicData, "Condition")
         
         
       } else {

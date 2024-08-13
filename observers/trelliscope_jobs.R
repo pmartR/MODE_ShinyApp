@@ -94,48 +94,39 @@ observeEvent(input$make_trelliscope, {
       ggparams <- NULL
     } else {ggparams <- final_data$PlotInputs$Code}
     
-    query <- parseQueryString(session$clientData$url_search)
-    
-    if (!is.null(input$NormSubsetFun)) {
-      normalParams <- switch(input$NormSubsetFun,
-       "all" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, apply_norm = TRUE, backtransform = TRUE),
-       "complete" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, apply_norm = TRUE, backtransform = TRUE),
-       "los" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("los" = input$NormalLOS), apply_norm = TRUE, backtransform = TRUE),
-       "ppp" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("ppp" = input$NormalPPP), apply_norm = TRUE, backtransform = TRUE),
-       "rip" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE),
-       "ppp_rip" = list(subset_fn = input$NormSubsetFun, norm_fn = input$NormFun, params = list("ppp" = input$NormalPPP, "rip" = input$NormalRIP), apply_norm = TRUE, backtransform = TRUE)
-      ) 
-    } else {
-      normalParams <- NULL
-    }
-    
     sendModalAlert(paste0("The trelliscope display titled ", trelliName, " has been submitted as a job.", 
                           " Click 'Check Status' to see the status of the job and 'Refresh Display' to",
                           " view it when it's finished."))
     
+    # Grab tags
+    theTags <- mapDataAccess::pull_tags_from_object(MapConnect$Data)
+    
+    # Save the paneled trelliscope data 
+    new_file <- mapDataAccess::put_data(MapConnect$MapConnect, paneled)
+    
+    set_tags(MapConnect$MapConnect, new_file, list(
+      "ObjectType" = "MODE-File",
+      "DataType" = theTags$DataType,
+      "ProjectName" = trelliName
+    ))
+    
+    
+    # Needed parameters: Username, whether this is the Compose or MAP version, 
+    # uuid to the trelliData file, selected cognostics, ggparameters, pValue threshold (if necessary),
+    # and comparison (if necessary)
     MapConnect$Job = celery_app$send_task(
       "trelliscope_builder",
       kwargs = list(
         username = Sys.getenv("SHINYPROXY_USERNAME"),
         Compose_Test = Compose_Test,
         MAP = MAP,
-        uuid = query$data,
-        panelVar = input$TrelliPanelVariable,
+        uuid = new_file,
         theFun = theFun,
         trelliPath = file.path("/trelliscope", trelliName), 
         cogs = input$ChooseCognostics,
         ggplotParams = ggparams,
-        pValueTest = input$PValueTest, # We will need to fix when updating MAP's MODE 
         pValueThresh = input$PValueThresh,
-        compare = input$SelectComparison,
-        ipmart_sub = input$SelectOmics,
-        edata_args = list(
-          edata_cname = input$edata_idcname_picker,
-          data_scale_original = input$OrigDataScale, 
-          data_scale = input$NewDataScale,
-          normalization_fun = "global",
-          normalization_params = normalParams
-        )
+        compare = input$SelectComparison
       )
     )
     

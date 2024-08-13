@@ -140,7 +140,7 @@ output$OrigDataScaleUI <- renderUI({
 output$NewDataScaleUI <- renderUI({
   
   # Original data scale should be rendered. It will not be rendered if the data is transcriptomics. 
-  if (is.null(input$OrigDataScale)) {return(NULL)}
+  if (is.null(input$OrigDataScale) || input$OrigDataScale != "abundance") {return(NULL)}
   
   if (get_data_type() == "MS/NMR") {
     theChoices <- list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log")

@@ -13,8 +13,14 @@ front_page_display_panel <- function(){
         DT::DTOutput("emeta_preview"), br(), br(),
         HTML("<strong>Statistics</strong>"), hr(),
         DT::DTOutput("stat_preview"), br(), br(),
-        HTML("<strong>Comparison Table</strong>"), hr(),
-        DT::DTOutput("comparison_table")
+      
+      if (!(Minio_Test | MAP | Compose_Test)) {
+        list(
+          HTML("<strong>Comparison Table</strong>"), hr(),
+          DT::DTOutput("comparison_table")
+        )
+      }
+      
     ),
     tabPanel(
       title = "Select Plot",

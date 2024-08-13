@@ -98,10 +98,15 @@ output$GroupDesignationUI <- renderUI({
 
 #' @details Get NA values 
 output$EnterNAValuesUI <- renderUI({
+  
   req(uploaded_data())
-  if (class(uploaded_data()) == "project edata" & input$input_datatype == "MS/NMR") {
+  
+  if (Minio_Test | MAP | Compose_Test) {
+    if (MapConnect$Data$Project$DataType != "RNA-seq") {textInput("NASymbol", "What value denotes missing data?", value = NA)}
+  } else if (class(uploaded_data()) == "project edata" & get_data_type() == "MS/NMR") {
     textInput("NASymbol", "What value denotes missing data?", value = NA)
   }
+  
 })
 
 #' @details Allow users to select a transformation
@@ -119,15 +124,14 @@ output$SelectTransformationUI <- renderUI({
 #' @details Render original datascale dropdown if the data is not transcriptomics.
 output$OrigDataScaleUI <- renderUI({
   
-  if (input$input_datatype == "MS/NMR") {
-    pickerInput("OrigDataScale", "On what scale is your data?",
-                choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
-                selected = "abundance")
-  } else {
-    return(NULL)
-  }
+  if (get_data_type() == "MS/NMR") {
+    return(
+      pickerInput("OrigDataScale", "On what scale is your data?",
+                  choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
+                  selected = "abundance") 
+    )
+  } else {return(NULL)}
 
-  
 })
 
 #' @details Render transformed datascale dropdown if hte data is not transcriptomics.
@@ -138,19 +142,15 @@ output$NewDataScaleUI <- renderUI({
   # Original data scale should be rendered. It will not be rendered if the data is transcriptomics. 
   if (is.null(input$OrigDataScale)) {return(NULL)}
   
-  # If data scale is not the raw intensity, allow for a no transformation option. Otherwise,
-  # don't allow it. 
-  if (input$input_datatype == "MS/NMR") {
-    if (input$OrigDataScale == "abundance") {
-      theChoices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log")
+  if (get_data_type() == "MS/NMR") {
+    theChoices <- list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log")
+    return(
       pickerInput("NewDataScale", "What scale do you want to transform to?",
-                  choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
-                  selected = "abundance")
-    } else {return(NULL)}
-  } else {
-    return(NULL)
-  }
-  
+                               choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
+                               selected = "abundance")
+    )
+  } else {return(NULL)}
+
 })
 
 #' @details For the local version only, supply additional information re: statistics
@@ -180,7 +180,7 @@ output$PValueAColsUI <- renderUI({
   
   if (is.null(get_stats()) | is.null(input$edata_idcname_picker)) {return(NULL)}
   
-  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) & input$input_datatype == "MS/NMR") {
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) && get_data_type() == "MS/NMR") {
     
     plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
     
@@ -200,7 +200,7 @@ output$PValueGColsUI <- renderUI({
   
   if (is.null(get_stats()) | is.null(input$edata_idcname_picker)) {return(NULL)}
   
-  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) & input$input_datatype == "MS/NMR") {
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) && get_data_type() == "MS/NMR") {
     
     plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
   
@@ -219,7 +219,7 @@ output$PValueColsUI <- renderUI({
   
   if (is.null(get_stats()) | is.null(input$edata_idcname_picker)) {return(NULL)}
   
-  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) & input$input_datatype == "RNA-Seq") {
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) && get_data_type() == "RNA-Seq") {
     
     plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
     
@@ -243,8 +243,8 @@ output$MoveToNormalizationUI <- renderUI({
 
 #' @details Allow user to indicate whether their data is normalized or not
 output$IsNormalizedUI <- renderUI({
-  
-  if (input$input_datatype == "MS/NMR") {
+    
+  if (get_data_type() == "MS/NMR") {
     if (class(uploaded_data()) == "project edata") {
       if (edata_groups$ToNormalization) {
         radioGroupButtons("IsNormalized", "Is your data normalized?", c("Yes", "No"), "No")
@@ -253,28 +253,28 @@ output$IsNormalizedUI <- renderUI({
       HTML("Input data was normalized in a different application.")
     }
   } else {HTML("Normalization is not needed for this step. Click 'Confirm'")}
-
+    
 })
 
 #' @detail Select normalization parameters
 output$SelectNormalizationUI <- renderUI({
   
-  if (input$input_datatype == "MS/NMR") {
-    if (class(uploaded_data()) == "project edata") {
-    
-      if (edata_groups$ToNormalization & !is.null(input$IsNormalized) && input$IsNormalized == "No") {
-        tagList(
-          pickerInput("NormSubsetFun", "Select Subset Function", c(
-            "Everything" = "all", "Top L order statistics (los)" = "los", "Percentage present (ppp)" = "ppp",
-            "Complete" = "complete", "Rank invariant (rip)" = "rip", "Percentage present and rank invariant (ppp+rip)" = "ppp_rip"
-          ), selected = "Everything"),
-          pickerInput("NormFun", "Select Normalization Function", c(
-            "Mean" = "mean", "Median" = "median", "Z-norm" = "zscore", "Median Absolute Distance" = "mad"
-          ), selected = "Median"),
-          uiOutput("MoreNormalizationUI")
-        )
+  if (get_data_type() == "MS/NMR") {
+      if (class(uploaded_data()) == "project edata") {
+      
+        if (edata_groups$ToNormalization & !is.null(input$IsNormalized) && input$IsNormalized == "No") {
+          tagList(
+            pickerInput("NormSubsetFun", "Select Subset Function", c(
+              "Everything" = "all", "Top L order statistics (los)" = "los", "Percentage present (ppp)" = "ppp",
+              "Complete" = "complete", "Rank invariant (rip)" = "rip", "Percentage present and rank invariant (ppp+rip)" = "ppp_rip"
+            ), selected = "Everything"),
+            pickerInput("NormFun", "Select Normalization Function", c(
+              "Mean" = "mean", "Median" = "median", "Z-norm" = "zscore", "Median Absolute Distance" = "mad"
+            ), selected = "Median"),
+            uiOutput("MoreNormalizationUI")
+          )
+        }
       }
-    }
   }
     
 })
@@ -282,25 +282,52 @@ output$SelectNormalizationUI <- renderUI({
 #' @detail Expanded normalization parameters 
 output$MoreNormalizationUI <- renderUI({
   
-  if (input$input_datatype == "MS/NMR") {
-    if (class(uploaded_data()) == "project edata") {
-    
-      if (edata_groups$ToNormalization) {
-        
-        # Make a switch function for the additional normalization parameters
-        additional_parameters <- switch(input$NormSubsetFun,
-          "los" = numericInput("NormalLOS", "Top L order statistics (los)", "0.05"),
-          "ppp" = numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
-          "rip" = numericInput("NormalRIP", "Rank Invariant (rip)", "0.2"),
-          "ppp_rip" = tagList(
-            numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
-            numericInput("NormalRIP", "Rank Invariant (rip)", "0.2")
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test)) {
+  
+    if (get_data_type() == "MS/NMR") {
+      if (class(uploaded_data()) == "project edata") {
+      
+        if (edata_groups$ToNormalization) {
+          
+          # Make a switch function for the additional normalization parameters
+          additional_parameters <- switch(input$NormSubsetFun,
+            "los" = numericInput("NormalLOS", "Top L order statistics (los)", "0.05"),
+            "ppp" = numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+            "rip" = numericInput("NormalRIP", "Rank Invariant (rip)", "0.2"),
+            "ppp_rip" = tagList(
+              numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+              numericInput("NormalRIP", "Rank Invariant (rip)", "0.2")
+            )
           )
-        )
-        
-        additional_parameters
+          
+          additional_parameters
+        }
       }
     }
+    
+  } else {
+    
+    if (get_data_type() == "MS/NMR") {
+      if (class(uploaded_data()) == "project edata") {
+        
+        if (edata_groups$ToNormalization) {
+          
+          # Make a switch function for the additional normalization parameters
+          additional_parameters <- switch(input$NormSubsetFun,
+                                          "los" = numericInput("NormalLOS", "Top L order statistics (los)", "0.05"),
+                                          "ppp" = numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+                                          "rip" = numericInput("NormalRIP", "Rank Invariant (rip)", "0.2"),
+                                          "ppp_rip" = tagList(
+                                            numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+                                            numericInput("NormalRIP", "Rank Invariant (rip)", "0.2")
+                                          )
+          )
+          
+          additional_parameters
+        }
+      }
+    }
+    
   }
   
 })
@@ -309,11 +336,9 @@ output$MoreNormalizationUI <- renderUI({
 output$CheckNormalizationUI <- renderUI({
   
   if (edata_groups$ToNormalization) {
-    if (input$input_datatype == "RNA-Seq" | (!is.null(input$IsNormalized) && input$IsNormalized == "Yes") | 
-        (is.null(get_fdata()) & length(unique(edata_groups$LockedGroupOrder)) == 1)) {
+    if (get_data_type() == "RNA-Seq" | (!is.null(input$IsNormalized) && input$IsNormalized == "Yes") | (is.null(get_fdata()))) {
       tagList(
-        actionButton("ConfirmNormalization", "Confirm"),
-        uiOutput("NormalizationTest")
+        actionButton("ConfirmNormalization", "Confirm")
       )
     } else {
       tagList(
@@ -552,7 +577,7 @@ output$FilterByPValueUI <- renderUI({
     samp_filter_possible <- input$TrelliPanelVariable == attr(final_data$TrelliData, "edata_col")
     
     # Set sample filter name 
-    samp_title <- ifelse(input$input_datatype == "MS/NMR", "Minimum number of non-missing samples",
+    samp_title <- ifelse(get_data_type() == "MS/NMR", "Minimum number of non-missing samples",
                          "Minimum number of non-zero samples")
     
     # Get all plot options and create a list of variable choices 
@@ -569,7 +594,7 @@ output$FilterByPValueUI <- renderUI({
       theComparisons <- c(attr(final_data$TrelliData$statRes, "comparisons"), "None")
       
       # Program alternate routes for MS/NMR or RNA-Seq
-      if (input$input_datatype == "MS/NMR") {
+      if (get_data_type() == "MS/NMR") {
         filter_ui_list <- tagList(
           numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
           pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest"), selected = "ANOVA"),
@@ -588,7 +613,7 @@ output$FilterByPValueUI <- renderUI({
       theComparisons <- c(attr(final_data$TrelliData$statRes, "comparisons"), "None")
       
       # Program alternate routes for MS/NMR or RNA-Seq
-      if (input$input_datatype == "MS/NMR") {
+      if (get_data_type() == "MS/NMR") {
         filter_ui_list <- tagList(
           numericInput("DataPointFilterPanel", samp_title, 0),
           numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
@@ -625,7 +650,7 @@ output$FilterByPValueTextUI <- renderUI({
   
   # Apply sample filter
   if (!is.null(input$DataPointFilterPanel)) {
-    if (input$input_datatype == "MS/NMR") {
+    if (get_data_type() == "MS/NMR") {
       toRM <- subtrelli %>% 
         group_by_at(attr(trelliData, "edata_col")) %>% 
         summarise(Count = sum(!is.na(Abundance))) %>%
@@ -646,7 +671,7 @@ output$FilterByPValueTextUI <- renderUI({
   # Apply p-value filter 
   if (!is.null(input$PValueFilterPanel)) {
     
-    if (input$input_datatype == "MS/NMR") {
+    if (get_data_type() == "MS/NMR") {
 
       if (input$PValueFilterTest == "anova") {
         if ("NA" %in% input$PValueACols) {

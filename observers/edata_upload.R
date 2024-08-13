@@ -18,50 +18,70 @@ observeEvent(input$LockGroups, {
 observeEvent(input$MoveToNormalization, {
   
   # Edata has been checked to be an edata_file in MAP
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test)) {
   
-  # Check that the final transformation is at least log transformed, unless it is 
-  # isobaric peptide data or nmr data.
-  if (input$input_datatype == "MS/NMR") {
-    
-    if (input$OrigDataScale == "abundance" & input$NewDataScale == "abundance" & 
-        uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
-      sendSweetAlert(session, "Expression Data Transformation Error", 
-                     "Please choose a log transformation for the Expression Data.", "error")
-      return(NULL)
-    } 
-    
-  }
-  
-  ## Differential Statistics Check
-  if (!is.null(edata_groups$ComparisonTable)) {
-    
-    # If the data.frame is 0 rows, then there is an issue
-    if (nrow(edata_groups$ComparisonTable) == 0) {
-      sendModalAlert(paste0("Differential Statistics Error! 1) Make sure this is ",
-        "a unique column name per fold change. 2) Make sure there is a unique column ",
-        "name per p-value or that it is entirely 'NA'. The 'Comparison Table' will ",
-        "appear if this step is done correctly. See documentation for more help."))
-      return(NULL)
-    } 
-    
-    # Fold change cannot be empty
-    if (any("NA" %in% edata_groups$ComparisonTable$Fold.Change.Columns)) {
-      sendModalAlert("Differential Statistics Error! Fold Change Columns cannot be NA.")
-      return(NULL)
+    # Check that the final transformation is at least log transformed, unless it is 
+    # isobaric peptide data or nmr data.
+    if (input$input_datatype == "MS/NMR") {
+      
+      if (input$OrigDataScale == "abundance" & input$NewDataScale == "abundance" & 
+          uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
+        sendSweetAlert(session, "Expression Data Transformation Error", 
+                       "Please choose a log transformation for the Expression Data.", "error")
+        return(NULL)
+      } 
+      
     }
     
-    # Fold change must have unique entries 
-    if (length(edata_groups$ComparisonTable$Fold.Change.Columns) !=
-        length(unique(edata_groups$ComparisonTable$Fold.Change.Columns))) {
-      sendModalAlert("Differential Statistics Error! Fold Change Columns must be unique.")
-      return(NULL)
+    ## Differential Statistics Check
+    if (!is.null(edata_groups$ComparisonTable)) {
+      
+      # If the data.frame is 0 rows, then there is an issue
+      if (nrow(edata_groups$ComparisonTable) == 0) {
+        sendModalAlert(paste0("Differential Statistics Error! 1) Make sure this is ",
+          "a unique column name per fold change. 2) Make sure there is a unique column ",
+          "name per p-value or that it is entirely 'NA'. The 'Comparison Table' will ",
+          "appear if this step is done correctly. See documentation for more help."))
+        return(NULL)
+      } 
+      
+      # Fold change cannot be empty
+      if (any("NA" %in% edata_groups$ComparisonTable$Fold.Change.Columns)) {
+        sendModalAlert("Differential Statistics Error! Fold Change Columns cannot be NA.")
+        return(NULL)
+      }
+      
+      # Fold change must have unique entries 
+      if (length(edata_groups$ComparisonTable$Fold.Change.Columns) !=
+          length(unique(edata_groups$ComparisonTable$Fold.Change.Columns))) {
+        sendModalAlert("Differential Statistics Error! Fold Change Columns must be unique.")
+        return(NULL)
+      }
+      
+    }
+  
+    # We are ready for normalization
+    edata_groups$ToNormalization <- TRUE
+    
+  } else {
+    
+    # Check that the final transformation is at least log transformed, unless it is 
+    # isobaric peptide data or nmr data.
+    if (MapConnect$Data$Project$DataType != "RNA-seq") {
+      
+      if (input$OrigDataScale == "abundance" & input$NewDataScale == "abundance" & 
+          uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
+        sendSweetAlert(session, "Expression Data Transformation Error", 
+                       "Please choose a log transformation for the Expression Data.", "error")
+        return(NULL)
+      } 
+      
     }
     
+    edata_groups$ToNormalization <- TRUE
+    
   }
-  
-  # We are ready for normalization
-  edata_groups$ToNormalization <- TRUE
-  
+    
   # Collapse above tabs and open next one
   updateCollapse(session, "trelli_collapse", open = "front_page_normalize_data",
                  close = c("front_page_upload_opts", "front_page_data_process_opts"))
@@ -193,7 +213,7 @@ observeEvent(input$ConfirmNormalization, {
     } 
       
     # Make the omicData object
-    if (input$input_datatype == "MS/NMR") {
+    if (get_data_type() == "MS/NMR") {
       omicData <- as.pepData(
         e_data = get_edata(),
         edata_cname = input$edata_idcname_picker,
@@ -215,7 +235,7 @@ observeEvent(input$ConfirmNormalization, {
     }
     
     # Log transform if necessary
-    if (input$input_datatype == "MS/NMR" & !is.null(input$OrigDataScale) && input$OrigDataScale == "abundance") {
+    if (get_data_type() == "MS/NMR" & !is.null(input$OrigDataScale) && input$OrigDataScale == "abundance") {
       omicData <- edata_transform(omicData, input$NewDataScale)
     }
     
@@ -227,7 +247,7 @@ observeEvent(input$ConfirmNormalization, {
     }
     
     # Normalize if necessary
-    if (input$input_datatype == "MS/NMR" & !is.null(input$IsNormalized) && input$IsNormalized == "No") {
+    if (get_data_type() == "MS/NMR" & !is.null(input$IsNormalized) && input$IsNormalized == "No") {
       
       omicData <- switch(input$NormSubsetFun,
                          "all" = normalize_global(omicData, input$NormSubsetFun, input$NormFun, apply_norm = TRUE, backtransform = TRUE),
@@ -253,7 +273,7 @@ observeEvent(input$ConfirmNormalization, {
         gsub(pattern = "P_value_A_|P_value_G_|P_value_", replacement = "") %>% unique()
     }
     
-    if (input$input_datatype == "MS/NMR" & !is.null(input$OrigDataScale) && input$OrigDataScale != "abundance") {
+    if (get_data_type() == "MS/NMR" & !is.null(input$OrigDataScale) && input$OrigDataScale != "abundance") {
       attr(omicData, "data_info")$data_scale_orig <- input$OrigDataScale
       attr(omicData, "data_info")$data_scale <- input$OrigDataScale
     }

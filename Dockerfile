@@ -5,21 +5,20 @@
 
 # Install latest version of rocker image: base image for MODE
 # Standalone version: code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/standalone:1.1.0
-#FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/base:1.0.3
+FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/base:1.0.3
 
 # Add dependency for new trelliscope
-#RUN apt-get update
-#RUN apt-get install -y libmagick++-6.q16-dev
+RUN apt-get update
+RUN apt-get install -y libmagick++-6.q16-dev
 
-#RUN Rscript -e "devtools::install_github('trelliscope/trelliscope')"
-#RUN Rscript -e "devtools::install_github('yang-tang/shinyjqui')"
-#RUN Rscript -e "devtools::install_github('daattali/shinycssloaders')"
+RUN Rscript -e "devtools::install_github('trelliscope/trelliscope')"
+RUN Rscript -e "devtools::install_github('yang-tang/shinyjqui')"
+RUN Rscript -e "devtools::install_github('daattali/shinycssloaders')"
 
 # Install latest pmartR
-#RUN Rscript -e "remotes::install_github('pmartR/pmartR@latest_trelliscope_package')"
+RUN Rscript -e "remotes::install_github('pmartR/pmartR@latest_trelliscope_package')"
 
 # Copy directories into /srv/shiny-server
-FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/standalone:1.2.3
 WORKDIR /srv/shiny-server
 COPY . .
 

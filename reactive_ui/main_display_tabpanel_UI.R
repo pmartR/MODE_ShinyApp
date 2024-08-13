@@ -334,7 +334,7 @@ output$PlotOptionsTable <- DT::renderDT({
   
   # Get the summary of all possible plots
   PlotOptions <- summary(final_data$TrelliData)
-  
+
   # Save resulting table
   subPlotTable <- PlotOptions[grepl(input$TrelliPanelVariable, PlotOptions$`Panel By Choice`) & 
                                         grepl(input$TrelliPlottingVariable, PlotOptions$Plot),]
@@ -347,7 +347,7 @@ output$PlotOptionsTable <- DT::renderDT({
   }
   
   # If data type is rna-seq, make sure to remove the non-zero option when not appropriate
-  if (input$input_datatype == "RNA-Seq") {
+  if (get_data_type() == "RNA-Seq") {
     if (!is.null(input$TrelliPlottingVariable)) {
       if (input$TrelliPlottingVariable == "rnaseq") {
         subPlotTable <- subPlotTable %>% filter(Plot != "rnaseq nonzero bar")

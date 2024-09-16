@@ -53,7 +53,7 @@ return_cognostic <- function(the_function, the_object) {
   
   ## FOLD CHANGE BAR PLOT ## 
   if (the_function == "trelli_foldchange_bar") {
-    return(c(metas, "fold change", "anova p-value"))
+    return(c(metas, "fold change", "p-value"))
   }
   
   ## FOLD CHANGE BOXPLOT ##

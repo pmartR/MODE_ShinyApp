@@ -71,6 +71,13 @@ observeEvent(input$make_trelliscope, {
     trelliData <- final_data$TrelliData
   }
   
+  # If nothing to plot, trigger warning
+  if (nrow(trelliData$trelliData) == 0) {
+    sendSweetAlert(session, "No plots error", "You have filtered out all plots. Try less strict filters in the 'Filter Plots' menu.",
+                   "error")
+    return(NULL)
+  }
+  
   # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
   paneled <- trelli_panel_by(trelliData, input$TrelliPanelVariable)
   theFun <- paste0("trelli_", final_data$PlotOptions[row, "Plot"] %>% unlist() %>% gsub(pattern = " ", replacement = "_"))

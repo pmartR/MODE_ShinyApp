@@ -21,12 +21,16 @@ observeEvent(input$MoveToNormalization, {
     # isobaric peptide data or nmr data.
     if (input$input_datatype == "MS/NMR") {
       
-      if (input$OrigDataScale == "abundance" & input$NewDataScale == "abundance" & 
-          uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
-        sendSweetAlert(session, "Expression Data Transformation Error", 
-                       "Please choose a log transformation for the Expression Data.", "error")
-        return(NULL)
-      } 
+      if (is.null(get_stats())) {
+        
+        if (input$OrigDataScale == "abundance" & input$NewDataScale == "abundance" & 
+            uploaded_data()$Project$DataType %in% c("Peptide-level Isobaric", "Protein-level Isobaric", "Metabolomics-NMR") == FALSE) {
+          sendSweetAlert(session, "Expression Data Transformation Error", 
+                         "Please choose a log transformation for the Expression Data.", "error")
+          return(NULL)
+        } 
+        
+      }
       
     }
     
@@ -220,7 +224,7 @@ observeEvent(input$ConfirmNormalization, {
         fdata_cname = fdata_col,
         e_meta = get_emeta(),
         emeta_cname = theEMETAcname,
-        data_scale = input$OrigDataScale
+        data_scale = ifelse(is.null(input$OrigDataScale), "log2", input$OrigDataScale),
       )
     } else {
       omicData <- as.seqData(

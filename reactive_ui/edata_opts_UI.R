@@ -125,11 +125,15 @@ output$SelectTransformationUI <- renderUI({
 output$OrigDataScaleUI <- renderUI({
   
   if (get_data_type() == "MS/NMR") {
-    return(
-      pickerInput("OrigDataScale", "On what scale is your data?",
-                  choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
-                  selected = "abundance") 
-    )
+    
+    if (is.null(get_stats())) {
+      return(
+        pickerInput("OrigDataScale", "On what scale is your data?",
+                    choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
+                    selected = "abundance") 
+      )
+    } else{HTML("<strong>Omics data was transformed in another application.<strong><p></p><p></p>")}
+    
   } else {return(NULL)}
 
 })
@@ -246,11 +250,13 @@ output$IsNormalizedUI <- renderUI({
     
   if (get_data_type() == "MS/NMR") {
     if (class(uploaded_data()) == "project edata") {
-      if (edata_groups$ToNormalization) {
+      if (is.null(get_stats()) & edata_groups$ToNormalization) {
         radioGroupButtons("IsNormalized", "Is your data normalized?", c("Yes", "No"), "No")
+      } else {
+        HTML("Input data was normalized in a different application. Click 'Confirm'")
       }
     } else {
-      HTML("Input data was normalized in a different application.")
+      HTML("Input data was normalized in a different application. Click 'Confirm'")
     }
   } else {HTML("Normalization is not needed for this step. Click 'Confirm'")}
     
@@ -340,6 +346,8 @@ output$CheckNormalizationUI <- renderUI({
       tagList(
         actionButton("ConfirmNormalization", "Confirm")
       )
+    } else if (!is.null(get_stats())) {
+      actionButton("ConfirmNormalization", "Confirm")
     } else {
       tagList(
         list(
@@ -510,7 +518,7 @@ output$RenderPlotModsUI <- renderUI({
       column(3, textInput("YLab", "Y-axis label")),
       column(3, numericInput("XAxisSize", "X-axis Font Size", 10, min = 1, max = 20, step = 1)),
       column(3, numericInput("YAxisSize", "Y-axis Font Size", 10, min = 1, max = 20, step = 1)),
-      column(3, numericInput("XAxisTickAngle", "X-axis Tick Angle", 90, min = 0, max = 360, step = 1)),
+      column(3, numericInput("XAxisTickAngle", "X-axis Tick Angle", 0, min = 0, max = 360, step = 1)),
       column(3, numericInput("YAxisTickAngle", "Y-axis Tick Angle", 0, min = 0, max = 360, step = 1)),
       column(3, numericInput("XAxisTickSize", "X-axis Tick Font Size", 8, min = 1, max = 20, step = 1)),
       column(3, numericInput("YAxisTickSize", "Y-axis Tick Font Size", 8, min = 1, max = 20, step = 1)),

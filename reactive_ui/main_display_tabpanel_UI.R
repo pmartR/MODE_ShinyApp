@@ -93,11 +93,29 @@ fdata_table <- reactive({
   
   # Get groups
   theGroups <- input$GroupName %>% strsplit(",") %>% unlist()
+  
+  # Get target length
   targetLength <- Columns[Columns %in% Edata_Col == FALSE] %>% length()
+  
+  # Send a warning
+  if (length(theGroups) != targetLength) {
+    sendSweetAlert(session, 
+                   "Group length warning", 
+                   paste0("Expected ", targetLength, " values and received ", length(theGroups),
+                         ". If the number is less than expected, the remaining samples will be labeled NA.", 
+                         " If the number is more than expected, extra values will be tossed"), "warning"
+                   )
+  }
+  
+  
+  # Fill blanks if necessary  
   if (length(theGroups) != targetLength) {
     if (length(theGroups) > targetLength) {theGroups <- theGroups[1:targetLength]}
     if (length(theGroups) < targetLength) {theGroups <- c(theGroups, rep(NA, targetLength - length(theGroups)))}
   }
+
+  
+
   
   # Generate sample f data 
   edata_groups$Table <- data.frame(

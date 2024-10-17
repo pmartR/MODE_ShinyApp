@@ -9,9 +9,6 @@ observeEvent(input$LockGroups, {
   # Make table
   fdata_table()
   
-  # Disable widgets
-  disable("LockGroups")
-  
 })
 
 #' @details Run basic checks before proceeding to normalization
@@ -172,7 +169,7 @@ observeEvent(input$CheckNormalization, {
         paste0("Test for subset & normalization: ", input$NormSubsetFun, " & ",
           input$NormFun, ". P-Value: ", pval_test, ". Consider another normalization approach"))
     pval_test}, 
-    error = function(e) return("This normalization approach is not possible with your current data. Try another approach."))
+    error = function(e) return("This normalization approach is not possible with your current data and parameters. Try another approach."))
 
   if (is.na(pval)) {pval <- "Add groups to test normalization"}
   
@@ -263,7 +260,7 @@ observeEvent(input$ConfirmNormalization, {
         error = function(e) {
           sendSweetAlert(session,
                          "Normalization not possible",
-                         paste(input$NormSubsetFun, "is not possible with your current data. Try another approach."),
+                         paste(input$NormSubsetFun, "is not possible with your current data and parameters. Try another approach."),
                          type = "error")
           return(NULL)
         })
@@ -373,7 +370,7 @@ observeEvent(input$ConfirmNormalization, {
       error = function(e) {
         sendSweetAlert(session,
                        "Normalization not possible",
-                       paste(input$NormSubsetFun, "is not possible with your current data. Try another approach."),
+                       paste(input$NormSubsetFun, "is not possible with your current data and parameters. Try another approach."),
                        type = "error")
         return(NULL)
       })
@@ -414,7 +411,7 @@ observeEvent(input$ConfirmNormalization, {
       error = function(e) {
         sendSweetAlert(session,
                        "Normalization not possible",
-                       paste(input$NormSubsetFun, "is not possible with your current data. Try another approach."),
+                       paste(input$NormSubsetFun, "is not possible with your current data and parameters. Try another approach."),
                        type = "error")
         return(NULL)
       })

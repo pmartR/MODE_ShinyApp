@@ -457,9 +457,10 @@ output$PlotFoldchangeOptsUI <- renderUI({
 
   # Require TrelliPlottingVariable to be foldchange
   if (input$TrelliPlottingVariable == "fold change") {
-     
+    
     # Get selected row
-    theRow <- which(PlotOptions$Plot == input$ChoosePlotType)
+    theRow <- which(final_data$PlotOptions$Plot == input$ChoosePlotType)
+    if (is.na(theRow)) {theRow <- 1}
     
     # Add the required additional ui if the plot if a fold change bar 
     if (grepl("fold change bar|fold change boxplot|fold change heatmap", 

@@ -167,8 +167,10 @@ observeEvent(input$CheckNormalization, {
     ) %>% normRes_tests()
     pval_test <- pval_test$p_location
     pval_test <- round(pval_test, 4)
-    pval_test <- ifelse(pval_test >= 0.1, paste("P-Value:", pval_test, "You may proceed with this normalization approach"), 
-         paste("P-Value:", pval_test, "Consider another normalization approach"))
+    pval_test <- ifelse(pval_test >= 0.1, paste0("Test for subset & normalization: ", input$NormSubsetFun, " & ",
+        input$NormFun, ". P-Value: ", pval_test, ". You may proceed with this normalization approach"), 
+        paste0("Test for subset & normalization: ", input$NormSubsetFun, " & ",
+          input$NormFun, ". P-Value: ", pval_test, ". Consider another normalization approach"))
     pval_test}, 
     error = function(e) return("This normalization approach is not possible with your current data. Try another approach."))
 

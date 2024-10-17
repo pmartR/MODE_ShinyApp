@@ -29,7 +29,31 @@ output$edata_preview <- DT::renderDT({
     # Load and display CSV - files are checked when "confirm" is clicked 
     req(input$EdataFile)
     edata <- read.csv(input$EdataFile$datapath)
-  
+    
+    # Log transform if necessary 
+    if (!is.null(input$NewDataScale)) {
+      
+      if (input$NewDataScale != "abundance") {
+        
+        # Separate out the id column 
+        theID <- edata %>% select_at(input$edata_idcname_picker)
+        theRest <- edata[,colnames(edata) %in% input$edata_idcname_picker == FALSE]
+        
+        if (input$NewDataScale == "log2") {theRest <- log2(theRest)}
+        if (input$NewDataScale == "log10") {theRest <- log10(theRest)}
+        if (input$NewDataScale == "log") {theRest <- log(theRest)}
+        
+        edata <- cbind(theID, theRest)
+        
+      }
+      
+    }
+    
+    # Normalize if necessary
+    if (!is.null(final_data$TrelliData)) {
+      edata <- final_data$TrelliData$omicsData$e_data
+    }
+    
   }
 
   # Visualize in an interactive table

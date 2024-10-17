@@ -41,7 +41,9 @@ front_page_display_panel <- function(){
           #uiOutput("trelli_download_picker"),
           #uiOutput("pull_trelliscope_ui")
           # actionButton("reload_trelliscope_iframe", "Reload Display")
-          uiOutput("trelliscope")
+          uiOutput("trelliscope"),
+          br(),
+          HTML("If the trelliscope display does not look as expected, click 'Refresh Display' in the 'Create Trelliscope' menu.")
         ),
         #uiOutput("trelliscope_from_iframe")
     )

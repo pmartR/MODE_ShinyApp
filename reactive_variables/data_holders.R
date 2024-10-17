@@ -124,12 +124,14 @@ get_fdata <- reactive({
       return(edata_groups$Table)
     } else {
       if (Minio_Test | MAP | Compose_Test) {
+        edata_groups$fdata_uploaded <- TRUE
         return(uploaded_data()$`Data Objects`$OmicsData$f_data)
       } else {
         return(NULL)
       }
     }
   } else {
+    edata_groups$fdata_uploaded <- TRUE
     return(read.csv(input$FdataFile$datapath))
   }
   

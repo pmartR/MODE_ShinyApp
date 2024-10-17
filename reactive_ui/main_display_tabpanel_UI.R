@@ -269,6 +269,46 @@ output$comparison_table <- DT::renderDT({
 ## SELECT PLOT PAGE ##
 ######################
 
+# Render data table
+output$PlotOptionsTable <- DT::renderDT({
+  
+  # Require TrelliData object 
+  if (is.null(final_data$TrelliData) | 
+      is.null(input$TrelliPanelVariable) | 
+      is.null(input$TrelliPlottingVariable)) {return(NULL)}
+  
+  # Get the summary of all possible plots
+  PlotOptions <- summary(final_data$TrelliData)
+  
+  # Save resulting table
+  subPlotTable <- PlotOptions[grepl(input$TrelliPanelVariable, PlotOptions$`Panel By Choice`) & 
+                                grepl(input$TrelliPlottingVariable, PlotOptions$Plot),]
+  
+  # If there's a comma in the Number of Plots, fix it 
+  if (grepl(", ", subPlotTable$`Number of Plots`[1], fixed = T)) {
+    pos <- which(unlist(strsplit(unlist(subPlotTable$`Panel By Choice`[1]), ", ")) == input$TrelliPanelVariable)
+    subPlotTable$`Panel By Choice` <- input$TrelliPanelVariable
+    subPlotTable$`Number of Plots` <- strsplit(subPlotTable$`Number of Plots`[1], ", ") %>% unlist() %>% .[pos]
+  }
+  
+  # If data type is rna-seq, make sure to remove the non-zero option when not appropriate
+  if (get_data_type() == "RNA-Seq") {
+    if (!is.null(input$TrelliPlottingVariable)) {
+      if (input$TrelliPlottingVariable == "rnaseq") {
+        subPlotTable <- subPlotTable %>% filter(Plot != "rnaseq nonzero bar")
+      } else if (input$TrelliPlottingVariable == "nonzero") {
+        subPlotTable <- subPlotTable %>% filter(Plot == "rnaseq nonzero bar")
+      }
+    }
+  }
+  
+  final_data$PlotOptions <- subPlotTable
+  
+  # Visualize in an interactive table
+  return(NULL)
+  
+})
+
 # Render plot 
 output$PlotOptionsPlot <- renderPlot({
   
@@ -276,14 +316,11 @@ output$PlotOptionsPlot <- renderPlot({
   if (is.null(final_data$PlotOptions) | is.null(input$PlotOptionsPanel)) {return(NULL)}
   
   # If no row clicked, assume it's the first
-  if (is.null(input$PlotOptionsTable_row_last_clicked)) {row <- 1} else {
-    row <- input$PlotOptionsTable_row_last_clicked
+  if (is.null(input$ChoosePlotType)) {row <- 1} else {
+    row <- match(input$ChoosePlotType, final_data$PlotOptions$Plot)
   }
   
   req(input$TrelliPanelVariable)
-  
-  # If selected row is larger than the number of entries, convert to 1
-  if (row > nrow(final_data$PlotOptions)) {row <- 1}
   
   # Make plot. Paneled = trelli_panel_by run on trelliData. theFun = name of the plotting fun.
   paneled <- trelli_panel_by(final_data$TrelliData, input$TrelliPanelVariable)
@@ -321,47 +358,6 @@ output$PlotOptionsPlot <- renderPlot({
   } else {
     eval(parse(text = paste0(theFun, "(trelliData=paneled, test_example=test_example_num, single_plot=TRUE)")))
   }
-  
-})
-
-# Render data table
-output$PlotOptionsTable <- DT::renderDT({
-  
-  # Require TrelliData object 
-  if (is.null(final_data$TrelliData) | 
-      is.null(input$TrelliPanelVariable) | 
-      is.null(input$TrelliPlottingVariable)) {return(NULL)}
-  
-  # Get the summary of all possible plots
-  PlotOptions <- summary(final_data$TrelliData)
-
-  # Save resulting table
-  subPlotTable <- PlotOptions[grepl(input$TrelliPanelVariable, PlotOptions$`Panel By Choice`) & 
-                                        grepl(input$TrelliPlottingVariable, PlotOptions$Plot),]
-  
-  # If there's a comma in the Number of Plots, fix it 
-  if (grepl(", ", subPlotTable$`Number of Plots`[1], fixed = T)) {
-    pos <- which(unlist(strsplit(unlist(subPlotTable$`Panel By Choice`[1]), ", ")) == input$TrelliPanelVariable)
-    subPlotTable$`Panel By Choice` <- input$TrelliPanelVariable
-    subPlotTable$`Number of Plots` <- strsplit(subPlotTable$`Number of Plots`[1], ", ") %>% unlist() %>% .[pos]
-  }
-  
-  # If data type is rna-seq, make sure to remove the non-zero option when not appropriate
-  if (get_data_type() == "RNA-Seq") {
-    if (!is.null(input$TrelliPlottingVariable)) {
-      if (input$TrelliPlottingVariable == "rnaseq") {
-        subPlotTable <- subPlotTable %>% filter(Plot != "rnaseq nonzero bar")
-      } else if (input$TrelliPlottingVariable == "nonzero") {
-        subPlotTable <- subPlotTable %>% filter(Plot == "rnaseq nonzero bar")
-      }
-    }
-  }
-  
-  final_data$PlotOptions <- subPlotTable
-  
-  # Visualize in an interactive table
-  DT::datatable(final_data$PlotOptions, selection = list(mode = 'single', selected = 1), rownames = F, filter = 'top', 
-                options = list(pageLength = 10, scrollX = T))
   
 })
 
@@ -505,12 +501,6 @@ observeEvent(input$refresh, {
     
   }
   
-})
-
-# Allow for the user to see the selected trelliscope
-observeEvent(input$TrelliscopeLoadAccept, {
-  MapConnect$Trelliscope <- input$refreshSelect
-  removeModal()
 })
 
 output$trelliscope <- renderUI({

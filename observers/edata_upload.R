@@ -415,7 +415,7 @@ observeEvent(input$ConfirmNormalization, {
 #' @details Download example data
 observeEvent(input$ExampleDataPopUp, {
   showModal(modalDialog(fluidPage(fluidRow( 
-    downloadButton("ExampleFiles", "Download Normalized MS Example Files (Small)"),
+    downloadButton("ExampleFiles", "Download Normalized NMR Example Files (Small)"),
     hr(),
     downloadButton("ExampleFiles2", "Download Normalized MS Example Files (Large)"),
     hr(),

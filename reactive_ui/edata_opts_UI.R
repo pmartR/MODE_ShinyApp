@@ -85,13 +85,20 @@ output$GroupDesignationUI <- renderUI({
   
   if (class(uploaded_data()) == "project edata") {
   
-    if (!is.null(input$WantGroups) && input$WantGroups == "Yes" && edata_groups$fdata_uploaded == FALSE) {
-      tagList(
-        textInput("GroupName", HTML("<strong>Enter Group Names Separated by Commas</strong>")),
-        actionButton("LockGroups", "Confirm", icon = icon("hand-spock")),
-        br(), br()
-      )
-    }
+    if (!is.null(input$WantGroups) && input$WantGroups == "Yes") {
+      
+      if (MAP | Compose_Test | edata_groups$fdata_uploaded == FALSE) {
+        
+        tagList(
+          textInput("GroupName", HTML("<strong>Enter Group Names Separated by Commas</strong>")),
+          actionButton("LockGroups", "Confirm", icon = icon("hand-spock")),
+          br(), br()
+        )
+        
+      }
+    
+      }
+    
   }
     
 })

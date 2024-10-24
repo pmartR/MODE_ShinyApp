@@ -4,7 +4,7 @@
 ## Build with the "--no-cache" flag
 
 # Install latest version of rocker image: base image for MODE
-# Standalone version: code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/standalone:1.2.6
+# Standalone version: code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/standalone:1.2.7
 FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/base:1.0.3
 
 # Add dependency for new trelliscope

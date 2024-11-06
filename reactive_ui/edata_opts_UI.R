@@ -8,11 +8,11 @@ output$UploadedFileType <- renderUI({
   } else if (class(uploaded_data()) == "midpoint pmart") {
     HTML(paste("The midpoint file named <strong>", uploaded_data()$Tracking$Name, "</strong> has",
                uploaded_data()$Tracking$`Original Files`$Project$DataType, 
-               "data exported from pmart", uploaded_data()$Tracking$Tab
+               "data exported from PMart", uploaded_data()$Tracking$Tab
     ))
   } else if (class(uploaded_data()) == "midpoint ipmart") {
     HTML(paste("The midpoint file named <strong>", uploaded_data()$Tracking$Name, "</strong> has",
-               "multiple files uploaded from ipmart", uploaded_data()$Tracking$Tab))
+               "multiple files uploaded from iPMart", uploaded_data()$Tracking$Tab))
   } else {
     HTML("Unknown file type")
   }
@@ -109,7 +109,13 @@ output$EnterNAValuesUI <- renderUI({
   req(uploaded_data())
   
   if (Minio_Test | MAP | Compose_Test) {
-    if (MapConnect$Data$Project$DataType != "RNA-seq") {textInput("NASymbol", "What value denotes missing data?", value = NA)}
+    
+    if (!grepl("midpoint", class(MapConnect$Data))) {
+      if (MapConnect$Data$Project$DataType != "RNA-seq") {textInput("NASymbol", "What value denotes missing data?", value = NA)}
+    } else {
+      return(NULL)
+    }
+
   } else if (class(uploaded_data()) == "project edata" & get_data_type() == "MS/NMR") {
     textInput("NASymbol", "What value denotes missing data?", value = NA)
   }
@@ -134,6 +140,10 @@ output$OrigDataScaleUI <- renderUI({
   if (get_data_type() == "MS/NMR") {
     
     if (is.null(get_stats())) {
+      
+      # Do a quick check to make sure this is not a pmart or ipmart midpoint file
+      if (Compose_Test | MAP) {if (grepl("midpoint", class(MapConnect$Data))) {return(NULL)}}
+      
       return(
         pickerInput("OrigDataScale", "On what scale is your data?",
                     choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
@@ -154,6 +164,10 @@ output$NewDataScaleUI <- renderUI({
   if (is.null(input$OrigDataScale) || input$OrigDataScale != "abundance") {return(NULL)}
   
   if (get_data_type() == "MS/NMR") {
+    
+    # Do a quick check to make sure this is not a pmart or ipmart midpoint file
+    if (Compose_Test | MAP) {if (grepl("midpoint", class(MapConnect$Data))) {return(NULL)}}
+    
     theChoices <- list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log")
     return(
       pickerInput("NewDataScale", "What scale do you want to transform to?",

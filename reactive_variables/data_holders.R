@@ -174,7 +174,15 @@ get_data_type <- reactive({
     if (is.null(input$input_datatype)) {return("MS/NMR")} else {return(input$input_datatype)}
   } else {
     if (is.null(MapConnect)) {return("MS/NMR")} else {
-      if (MapConnect$Data$Project$DataType != "RNA-seq") {return("MS/NMR")} else {return("RNA-Seq")}
+      
+      if (class(MapConnect$Data) == "midpoint pmart") {
+        if (MapConnect$Data$Tracking$`Original Files`$Project$DataType != "RNA-seq") {return("MS/NMR")} else {return("RNA-Seq")}
+      } else if (class(MapConnect$Data) == "midpoint ipmart") {
+        if (is.null(input$SelectOmics) || input$SelectOmics != "RNA-Seq") {return("MS/NMR")} else {return("RNA-Seq")}
+      } else {
+        if (MapConnect$Data$Project$DataType != "RNA-seq") {return("MS/NMR")} else {return("RNA-Seq")}
+      }
+      
     }
   }
 

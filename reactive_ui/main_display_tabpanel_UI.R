@@ -12,11 +12,29 @@ output$edata_preview <- DT::renderDT({
     
     # Extract edata
     if (class(uploaded_data()) == "project edata") {
+      
       if (is.null(final_data$TrelliData)) {
         edata <- uploaded_data()$Data$e_data
+        
+        if (!is.null(input$NewDataScale) && input$NewDataScale != "abundance") {
+          
+          # Separate out the id column 
+          theID <- edata %>% select_at(input$edata_idcname_picker)
+          theNames <- colnames(edata)[colnames(edata) %in% input$edata_idcname_picker == FALSE]
+          theRest <- edata %>% select_at(theNames)
+          
+          if (input$NewDataScale == "log2") {theRest <- log2(theRest)}
+          if (input$NewDataScale == "log10") {theRest <- log10(theRest)}
+          if (input$NewDataScale == "log") {theRest <- log(theRest)}
+          
+          edata <- cbind(theID, theRest)
+          
+        }
+        
       } else {
         edata <- final_data$TrelliData$omicsData$e_data
       }
+      
     } else if (class(uploaded_data()) == "midpoint pmart") {
       edata <- uploaded_data()$`Data Objects`$OmicsData$e_data
     } else if (class(uploaded_data()) == "midpoint ipmart") {
@@ -532,6 +550,7 @@ observeEvent(input$refresh, {
     IDs <- get_all_data_ids(MapConnect$MapConnect)
     
     # Subset down to only trelliscope displays
+    IDs <- IDs[IDs != "Jobs"]
     IDs <- IDs[lapply(IDs, function(id) {get_tags(MapConnect$MapConnect, id)$ObjectType == "trelliscope-display"}) %>% unlist()]
     
     # Pull their names 
@@ -547,6 +566,12 @@ observeEvent(input$refresh, {
   
 })
 
+# Build out trelliscope load accept 
+observeEvent(input$TrelliscopeLoadAccept, {
+  MapConnect$Trelliscope <- input$refreshSelect
+  removeModal()
+})
+
 output$trelliscope <- renderUI({
   
   if (Compose_Test | MAP) {
@@ -555,11 +580,21 @@ output$trelliscope <- renderUI({
       
       # List files and names
       IDs <- get_all_data_ids(MapConnect$MapConnect)
+      IDs <- IDs[IDs != "Jobs"]
+      IDs <- IDs[lapply(IDs, function(id) {get_tags(MapConnect$MapConnect, id)$ObjectType == "trelliscope-display"}) %>% unlist()]
       Names <- lapply(IDs, function(id) {get_tags(MapConnect$MapConnect, id)$ProjectName}) %>% unlist()
       
       # Get the proper ID
       theID <- IDs[Names == MapConnect$Trelliscope]
       
+      # If people name the trelliscope the same thing, that's on them
+      if (length(theID) > 1) {theID <- theID[1]}
+      
+      # Remove www/www if it already exists
+      if (dir.exists("./www/www")) {
+        unlink("./www/www", recursive = TRUE, force = TRUE)
+      }
+       
       withProgress(
         message = "Pulling files from Minio...", value = 1, 
         {
@@ -571,7 +606,7 @@ output$trelliscope <- renderUI({
       )
       
       tags$iframe(src = "")
-      tags$iframe(src = paste0("trelliscope/", MapConnect$Trelliscope, "/index.html"), width = "1000px", height = "600px")
+      tags$iframe(src = paste0("www/trelli_json/index.html"), width = "1000px", height = "600px")
       
       # Rename the file 
       

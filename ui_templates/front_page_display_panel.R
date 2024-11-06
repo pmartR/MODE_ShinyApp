@@ -44,8 +44,21 @@ front_page_display_panel <- function(){
           uiOutput("trelliscope"),
           br(),
           HTML("If the trelliscope display does not look as expected, click 'Refresh Display' in the 'Create Trelliscope' menu.")
-        ),
+        )
         #uiOutput("trelliscope_from_iframe")
-    )
+    ),
+    
+    if (Minio_Test | MAP | Compose_Test) {
+      tabPanel(
+        title = "Job Status",
+        value = "jobs",
+        HTML("<p><strong>Press the button to retrieve job statuses.</strong></p>"),
+        actionButton("RefreshJobs", "Refresh Jobs", icon = icon("redo")),
+        hr(style = "border-top: 1px solid #000000;"),
+        uiOutput("JobStatusUI")
+      )
+    }
+    
+    
   )
 }

@@ -102,8 +102,9 @@ observeEvent(input$make_trelliscope, {
     } else {ggparams <- final_data$PlotInputs$Code}
     
     sendModalAlert(paste0("The trelliscope display titled ", trelliName, " has been submitted as a job.", 
-                          " Click 'Check Status' to see the status of the job and 'Refresh Display' to",
-                          " view it when it's finished."))
+                          " Note that only one job processes at a time.", 
+                          " See job status under the 'Job Status' tab and click 'Refresh Display' to",
+                          " view it when it's finished. Displays can also be downloaded from MAP, as well as job statuses checked."))
     
     # Grab tags
     theTags <- mapDataAccess::pull_tags_from_object(MapConnect$Data)
@@ -208,3 +209,4 @@ observeEvent(input$make_trelliscope, {
   }
   
 })
+

@@ -13,12 +13,6 @@ observeEvent(input$RefreshJobs, {
   # Pull all IDs
   IDs <- get_all_data_ids(MapConnect$MapConnect)
   
-  # If not file is currently made, make it
-  if ("Jobs" %in% IDs == FALSE) {
-    jobs <- read.table("./Jobs.txt", header = T)
-    put_data(MapConnect$MapConnect, jobs, id = "Jobs")
-  } 
-  
   # Return this object everytime
   job_statuses <- get_data(MapConnect$MapConnect, "Jobs")
   colnames(job_statuses) <- "Message"

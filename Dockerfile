@@ -1,11 +1,14 @@
 ## MODE Application: Dockerfile
-## Last Updated: 2024_05_13
+## Last Updated: 2024_11_08
 
 ## Build with the "--no-cache" flag
 
 # Install latest version of rocker image: base image for MODE
-# Standalone version: code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/standalone:1.2.7
-FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/base:1.0.3
+# Regular version: code-registry.emsl.pnl.gov/multiomics-analyses/mode-app:1.1.0
+# Standalone version: code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/standalone:1.2.8
+
+#FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app/base:1.0.3
+FROM code-registry.emsl.pnl.gov/multiomics-analyses/mode-app:1.1.0
 
 # Add dependency for new trelliscope
 RUN apt-get update

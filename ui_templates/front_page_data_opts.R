@@ -151,7 +151,6 @@ front_page_left_collapse <- function(){
       textInput("trelliscope_name", "Name Trelliscope", value = format(Sys.time())),
       actionButton("refresh", "Refresh Display", icon = icon("pencil-alt")),
       if (Compose_Test | MAP) {HTML("Download displays in MAP")} else {downloadButton("download", "Download Display")},
-      uiOutput("job_status_ui"),
       hr(),
       uiOutput("BuildStats")
     )

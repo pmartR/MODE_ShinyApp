@@ -36,25 +36,6 @@ output$BuildStats <- renderUI({
   
 })
 
-# Create job status if MAP version
-output$job_status_ui <- renderUI({
-  if (MAP) {actionButton("job_status", "Check Job Status", icon = icon("clipboard-check"))}
-})
-
-# Return job status
-observeEvent(input$job_status, {
-  
-  tryCatch({
-    if (!is.null(MapConnect$Job$info)) {
-      if ("NULL" %in% MapConnect$Job$info) {sendModalAlert("Job finished!")} else {
-        sendModalAlert(gsub("INFO: ", "", MapConnect$Job$info))}
-    } else {
-      sendModalAlert("No message currently detected. If expecting build messages, try again in a few seconds.")
-    }
-  }, error = function() {sendModalAlert("No message currently detected. If expecting build messages, try again in a few seconds.")})
-
-})
-
 # Make the trelliscope display locally (non-docker), or in a redis container
 observeEvent(input$make_trelliscope, {
   
@@ -117,7 +98,6 @@ observeEvent(input$make_trelliscope, {
       "DataType" = theTags$DataType,
       "ProjectName" = trelliName
     ))
-    
     
     # Needed parameters: Username, whether this is the Compose or MAP version, 
     # uuid to the trelliData file, selected cognostics, ggparameters, pValue threshold (if necessary),

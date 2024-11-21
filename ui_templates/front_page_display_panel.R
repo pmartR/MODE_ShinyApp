@@ -12,18 +12,26 @@ front_page_display_panel <- function(){
         HTML("<strong>Expression Metadata</strong>"), hr(),
         DT::DTOutput("emeta_preview"), br(), br(),
         HTML("<strong>Statistics</strong>"), hr(),
-        DT::DTOutput("stat_preview")
+        DT::DTOutput("stat_preview"), br(), br(),
+      
+      if (!(Minio_Test | MAP | Compose_Test)) {
+        list(
+          HTML("<strong>Comparison Table</strong>"), hr(),
+          DT::DTOutput("comparison_table")
+        )
+      }
+      
     ),
     tabPanel(
       title = "Select Plot",
       value = "select_plot",
-      jqui_resizable(plotOutput("PlotOptionsPlot")),
+      jqui_resizable(plotOutput("PlotOptionsPlot") %>% withSpinner(type = 5)),
       DT::DTOutput("PlotOptionsTable")
     ),
     tabPanel(
       title = "Modify Plot",
       value = "modify_plot",
-      jqui_resizable(plotOutput("OnePlotPreview")),
+      jqui_resizable(plotOutput("OnePlotPreview") %>% withSpinner(type = 5)),
       uiOutput("RenderPlotModsUI")
     ),
     tabPanel(
@@ -33,9 +41,24 @@ front_page_display_panel <- function(){
           #uiOutput("trelli_download_picker"),
           #uiOutput("pull_trelliscope_ui")
           # actionButton("reload_trelliscope_iframe", "Reload Display")
-          uiOutput("trelliscope")
-        ),
+          uiOutput("trelliscope"),
+          br(),
+          HTML("If the trelliscope display does not look as expected, click 'Refresh Display' in the 'Create Trelliscope' menu.")
+        )
         #uiOutput("trelliscope_from_iframe")
-    )
+    ),
+    
+    if (Minio_Test | MAP | Compose_Test) {
+      tabPanel(
+        title = "Job Status",
+        value = "jobs",
+        HTML("<p><strong>Press the button to retrieve job statuses.</strong></p>"),
+        actionButton("RefreshJobs", "Refresh Jobs", icon = icon("redo")),
+        hr(style = "border-top: 1px solid #000000;"),
+        uiOutput("JobStatusUI")
+      )
+    }
+    
+    
   )
 }

@@ -89,9 +89,9 @@ is.emeta <- function(edata, emeta) {
 
 is.statistics <- function(edata, fdata, statistics) {
   
-  # Check for P_value_A_
-  if (!any(grepl("P_value_A_", colnames(statistics)))) {
-    return("'P_value_A_' must be included in at least one column of the Differential Statistics File.")
+  # Check for P_value_
+  if (!any(grepl("P_value_", colnames(statistics)))) {
+    return("'P_value_' must be included in at least one column of the Differential Statistics File.")
   }
   
   # Check for Fold_change_

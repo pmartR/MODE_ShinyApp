@@ -6,6 +6,7 @@
 .DS_Store
 .Rbuildignore
 www/trelli/*
+www/trelli_json/*
 !www/MODEstyle.css
 
 untracked_resources

@@ -6,28 +6,38 @@ make_front_page_upload_opts <- function(){
       uiOutput("SelectOmicsUI")
     )
   } else {
+    
    div(
-      HTML('<p><span style="font-size: 16px;"><strong>Required Inputs.</strong></span></p><p>Click the question mark for more details on filetypes.</p>'),
-      splitLayout(
-        fileInput("EdataFile", "Expression Data", accept = ".csv"), 
-        actionButton("EdataFileHelp", "", icon("question"), style = "margin-top:25px")
+     
+     # Input data selector
+     pickerInput("input_datatype", "Is the input data MS/NMR or RNA-Seq?", c("MS/NMR", "RNA-Seq"), "MS/NMR"),
+    
+     fluidRow(
+       
+       # E Data
+       column(10, fileInput("EdataFile", "Expression Data - Required", accept = ".csv"), div(style = "margin-top: -15px")),
+       column(2, actionButton("EdataFileHelp", "", icon("question"), style = "margin-top:25px")),
+              
+       # F Data       
+       column(10, fileInput("FdataFile", "Sample Information - Optional", accept = ".csv"), div(style = "margin-top: -15px")),
+       column(2, actionButton("FdataFileHelp", "", icon("question"), style = "margin-top:25px")),
+     
+       # E Meta
+       column(10, fileInput("EmetaFile", "Biomolecule Information - Optional", accept = ".csv"), div(style = "margin-top: -15px")),
+       column(2, actionButton("EmetaFileHelp", "", icon("question"), style = "margin-top:25px")),
+    
+       # Statistics File
+       column(10, fileInput("StatisticsFile", "Differential Statistics - Optional", accept = ".csv"), div(style = "margin-top: -15px")),
+       column(2, actionButton("StatisticsFileHelp", "", icon("question"), style = "margin-top:25px"))
+      
       ),
-      HTML('<p><span style="font-size: 16px;"><strong>Optional Inputs.</strong></span></p>'),
-      splitLayout(
-        fileInput("FdataFile", "Sample Information", accept = ".csv"),
-        actionButton("FdataFileHelp", "", icon("question"), style = "margin-top:25px")
-      ),
-      splitLayout(
-        fileInput("EmetaFile", "Biomolecule Information", accept = ".csv"),
-        actionButton("EmetaFileHelp", "", icon("question"), style = "margin-top:25px")
-      ),
-      splitLayout(
-        fileInput("StatisticsFile", "Differential Statistics", accept = ".csv"),
-        actionButton("StatisticsFileHelp", "", icon("question"), style = "margin-top:25px")
-      ),
-      actionButton("UploadConfirm", "Confirm", icon("check")),
-      hr(),
-      downloadButton("ExampleFiles", "Download Normalized Example Files")
+     
+     # Confirm
+     list(
+       actionButton("UploadConfirm", "Confirm", icon("check")),
+       actionButton("ExampleDataPopUp", "Click Here for Examples", icon("handshake"))
+     )
+     
     )
   }
 }
@@ -39,6 +49,11 @@ make_front_page_data_process_opts <- function(){
     uiOutput("GroupDesignationUI"),
     uiOutput("EnterNAValuesUI"),
     uiOutput("SelectTransformationUI"),
+    uiOutput("FoldChangeColsUI"),
+    uiOutput("PValueAColsUI"), # MS/NMR only
+    uiOutput("PValueGColsUI"), # MS/NMR only
+    uiOutput("PValueColsUI"), # RNA-Seq only
+    uiOutput("TypeComparisonsUI"),
     uiOutput("MoveToNormalizationUI")
   )
 }
@@ -55,6 +70,7 @@ make_plot_variable_options <- function() {
   tagList(
     uiOutput("TrelliPanelVariableUI"),
     uiOutput("TrelliPlottingVariableUI"),
+    uiOutput("ChoosePlotTypeUI"),
     uiOutput("PlotOptionsPanelUI"),
     uiOutput("PlotFoldchangeOptsUI"),
     uiOutput("PlotOptionsConfirmUI")
@@ -92,8 +108,9 @@ front_page_left_collapse <- function(){
       value = "front_page_upload_opts",
       make_front_page_upload_opts()
     ),
+    
     bsCollapsePanel(
-      title = "Format Data", 
+      title = "Pre-Process Data", 
       value = "front_page_data_process_opts",
       make_front_page_data_process_opts()
     ),
@@ -103,17 +120,17 @@ front_page_left_collapse <- function(){
       make_front_page_normalize_data()
     ),
     bsCollapsePanel(
-      title = "Make Plot",
+      title = "Design Plot",
       value = "make_plot_opts",
       make_plot_variable_options()
     ),
     bsCollapsePanel(
-      title = "Data Filtering Options",
+      title = "Filter Plots (Optional)",
       value = "Data_filtering",
       make_data_filtering_options()
     ),
     bsCollapsePanel(
-      title = "Make Trelliscope",
+      title = "Create Trelliscope",
       value = "make_trelli_opts",
       make_trelliscope_plotting_options(),
       hr(),
@@ -131,10 +148,9 @@ front_page_left_collapse <- function(){
         )
       ),
       hr(),
-      textInput("trelliscope_name", "Name Trelliscope", value = "NewTrelliscope"),
+      textInput("trelliscope_name", "Name Trelliscope", value = format(Sys.time())),
       actionButton("refresh", "Refresh Display", icon = icon("pencil-alt")),
-      downloadButton("download", "Download Display"),
-      uiOutput("job_status_ui"),
+      if (Compose_Test | MAP) {HTML("Download displays in MAP")} else {downloadButton("download", "Download Display")},
       hr(),
       uiOutput("BuildStats")
     )

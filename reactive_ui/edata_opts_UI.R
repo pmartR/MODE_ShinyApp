@@ -8,11 +8,11 @@ output$UploadedFileType <- renderUI({
   } else if (class(uploaded_data()) == "midpoint pmart") {
     HTML(paste("The midpoint file named <strong>", uploaded_data()$Tracking$Name, "</strong> has",
                uploaded_data()$Tracking$`Original Files`$Project$DataType, 
-               "data exported from pmart", uploaded_data()$Tracking$Tab
+               "data exported from PMart", uploaded_data()$Tracking$Tab
     ))
   } else if (class(uploaded_data()) == "midpoint ipmart") {
     HTML(paste("The midpoint file named <strong>", uploaded_data()$Tracking$Name, "</strong> has",
-               "multiple files uploaded from ipmart", uploaded_data()$Tracking$Tab))
+               "multiple files uploaded from iPMart", uploaded_data()$Tracking$Tab))
   } else {
     HTML("Unknown file type")
   }
@@ -86,46 +86,175 @@ output$GroupDesignationUI <- renderUI({
   if (class(uploaded_data()) == "project edata") {
   
     if (!is.null(input$WantGroups) && input$WantGroups == "Yes") {
-      tagList(
-        textInput("GroupName", HTML("<strong>Enter Group Name</strong>")),
-        list(actionButton("GroupAdd", "Add", icon = icon("plus")),
-             actionButton("LockGroups", "Confirm", icon = icon("hand-spock"))
-        ),
-        uiOutput("GroupText"),
-        br(), br()
-      )
-    }
+      
+      if (MAP | Compose_Test | edata_groups$fdata_uploaded == FALSE) {
+        
+        tagList(
+          textInput("GroupName", HTML("<strong>Enter Group Names Separated by Commas</strong>")),
+          actionButton("LockGroups", "Confirm", icon = icon("hand-spock")),
+          br(), br()
+        )
+        
+      }
+    
+      }
+    
   }
     
 })
 
-#' @details Add group text
-output$GroupText <- renderUI({
-  HTML(paste("Groups:", unlist(edata_groups$Group) %>% paste0(collapse = "<p></p>")))
-})
-
 #' @details Get NA values 
 output$EnterNAValuesUI <- renderUI({
+  
   req(uploaded_data())
-  if (class(uploaded_data()) == "project edata") {
+  
+  if (Minio_Test | MAP | Compose_Test) {
+    
+    if (!grepl("midpoint", class(MapConnect$Data))) {
+      if (MapConnect$Data$Project$DataType != "RNA-seq") {textInput("NASymbol", "What value denotes missing data?", value = NA)}
+    } else {
+      return(NULL)
+    }
+
+  } else if (class(uploaded_data()) == "project edata" & get_data_type() == "MS/NMR") {
     textInput("NASymbol", "What value denotes missing data?", value = NA)
   }
+  
 })
 
 #' @details Allow users to select a transformation
 output$SelectTransformationUI <- renderUI({
   req(uploaded_data())
-  
   if (class(uploaded_data()) == "project edata") {
     tagList(
-      pickerInput("OrigDataScale", "On what scale is your data?",
-                  choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
-                  selected = "abundance"),
-      pickerInput("NewDataScale", "What scale do you want to transform to?",
-                  choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
-                  selected = "abundance")
+      uiOutput("OrigDataScaleUI"),
+      uiOutput("NewDataScaleUI")
     )
   }
+  
+})
+
+#' @details Render original datascale dropdown if the data is not transcriptomics.
+output$OrigDataScaleUI <- renderUI({
+  
+  if (get_data_type() == "MS/NMR") {
+    
+    if (is.null(get_stats())) {
+      
+      # Do a quick check to make sure this is not a pmart or ipmart midpoint file
+      if (Compose_Test | MAP) {if (grepl("midpoint", class(MapConnect$Data))) {return(NULL)}}
+      
+      return(
+        pickerInput("OrigDataScale", "On what scale is your data?",
+                    choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
+                    selected = "abundance") 
+      )
+    } else{HTML("<strong>Omics data was transformed in another application.<strong><p></p><p></p>")}
+    
+  } else {return(NULL)}
+
+})
+
+#' @details Render transformed datascale dropdown if hte data is not transcriptomics.
+#' Add a "No Transformation" option if anything but raw intensity is selected as the
+#' original scale. 
+output$NewDataScaleUI <- renderUI({
+  
+  # Original data scale should be rendered. It will not be rendered if the data is transcriptomics. 
+  if (is.null(input$OrigDataScale) || input$OrigDataScale != "abundance") {return(NULL)}
+  
+  if (get_data_type() == "MS/NMR") {
+    
+    # Do a quick check to make sure this is not a pmart or ipmart midpoint file
+    if (Compose_Test | MAP) {if (grepl("midpoint", class(MapConnect$Data))) {return(NULL)}}
+    
+    theChoices <- list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log")
+    return(
+      pickerInput("NewDataScale", "What scale do you want to transform to?",
+                               choices = list("Raw intensity" = "abundance", "Log base 2" = "log2", "Log base 10" = "log10", "Natural log" = "log"), 
+                               selected = "abundance")
+    )
+  } else {return(NULL)}
+
+})
+
+#' @details For the local version only, supply additional information re: statistics
+output$FoldChangeColsUI <- renderUI({
+  
+  req(uploaded_data())
+  
+  if (is.null(get_stats()) | is.null(input$edata_idcname_picker)) {return(NULL)}
+  
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test)) {
+    
+    plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
+      
+    # Fold change columns --> autoselect if possible
+    fc_poss <- plot_options[grepl("Fold_change|fold change|Fold Change", plot_options)]
+    if (length(fc_poss) == 0) {fc_poss <- "NA"}
+    pickerInput("FoldChangeCols", "Select the Fold Change Columns", choices = plot_options,
+                selected = fc_poss, multiple = TRUE)
+    
+  } else {return(NULL)}
+  
+})
+
+output$PValueAColsUI <- renderUI({
+  
+  req(uploaded_data())
+  
+  if (is.null(get_stats()) | is.null(input$edata_idcname_picker)) {return(NULL)}
+  
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) && get_data_type() == "MS/NMR") {
+    
+    plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
+    
+    # Autosuggest and build
+    p_value_a_poss <- plot_options[grepl("P_value_A_", plot_options)]
+    if (length(p_value_a_poss) == 0) {p_value_a_poss <- "NA"}
+    pickerInput("PValueACols", "Select the P-Value ANOVA Columns", choices = plot_options,
+                selected = p_value_a_poss, multiple = TRUE)
+    
+  } else {return(NULL)}
+  
+})
+
+output$PValueGColsUI <- renderUI({
+  
+  req(uploaded_data())
+  
+  if (is.null(get_stats()) | is.null(input$edata_idcname_picker)) {return(NULL)}
+  
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) && get_data_type() == "MS/NMR") {
+    
+    plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
+  
+    p_value_g_poss <- plot_options[grepl("P_value_G_", plot_options)]
+    if (length(p_value_g_poss) == 0) {p_value_g_poss <- "NA"}
+    pickerInput("PValueGCols", "Select the P-Value G-Test Columns", choices = plot_options,
+                selected = p_value_g_poss, multiple = TRUE)
+
+  } else {return(NULL)}
+  
+})
+
+output$PValueColsUI <- renderUI({
+  
+  req(uploaded_data())
+  
+  if (is.null(get_stats()) | is.null(input$edata_idcname_picker)) {return(NULL)}
+  
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test) && get_data_type() == "RNA-Seq") {
+    
+    plot_options <- c("NA", colnames(get_stats()) %>% .[. != input$edata_idcname_picker])
+    
+    # Autosuggest and build
+    p_value_poss <- plot_options[grepl("P_value_", plot_options)]
+    if (length(p_value_poss) == 0) {p_value_poss <- "NA"}
+    pickerInput("PValueCols", "Select the P-Value Columns", choices = plot_options,
+                selected = p_value_poss, multiple = TRUE)
+    
+  } else {return(NULL)}
   
 })
 
@@ -139,73 +268,107 @@ output$MoveToNormalizationUI <- renderUI({
 
 #' @details Allow user to indicate whether their data is normalized or not
 output$IsNormalizedUI <- renderUI({
-  
-  if (class(uploaded_data()) == "project edata") {
-    if (edata_groups$ToNormalization) {
-      radioGroupButtons("IsNormalized", "Is your data normalized?", c("Yes", "No"), "No")
+    
+  if (get_data_type() == "MS/NMR") {
+    if (class(uploaded_data()) == "project edata") {
+      if (is.null(get_stats()) & edata_groups$ToNormalization) {
+        radioGroupButtons("IsNormalized", "Is your data normalized?", c("Yes", "No"), "No")
+      } else {
+        HTML("Input data was normalized in a different application. Click 'Confirm'")
+      }
+    } else {
+      HTML("Input data was normalized in a different application. Click 'Confirm'")
     }
-  } else {
-    HTML("Input data was normalized in a different application.")
-  }
-
+  } else {HTML("Normalization is not needed for this step. Click 'Confirm'")}
+    
 })
 
 #' @detail Select normalization parameters
 output$SelectNormalizationUI <- renderUI({
   
-  if (class(uploaded_data()) == "project edata") {
+  if (get_data_type() == "MS/NMR") {
+      if (class(uploaded_data()) == "project edata") {
+      
+        if (edata_groups$ToNormalization & !is.null(input$IsNormalized) && input$IsNormalized == "No") {
+          tagList(
+            pickerInput("NormSubsetFun", "Select Subset Function", c(
+              "Everything" = "all", "Top L order statistics (los)" = "los", "Percentage present (ppp)" = "ppp",
+              "Complete" = "complete", "Rank invariant (rip)" = "rip", "Percentage present and rank invariant (ppp+rip)" = "ppp_rip"
+            ), selected = "Everything"),
+            pickerInput("NormFun", "Select Normalization Function", c(
+              "Mean" = "mean", "Median" = "median", "Z-norm" = "zscore", "Median Absolute Distance" = "mad"
+            ), selected = "Median"),
+            uiOutput("MoreNormalizationUI")
+          )
+        }
+      }
+  }
+    
+})
+
+#' @detail Expanded normalization parameters 
+output$MoreNormalizationUI <- renderUI({
   
-    if (edata_groups$ToNormalization & !is.null(input$IsNormalized) && input$IsNormalized == "No") {
-      tagList(
-        pickerInput("NormSubsetFun", "Select Subset Function", c(
-          "Everything" = "all", "Top L order statistics (los)" = "los", "Percentage present (ppp)" = "ppp",
-          "Complete" = "complete", "Rank invariant (rip)" = "rip", "Percentage present and rank invariant (ppp+rip)" = "ppp_rip"
-        ), selected = "Everything"),
-        pickerInput("NormFun", "Select Normalization Function", c(
-          "Mean" = "mean", "Median" = "median", "Z-norm" = "zscore", "Median Absolute Distance" = "mad"
-        ), selected = "Median"),
-        uiOutput("MoreNormalizationUI")
-      )
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test)) {
+  
+    if (get_data_type() == "MS/NMR") {
+      if (class(uploaded_data()) == "project edata") {
+      
+        if (edata_groups$ToNormalization) {
+          
+          # Make a switch function for the additional normalization parameters
+          additional_parameters <- switch(input$NormSubsetFun,
+            "los" = numericInput("NormalLOS", "Top L order statistics (los)", "0.05"),
+            "ppp" = numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+            "rip" = numericInput("NormalRIP", "Rank Invariant (rip)", "0.2"),
+            "ppp_rip" = tagList(
+              numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+              numericInput("NormalRIP", "Rank Invariant (rip)", "0.2")
+            )
+          )
+          
+          additional_parameters
+        }
+      }
+    }
+    
+  } else {
+    
+    if (get_data_type() == "MS/NMR") {
+      if (class(uploaded_data()) == "project edata") {
+        
+        if (edata_groups$ToNormalization) {
+          
+          # Make a switch function for the additional normalization parameters
+          additional_parameters <- switch(input$NormSubsetFun,
+                                          "los" = numericInput("NormalLOS", "Top L order statistics (los)", "0.05"),
+                                          "ppp" = numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+                                          "rip" = numericInput("NormalRIP", "Rank Invariant (rip)", "0.2"),
+                                          "ppp_rip" = tagList(
+                                            numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
+                                            numericInput("NormalRIP", "Rank Invariant (rip)", "0.2")
+                                          )
+          )
+          
+          additional_parameters
+        }
+      }
     }
     
   }
   
 })
 
-#' @detail Expanded normalization parameters 
-output$MoreNormalizationUI <- renderUI({
-  
-  if (class(uploaded_data()) == "project edata") {
-  
-    if (edata_groups$ToNormalization) {
-      
-      # Make a switch function for the additional normalization parameters
-      additional_parameters <- switch(input$NormSubsetFun,
-        "los" = numericInput("NormalLOS", "Top L order statistics (los)", "0.05"),
-        "ppp" = numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
-        "rip" = numericInput("NormalRIP", "Rank Invariant (rip)", "0.2"),
-        "ppp_rip" = tagList(
-          numericInput("NormalPPP", "Percentage Present (ppp)", "0.5"),
-          numericInput("NormalRIP", "Rank Invariant (rip)", "0.2")
-        )
-      )
-      
-      additional_parameters
-  
-    }
-  
-  }
-  
-})
-
 #' @details Check normalization choices
 output$CheckNormalizationUI <- renderUI({
+  
   if (edata_groups$ToNormalization) {
-    if (is.null(get_fdata()) & length(unique(edata_groups$LockedGroupOrder)) == 1) {
+    if (get_data_type() == "RNA-Seq" | (!is.null(input$IsNormalized) && input$IsNormalized == "Yes") | (is.null(get_fdata()))) {
       tagList(
-        actionButton("ConfirmNormalization", "Confirm"),
-        uiOutput("NormalizationTest")
+        actionButton("ConfirmNormalization", "Confirm")
       )
+    } else if (!is.null(get_stats())) {
+      actionButton("ConfirmNormalization", "Confirm")
     } else {
       tagList(
         list(
@@ -245,16 +408,32 @@ output$TrelliPlottingVariableUI <- renderUI({
   
   # Get all plot options and create a list of variable choices 
   all_plot_opts <- summary(final_data$TrelliData)$Plot 
+  
   variable_choices <- c()
   
+  # MS/NMR only options 
   if (lapply(all_plot_opts, function(x) {grepl("abundance", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "abundance")}
   if (lapply(all_plot_opts, function(x) {grepl("missingness", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "missingness")}
+  
+  # RNA-seq only options 
+  if (lapply(all_plot_opts, function(x) {grepl("rnaseq", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "rnaseq")}
+  if (lapply(all_plot_opts, function(x) {grepl("nonzero", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "nonzero")}
+  
+  # Statistics results only options
   if (lapply(all_plot_opts, function(x) {grepl("fold change", x)}) %>% unlist() %>% any()) {variable_choices <- c(variable_choices, "fold change")}
 
   # Remove foldchange when the panel by choice is fdata_cname
   fdata_cname <- pmartR::get_fdata_cname(final_data$TrelliData$omicsData) 
   if (input$TrelliPanelVariable == fdata_cname & "fold change" %in% variable_choices) {
     variable_choices <- variable_choices[variable_choices != "fold change"]
+  }
+  
+  # Remove missingness or nonzero if panel by choice is emeta_columns
+  if (input$TrelliPanelVariable %in% attr(final_data$TrelliData, "emeta_col") & "missingness" %in% variable_choices) {
+    variable_choices <- variable_choices[variable_choices != "missingness"]
+  }
+  if (input$TrelliPanelVariable %in% attr(final_data$TrelliData, "emeta_col") & "nonzero" %in% variable_choices) {
+    variable_choices <- variable_choices[variable_choices != "nonzero"]
   }
   
   div(
@@ -267,9 +446,10 @@ output$TrelliPlottingVariableUI <- renderUI({
 
 #' @details Select a panel to see
 output$PlotOptionsPanelUI <- renderUI({
+  
   req(final_data$PlotOptions)
   
-  choices <- final_data$TrelliData$trelliData.omics[[input$TrelliPanelVariable]] %>% unique() %>% as.character() 
+  choices <- final_data$TrelliData$trelliData[[input$TrelliPanelVariable]] %>% unique() %>% as.character() 
   
   div(
     id = "TrelliPlotOptDiv",
@@ -277,6 +457,24 @@ output$PlotOptionsPanelUI <- renderUI({
   )
  
 })
+
+#' @details Select a plotting option
+output$ChoosePlotTypeUI <- renderUI({
+  
+  # Require TrelliData object 
+  if (is.null(final_data$PlotOptions)) {return(NULL)}
+  
+  # Get the summary of all possible plots
+  PlotOptions <- final_data$PlotOptions
+  
+  # Make picker input
+  div(
+    id = "ChoosePlotDiv",
+    pickerInput("ChoosePlotType", "Choose the Plot Type", choices = PlotOptions$Plot, selected = PlotOptions$Plot[1])
+  )
+  
+})
+
 
 #' @detail Plot foldchange options
 output$PlotFoldchangeOptsUI <- renderUI({
@@ -288,9 +486,10 @@ output$PlotFoldchangeOptsUI <- renderUI({
 
   # Require TrelliPlottingVariable to be foldchange
   if (input$TrelliPlottingVariable == "fold change") {
-     
+    
     # Get selected row
-    theRow <- input$PlotOptionsTable_rows_selected
+    theRow <- which(final_data$PlotOptions$Plot == input$ChoosePlotType)
+    if (is.na(theRow)) {theRow <- 1}
     
     # Add the required additional ui if the plot if a fold change bar 
     if (grepl("fold change bar|fold change boxplot|fold change heatmap", 
@@ -298,8 +497,6 @@ output$PlotFoldchangeOptsUI <- renderUI({
       
       # Add the statistical test
       return(tagList(
-        pickerInput("PValueTest", HTML("Which significance test would you like to plot?"), 
-                    choices = c("ANOVA" = "anova", "G-Test" = "gtest", "N/A" = "NA"), selected = "ANOVA"),
         numericInput("PValueThresh", "Significance (P-Value) Plotting Threshold", 0.05, 0, 1, 0.001)
       ))
       
@@ -310,9 +507,7 @@ output$PlotFoldchangeOptsUI <- renderUI({
       
       # Add the statistical test
       return(tagList(
-        pickerInput("SelectComparison", "Select Comparison", theComparisons, theComparisons[1]),
-        pickerInput("PValueTest", HTML("Which significance test would you like to plot?"), 
-                    choices = c("ANOVA" = "anova", "G-Test" = "gtest", "N/A" = "NA"), selected = "ANOVA"),
+        pickerInput("SelectComparison", "Select Comparison", theComparisons, theComparisons[1], multiple = T),
         numericInput("PValueThresh", "P Value Threshold", 0.05, 0, 1, 0.001)
       ))
       
@@ -344,7 +539,7 @@ output$RenderPlotModsUI <- renderUI({
       column(3, textInput("YLab", "Y-axis label")),
       column(3, numericInput("XAxisSize", "X-axis Font Size", 10, min = 1, max = 20, step = 1)),
       column(3, numericInput("YAxisSize", "Y-axis Font Size", 10, min = 1, max = 20, step = 1)),
-      column(3, numericInput("XAxisTickAngle", "X-axis Tick Angle", 90, min = 0, max = 360, step = 1)),
+      column(3, numericInput("XAxisTickAngle", "X-axis Tick Angle", 0, min = 0, max = 360, step = 1)),
       column(3, numericInput("YAxisTickAngle", "Y-axis Tick Angle", 0, min = 0, max = 360, step = 1)),
       column(3, numericInput("XAxisTickSize", "X-axis Tick Font Size", 8, min = 1, max = 20, step = 1)),
       column(3, numericInput("YAxisTickSize", "Y-axis Tick Font Size", 8, min = 1, max = 20, step = 1)),
@@ -384,10 +579,17 @@ output$ChooseCognosticsUI <- renderUI({
   if (grepl("fold_change", theFun)) {theFun <- gsub("fold_change", "foldchange", theFun)}
   
   # Get cognostic defaults
-  allCogs <- eval(formals(theFun)$cognostics)
-
+  allCogs <- return_cognostic(the_function = theFun, the_object = final_data$TrelliData)
+  
+  # If grouped_by f_data column, we need to remove emeta cognostics
+  if (input$TrelliPanelVariable == attr(final_data$TrelliData, "fdata_col")) {
+    if (!is.null(attr(final_data$TrelliData, "emeta_col"))) {
+      allCogs <- allCogs %>% .[(. %in% attr(final_data$TrelliData, "emeta_col")) == FALSE]
+    }
+  }
+  
   # Get cognostic options 
-  pickerInput("ChooseCognostics", "Choose Cognostics", allCogs, allCogs, multiple = T)
+  pickerInput("ChooseCognostics", "Choose Metas", allCogs, allCogs, multiple = T)
   
 })
 
@@ -401,24 +603,65 @@ output$FilterByPValueUI <- renderUI({
     HTML("Click 'Confirm Selection' to trigger this feature.")
   } else {
     
+    # See if the sample filter is possible
+    samp_filter_possible <- input$TrelliPanelVariable == attr(final_data$TrelliData, "edata_col")
+    
+    # Set sample filter name 
+    samp_title <- ifelse(get_data_type() == "MS/NMR", "Minimum number of non-missing samples",
+                         "Minimum number of non-zero samples")
+    
     # Get all plot options and create a list of variable choices 
     all_plot_opts <- summary(final_data$TrelliData)$Plot 
+    fold_change_possible <- grepl("fold change", all_plot_opts) %>% any()
     
-    # Add widget if filtering by p-value is possible 
-    if (grepl("fold change", all_plot_opts) %>% any()) {
+    # Build possible widgets. tagList does not append correctly, so this is the 
+    # most reasonable method to build the different tagLists
+    if (samp_filter_possible & fold_change_possible == FALSE) {
+      filter_ui_list <- tagList(numericInput("DataPointFilterPanel", samp_title, 0))
+    } else if (samp_filter_possible == FALSE & fold_change_possible) {
       
-      # Get comparisons
+      # Pull comparisons
       theComparisons <- c(attr(final_data$TrelliData$statRes, "comparisons"), "None")
       
-      tagList(
-        numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
-        pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest"), selected = "ANOVA"),
-        pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
-      )
+      # Program alternate routes for MS/NMR or RNA-Seq
+      if (get_data_type() == "MS/NMR") {
+        filter_ui_list <- tagList(
+          numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
+          pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest"), selected = "ANOVA"),
+          pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
+        )
+      } else {
+        filter_ui_list <- tagList(
+          numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
+          pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
+        )
+      }
+
+    } else if (samp_filter_possible & fold_change_possible) {
+      
+      # Pull comparisons
+      theComparisons <- c(attr(final_data$TrelliData$statRes, "comparisons"), "None")
+      
+      # Program alternate routes for MS/NMR or RNA-Seq
+      if (get_data_type() == "MS/NMR") {
+        filter_ui_list <- tagList(
+          numericInput("DataPointFilterPanel", samp_title, 0),
+          numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
+          pickerInput("PValueFilterTest", "Select test to filter by", c("ANOVA" = "anova", "G-Test" = "gtest"), selected = "ANOVA"),
+          pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
+        )
+      } else {
+        filter_ui_list <- tagList(
+          numericInput("DataPointFilterPanel", samp_title, 0),
+          numericInput("PValueFilterPanel", "Filter data by P-value", 1, 0, 1, 0.001),
+          pickerInput("PValueFilterComparisons", "Select a comparison to filter by", theComparisons, selected = "None")
+        )
+      }
+      
     } else {
-      return(HTML("There are no panel filtering options for this data."))
+      return("No filtering options are currently available for this data. Try paneling by biomolecule, or adding statistics data.")
     }
-  
+    return(filter_ui_list)
   }
   
 })
@@ -426,36 +669,92 @@ output$FilterByPValueUI <- renderUI({
 #' @details Filter PValue consequences 
 output$FilterByPValueTextUI <- renderUI({
   
-  # Return NULL if no PValuePanel
-  if (is.null(input$PValueFilterPanel) | is.null(final_data$TrelliRow)) {return(NULL)}
-  
+  if (is.null(input$DataPointFilterPanel) & is.null(input$PValueFilterPanel)) {return("")}
+
   # Get total 
   total <- final_data$PlotOptions[final_data$TrelliRow, "Number of Plots"] %>% unlist() %>% as.numeric()
   
-  # Convert comparisons appropriately
-  Comparisons <- input$PValueFilterComparisons
-  if (Comparisons == "None") {Comparisons <- NULL}
+  # Get trelliData
+  trelliData <- final_data$TrelliData
+  subtrelli <- trelliData$trelliData
   
-  # P Value test
-  PValTest <- input$PValueFilterTest 
-  if (PValTest == "none") {PValTest <- NULL}
+  # Apply sample filter
+  if (!is.null(input$DataPointFilterPanel)) {
+    if (get_data_type() == "MS/NMR") {
+      toRM <- subtrelli %>% 
+        group_by_at(attr(trelliData, "edata_col")) %>% 
+        summarise(Count = sum(!is.na(Abundance))) %>%
+        filter(Count <= input$DataPointFilterPanel) %>%
+        select(attr(trelliData, "edata_col")) %>%
+        unlist()
+    } else {
+      toRM <- subtrelli %>% 
+        group_by_at(attr(trelliData, "edata_col")) %>% 
+        summarise(NonZero = sum(Count != 0)) %>%
+        filter(NonZero <= input$DataPointFilterPanel) %>%
+        select(attr(trelliData, "edata_col")) %>%
+        unlist()
+    }
+    subtrelli <- subtrelli[unlist(subtrelli[attr(trelliData, "edata_col")]) %in% toRM == FALSE,]
+  }
   
-  # Get filtered amount
-  filtered <- trelli_pvalue_filter(
-    trelliData = final_data$TrelliData, 
-    p_value_test = PValTest,
-    p_value_thresh = input$PValueFilterPanel, 
-    comparison = Comparisons
-  )
-  filt_summary <- filtered %>% summary()
-  nonfilt_amt <- filt_summary[filt_summary$Plot == unlist(final_data$PlotOptions[final_data$TrelliRow, "Plot"]) & 
-                           filt_summary$`Panel By Choice` == unlist(final_data$PlotOptions[final_data$TrelliRow, "Panel By Choice"]), "Number of Plots"] %>%
-    unlist() %>% as.numeric()
+  # Apply p-value filter 
+  if (!is.null(input$PValueFilterPanel)) {
+    
+    if (get_data_type() == "MS/NMR") {
+
+      if (input$PValueFilterTest == "anova") {
+        if ("NA" %in% input$PValueACols) {
+          sendModalAlert("Please set the p-value ANOVA columns in the Pre-Processing step to use this filter.")
+        } else {
+          if (input$PValueFilterComparisons == "None") {
+            toKP <- apply(subtrelli[input$PValueACols] <= input$PValueFilterPanel, 1, any)
+            subtrelli <- subtrelli[toKP,]
+          } else {
+            column_name <- paste0("P_value_A_", input$PValueFilterComparisons)
+            subtrelli <- subtrelli[unlist(subtrelli[column_name]) <= input$PValueFilterPanel,]
+          }
+        }
+      } else {
+        if ("NA" %in% input$PValueGCols) {
+          sendModalAlert("Please set the p-value G-Test columns in the Pre-Processing step to use this filter.")
+        } else {
+          if (input$PValueFilterComparisons == "None") {
+            toKP <- apply(subtrelli[input$PValueGCols] <= input$PValueFilterPanel, 1, any)
+            subtrelli <- subtrelli[toKP,]
+          } else {
+            column_name <- paste0("P_value_G_", input$PValueFilterComparisons)
+            subtrelli <- subtrelli[unlist(subtrelli[column_name]) <= input$PValueFilterPanel,]
+          }
+        }
+      }
+      
+    } else {
+      
+      if (input$PValueFilterComparisons == "None") {
+        toKP <- apply(subtrelli[input$PValueCols] <= input$PValueFilterPanel, 1, any)
+        subtrelli <- subtrelli[toKP,]
+      } else {
+        column_name <- paste0("P_value_", input$PValueFilterComparisons)
+        subtrelli <- subtrelli[unlist(subtrelli[column_name]) <= input$PValueFilterPanel,]
+      }
+      
+    }
+    
+  }
+  
+  final_data$TrelliData_Filtered <- subtrelli
+  
+  # Count nonfilt amount
+  nonfilt_amt <- subtrelli %>% select(!!input$TrelliPanelVariable) %>% unique() %>% unlist() %>% length()
+  perc <- round(nonfilt_amt/total * 100)
+  if (perc == 0) {perc <- "< 1"}
   
   # Return text
   HTML(paste0("<p># Plots Pre-Filter: ", total, "</p>",
               "<p># Plots Post-Filter: ", nonfilt_amt, "</p>",
-              "<p>Percentage of Plots Retained: ", round(nonfilt_amt/total * 100), "%</p>"))
+              "<p>Percentage of Plots Retained: ", perc, "%</p>",
+              "<p>Approximate build time: ", ceiling(nonfilt_amt/60), " min</p>"))
   
 })
 
@@ -477,4 +776,4 @@ output$download <- downloadHandler(
     }
   }
 )
-  
+

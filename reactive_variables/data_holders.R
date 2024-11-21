@@ -38,8 +38,9 @@ uploaded_data <- reactive({
     
     if (is.null(input$FdataFile)) {
       
-      if (!is.null(input$EmetaFile) & !is.null(input$StatisticsFile)) {
+      if (!is.null(input$EmetaFile) | !is.null(input$StatisticsFile)) {
         sendModalAlert("Please upload a 'Sample Information' file to use data from 'Biomolecule Information' or 'Differential Statisitics' files")
+        return(NULL)
       }
       
       return(project.edata(
@@ -98,7 +99,18 @@ uploaded_data <- reactive({
 get_edata <- reactive({
   
   if (is.null(input$EdataFile)) {
-    return(NULL)
+    
+    if (Minio_Test | MAP | Compose_Test) {
+      
+      if (class(uploaded_data()) == "project edata") {
+        return(uploaded_data()$Data$e_data)
+      } else {
+        return(uploaded_data()$`Data Objects`$OmicsData$e_data)
+      }
+      
+    } else {
+      return(NULL)
+    }
   } else {
     return(read.csv(input$EdataFile$datapath))
   }
@@ -108,8 +120,18 @@ get_edata <- reactive({
 get_fdata <- reactive({
   
   if (is.null(input$FdataFile)) {
-    return(NULL)
+    if (!is.null(edata_groups$Table)) {
+      return(edata_groups$Table)
+    } else {
+      if (Minio_Test | MAP | Compose_Test) {
+        edata_groups$fdata_uploaded <- TRUE
+        return(uploaded_data()$`Data Objects`$OmicsData$f_data)
+      } else {
+        return(NULL)
+      }
+    }
   } else {
+    edata_groups$fdata_uploaded <- TRUE
     return(read.csv(input$FdataFile$datapath))
   }
   
@@ -118,7 +140,11 @@ get_fdata <- reactive({
 get_emeta <- reactive({
   
   if (is.null(input$EmetaFile)) {
-    return(NULL)
+    if (Minio_Test | MAP | Compose_Test) {
+      return(uploaded_data()$`Data Objects`$OmicsData$e_meta)
+    } else {
+      return(NULL)
+    }
   } else {
     return(read.csv(input$EmetaFile$datapath))
   }
@@ -128,11 +154,38 @@ get_emeta <- reactive({
 get_stats <- reactive({
   
   if (is.null(input$StatisticsFile)) {
-    return(NULL)
+    if (Minio_Test | MAP | Compose_Test) {
+      return(uploaded_data()$`Data Objects`$OmicsStats)
+    } else {
+      return(NULL)
+    }
   } else {
     return(read.csv(input$StatisticsFile$datapath))
   }
   
+})
+
+# This app has two main data types. It's very important to have this parameter to quickly
+# check whether this is MS/NMR or RNA-seq data
+get_data_type <- reactive({
+  
+  # If null, always assume MS/NMR 
+  if (!(MAP | Minio_Test | Redis_Test | Compose_Test)) {
+    if (is.null(input$input_datatype)) {return("MS/NMR")} else {return(input$input_datatype)}
+  } else {
+    if (is.null(MapConnect)) {return("MS/NMR")} else {
+      
+      if (class(MapConnect$Data) == "midpoint pmart") {
+        if (MapConnect$Data$Tracking$`Original Files`$Project$DataType != "RNA-seq") {return("MS/NMR")} else {return("RNA-Seq")}
+      } else if (class(MapConnect$Data) == "midpoint ipmart") {
+        if (is.null(input$SelectOmics) || input$SelectOmics != "RNA-Seq") {return("MS/NMR")} else {return("RNA-Seq")}
+      } else {
+        if (MapConnect$Data$Project$DataType != "RNA-seq") {return("MS/NMR")} else {return("RNA-Seq")}
+      }
+      
+    }
+  }
+
 })
 
 

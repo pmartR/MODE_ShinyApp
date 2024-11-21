@@ -14,10 +14,25 @@ server <- function(input, output, session) {
     # Create a reactive values to hold MAP specific objects
     if (Minio_Test) {
       MapConnect <- reactiveValues(MapConnect = map_data_connection(config_file = "./cfg/minio_config_local.yml"), Data = NULL)
+      map_con <- map_data_connection(config_file = "./cfg/minio_config_local.yml")
     } else if (Compose_Test) {
       MapConnect <- reactiveValues(MapConnect = map_data_connection(config_file = "./cfg/minio_config_compose.yml"), Data = NULL, Trelliscope = NULL, Job = NULL)
+      map_con <- map_data_connection(config_file = "./cfg/minio_config_compose.yml")
     } else if (MAP) {
       MapConnect <- reactiveValues(MapConnect = map_data_connection(config_file = "minio_config.yml"), Data = NULL, Trelliscope = NULL, Job = NULL)
+      map_con <- map_data_connection(config_file = "minio_config.yml")
+    }
+    
+    if (Minio_Test | Compose_Test | MAP) {
+      
+      # Pull all IDs
+      IDs <- get_all_data_ids(map_con)
+      
+      if ("Jobs" %in% IDs == FALSE) {
+        jobs <- read.table("./Jobs.txt", header = T)
+        put_data(map_con, jobs, id = "Jobs")
+        set_tags(map_con, "Jobs", list("ObjectType" = "job-tracker", "ProjectName" = "jobs file", "DataType" = "job tracker"))
+      } 
     }
     
   } else {

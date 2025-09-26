@@ -1,4 +1,7 @@
 ## MODE:  An application to visualize omics data in trelliscope.
+
+Please cite: https://doi.org/10.1021/acs.jproteome.4c00650
+
 ****
 
 Create shareable and interactive trelliscope displays for visualizing omics data and statistics results. 
